@@ -17,7 +17,8 @@ class PostController extends Controller {
         'user.followings:id',
         'postImg:id,post_id,img',
         'likes:id',
-        'shared_posts.user'
+        'comments.user:id,name'
+        //'shared_posts.user'
         ]);
        // $res = Post::all('id,post');
        //$res = Post::find(40);

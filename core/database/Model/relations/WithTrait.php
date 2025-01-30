@@ -9,8 +9,7 @@ trait WithTrait
 {
     public static function with(array $relations):array
     {
-        $class = get_called_class();
-        $class = new $class();
+        $class = new static();
 
         $model = &App::$app->model;
         
@@ -52,7 +51,7 @@ trait WithTrait
 
     protected function handleRelation ($class): void 
     {
-        $model = &App::$app->model;
+        $model = App::$app->model;
 
         $relation = call_user_func([$class, $model->relationName]);// users.posts
         $r = $relation;

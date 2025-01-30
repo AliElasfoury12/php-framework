@@ -59,4 +59,25 @@ class BelongsTo extends Relations {
        
         return $model->fetch($sql);
     }
+
+    public static function nested ($relation1, $relation2, $table2, $primaryKey, $foreignKey)
+    {
+        $model = App::$app->model;
+        $coulmns = $model->requestedCoulmns["$relation1.$relation2"];
+
+        foreach ($model->relationData as &$unit) {
+            if(array_key_exists($foreignKey, $unit[$relation1])){
+                $id = $unit[$relation1][$foreignKey];
+                $sql = "SELECT $coulmns FROM $table2 WHERE $primaryKey = '$id'";
+                $unit[$relation1][$relation2] = $model->fetch($sql);
+            }else {
+                foreach ($unit[$relation1] as &$item) {
+                    $id = $item[$foreignKey]; 
+                    $sql = "SELECT $coulmns FROM $table2 WHERE $primaryKey = '$id'";
+                    $item[$relation1][$relation2] = $model->fetch($sql);
+                }
+
+            }
+        }
+    }
 }

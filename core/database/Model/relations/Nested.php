@@ -4,6 +4,7 @@ namespace core\database\Model\relations;
 
 use core\App;
 
+
 class Nested extends Relations {
    
     public static function run ($class, $relation) 
@@ -52,22 +53,19 @@ class Nested extends Relations {
 
         switch ($nestedRelation[0]) {
             case 'HASMANY':
-                $index = rtrim($relation1, 's');//posts => post
-                $foreignKey = $model->getFK($relation2, $index);// post_id
+                $foreignKey = $model->getFK($relation2, $relation1);// post_id
                 HasMany::nested ($relation1, $relation2, $primaryKey, $foreignKey);
             break;
 
             case 'BELONGSTO':
-                var_dump($nestedRelation);
                 $class = self::getClassName($relation1);
                 $table1 = $class::getTableName();
 
                 $class2 = self::getClassName($relation2);
                 $table2 = $class2::getTableName();
 
-                $index = rtrim($table2, 's');
-                $foreignKey = $model->getFK($table1, $index);//
-                BelongsTo::run($table1, $table2, $foreignKey, $primaryKey);
+                $foreignKey = $model->getFK($table1, $table2);
+                BelongsTo::nested($relation1, $relation2, $table2, $primaryKey, $foreignKey);
             break;
 
             case 'MANYTOMANY':

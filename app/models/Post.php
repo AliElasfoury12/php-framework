@@ -18,6 +18,11 @@ class Post extends Model {
       return $this->hasMany(Post_img::class);
     }
 
+    public function comments () 
+    {
+        return $this->hasMany(Comment::class);
+    }
+
     public function likes (): array 
     {
       return $this->manyToMany(User::class,'likes', 'post_id', 'user_id');

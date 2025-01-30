@@ -27,8 +27,9 @@ class Relations {
 
     public function getFK ($table, $keyPart) 
     {
+        $keyPart = rtrim($keyPart, 's');
         $sql = "SHOW KEYS FROM $table WHERE Key_name Like '%$keyPart%'";
-        echo "$sql <br>";
+        //echo "$sql <br>";
         $result = App::$app->db->fetch($sql);
         return $result[0]["Column_name"];
     }
@@ -66,7 +67,7 @@ class Relations {
         return ['MANYTOMANY', $table1, $table2, $pivotKey, $relatedKey];
     }
 
-    public function tablesAndKeys ($class2, $primaryKey, $foreignKey, $relation): array 
+    private function tablesAndKeys ($class2, $primaryKey, $foreignKey, $relation): array 
     {
         $class = get_called_class();
 
@@ -74,8 +75,9 @@ class Relations {
         $table2 = $class2::getTableName();//users
 
         !$primaryKey ? $primaryKey = $this->getPK($table1) : '';
+
         !$foreignKey ? 
-        $foreignKey = $this->getFK($table2, substr($table2, 0, -1)) 
+        $foreignKey = $this->getFK($table2, $table1) 
         : '';
 
         return [$relation, $table1, $table2, $foreignKey, $primaryKey];
