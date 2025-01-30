@@ -1,0 +1,18 @@
+{
+    "name": "alielasfoury/php_mvc_frame-work",
+    "autoload": {
+        "psr-4": {
+            "app\\": "app/", 
+            "core\\": "core/"
+        }
+    },
+    "authors": [
+        {
+            "name": "Ali Elasfoury",
+            "email": "alielasfoury12@gmail.com"
+        }
+    ],
+    "require": {
+        "vlucas/phpdotenv": "^5.6"
+    }
+}

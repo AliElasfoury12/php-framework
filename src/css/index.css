@@ -1,0 +1,37 @@
+
+.w-fit{
+    width: fit-content;
+}
+
+.w-full {
+    width: 100vw;
+}
+
+.m-auto {
+    margin: auto;
+}
+
+.pt-5{
+    padding-top: 5rem;
+}
+
+.text-red {
+    color: red;
+}
+
+.justify-between {
+    justify-content: space-between;
+ }
+
+.flex {
+    display: flex;
+}
+
+.items-center {
+    align-items: center;
+}
+
+.input {
+    width: 30rem;
+    padding: 8px;
+}

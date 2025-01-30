@@ -1,0 +1,41 @@
+@import url('./colors.css');
+@import url('./flex.css');
+@import url('./position.css');
+
+.w-fit{
+    width: fit-content;
+}
+
+.w-full {
+    width: 100vw ;
+}
+
+.m-auto {
+    margin: auto;
+}
+
+.mr-2 {
+    margin-right: 2rem;
+}
+
+.mb-5 {
+    margin-bottom: 5rem;
+}
+
+.pt-5{
+    padding-top: 5rem;
+}
+
+.px-2 {
+    padding: 0 2rem;
+}
+
+.input {
+    width: 30rem;
+    padding: 8px;
+}
+
+a {
+    text-decoration: none;
+}
+

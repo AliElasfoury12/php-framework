@@ -1,0 +1,16 @@
+<?php
+
+use core\App;
+use core\Command;
+
+require_once __DIR__."/vendor/autoload.php";
+
+$dotenv = Dotenv\Dotenv::createImmutable(__DIR__);
+$dotenv->load();
+
+try {
+    $command = new Command();
+    $command->handleCommand($argv);
+} catch (\Throwable $th) {
+    App::dump([$th]);
+}
