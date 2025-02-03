@@ -8,13 +8,14 @@ trait ModelMethodsTrait
     public array $query = ['where' => [], 'query' => [], 'select' => []];
     private static string $table = '';
     public int $pageNum = 1;
+    public array $relations;
 
     private static function addQuery ($value, $section = 'query'): void 
     {
         App::$app->model->query[$section][] = $value;
     }
 
-    private static function model() 
+    private static function model(): MainModel 
     {
         return App::$app->model;
     }
@@ -28,9 +29,6 @@ trait ModelMethodsTrait
     public static function find ($value, $column = 'id') 
     {
        return static::where($column, $value)->get();
-        //$tableName =  static::getTableName();
-       // $sql = "SELECT * FROM $tableName WHERE $column = '$value'";
-       // return  self::model()->fetch($sql, 'obj')[0];
     }
 
     public static function first () 
@@ -48,9 +46,14 @@ trait ModelMethodsTrait
         $sql = "SELECT $select FROM $tableName $sql";
         //echo $sql;
         self::model()->query = [];
-        $data = self::model()->fetch($sql);
-        if(count($data) == 1) return (object) $data[0];
-        return $data ;
+        self::model()->relationData = self::model()->fetch($sql);
+
+        if(self::model()->relations) {
+            static::handleWith(self::model()->relations);
+        }
+
+        if(count(self::model()->relationData) == 1) return (object) self::model()->relationData[0];
+        return self::model()->relationData;
     }
 
     public static function getTableName ($nameSpace = 'app\models') //app\models\User

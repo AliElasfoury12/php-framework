@@ -4,10 +4,16 @@ namespace core\database\Model\relations;
 
 use core\App;
 
-
 trait WithTrait
 {
-    public static function with(array $relations):array
+    public static function with (array $relations)
+    {
+        App::$app->model->relations = $relations;
+
+        return new static;
+    }
+
+    public static function handleWith(array $relations):array
     {
         $class = new static();
 
@@ -33,7 +39,18 @@ trait WithTrait
 
         return $model->relationData;
     }
-
+    /*
+    $relations = [
+        'belongsto' => [],
+        'manyTomany' => [],
+        'hasmany' => [],
+        'nested' => [
+            'belongsto' => [],
+            'manyTomany' => [],
+            'hasmany' => [],
+        ]
+    ]
+    */
     private function handleRequestedColumns ($relation) 
     {
         $model = App::$app->model;

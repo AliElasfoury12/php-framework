@@ -18,7 +18,7 @@ class PostController extends Controller {
         //'postImg:id,post_id,img',
         //'likes:id',
         'shared_posts.user'
-        ]);
+        ])->get();
        // $res = Post::all('id,post');
        //$res = Post::find(40);
        App::dump([$res]);
