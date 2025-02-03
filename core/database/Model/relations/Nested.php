@@ -71,14 +71,8 @@ class Nested extends Relations {
             break;
 
             case 'BELONGSTO':
-                /*$class1 = self::getClassName($relation1);
-                $table1 = $class1::getTableName();
-
-                $class2 = self::getClassName($relation2);
-                $table2 = $class2::getTableName();*/
                 $table1 = $nestedRelation[1];
                 $table2 = $nestedRelation[2];
-
                 $foreignKey = $model->getFK($table1, $table2);
                 BelongsTo::nested($relation1, $relation2, $table2, $primaryKey, $foreignKey);
             break;

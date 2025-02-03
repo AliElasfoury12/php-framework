@@ -76,7 +76,7 @@ class BelongsTo extends Relations {
                     $id = $item[$foreignKey]; 
                     $sql = "SELECT $coulmns FROM $table2 WHERE $primaryKey = '$id'";
                     //echo "$sql <br>";
-                    $item[$relation1][$relation2] = $model->fetch($sql)[0];
+                    $item[$relation2] = $model->fetch($sql)[0];
                 }
             }
         }
