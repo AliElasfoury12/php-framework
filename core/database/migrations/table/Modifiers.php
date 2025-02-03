@@ -97,7 +97,7 @@ trait Modifiers
     public function references ($column = '') 
     {
         $lastItem = $this->getLastItem();
-        array_pop(  $this->query['add']);
+        array_pop($this->query['add']);
         if(!$column){
             $column = 'id';
         }

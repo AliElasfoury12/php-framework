@@ -47,7 +47,6 @@ class Schema  {
 
             if (is_array($dropColumns)) {
                 $dropColumns = implode(' , ', $dropColumns);
-    
                 $sql ="ALTER TABLE $tableName $dropColumns;";
             }
         }

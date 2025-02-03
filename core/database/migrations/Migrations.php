@@ -15,9 +15,9 @@ class Migrations extends DB
         $newMigrations = [];
 
         $files = scandir( __DIR__."/../../../database/migrations");
-        $toApplyMigrtions = array_diff($files,$appliedMigrations);
+        $toApplyMigrtions = array_diff($files, $appliedMigrations);
 
-        foreach ($toApplyMigrtions as $migration ) {
+        foreach ($toApplyMigrtions as $migration) {
             if ($migration === '.' || $migration === '..') {
                 continue;
             }
@@ -33,7 +33,7 @@ class Migrations extends DB
             $newMigrations[] = $migration;
         }
 
-        if (!empty($newMigrations)) {
+        if (count($newMigrations)) {
             $this->saveMigrations($newMigrations);
         }else {
            $this->log('All Migrations Are Applied');
@@ -52,7 +52,7 @@ class Migrations extends DB
 
     public function saveMigrations (array $migrations)
     {
-        $migrations = array_map(fn ($m) => "('$m')", $migrations);
+        $migrations = array_map(fn ($m) => "('$m')",$migrations);
         $str = implode(',', $migrations);
         self::exec("INSERT INTO migrations ( migration ) VALUES $str");
     }

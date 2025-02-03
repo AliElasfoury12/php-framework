@@ -11,7 +11,7 @@ trait WithTrait
     {
         $class = new static();
 
-        $model = &App::$app->model;
+        $model = App::$app->model;
         
         foreach ($relations as $relation) { 
 
@@ -58,19 +58,19 @@ trait WithTrait
 
         switch ($r[0]) {
             case 'HASMANY':
-                $model->relationData = HasMany::run($r[1], $r[2], $r[3], $r[4]);
+                HasMany::run($r[1], $r[2], $r[3], $r[4]);
             break;
 
             case 'BELONGSTO' :
-                $model->relationData = BelongsTo::run($r[1], $r[2], $r[3], $r[4]);
+                BelongsTo::run($r[1], $r[2], $r[3], $r[4]);
             break;
 
             case 'HASONE':
-                $model->relationData = BelongsTo::run($r[1], $r[2], $r[4], $r[3]);
+                BelongsTo::run($r[1], $r[2], $r[4], $r[3]);
             break;
 
             case 'MANYTOMANY':
-                $model->relationData = ManyToMany::run($r[1], $r[2], $r[3], $r[4]);
+                ManyToMany::run($r[1], $r[2], $r[3], $r[4]);
             break;
         }
     }    

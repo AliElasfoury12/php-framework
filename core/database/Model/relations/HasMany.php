@@ -4,35 +4,31 @@ namespace core\database\Model\relations;
 
 use core\App;
 class HasMany extends Relations {
-    public static function run ($table1, $table2, $foreignKey , $primaryKey ) :array 
+    public static function run ($table1, $table2, $foreignKey , $primaryKey ) 
     {
         //table1 users hasMany table2 posts
         $model = App::$app->model;
 
-        if($model->relationData) {
-            $result1 = $model->relationData;
-        }else {
+        if(!$model->relationData) {
             $query = $model->getQuery();
             $select = $model->handleSelect();
             $sql = "SELECT $select FROM  $table1 $query";
             //echo "$sql </br>";
-            $result1 = $model->fetch($sql); 
+            $model->relationData = $model->fetch($sql); 
         }
 
         $requestedCoulmns = $model->getRequestedColumns();
 
-        foreach ($result1 as &$result) { 
-            $result1Id = $result[$primaryKey];
+        foreach ($model->relationData as &$result) { 
+            $id = $result[$primaryKey];
             $sql = "SELECT $requestedCoulmns 
             FROM $table2 
-            WHERE $table2.$foreignKey = '$result1Id'" ;
+            WHERE $table2.$foreignKey = '$id'" ;
            // echo "$sql </br>";
-            $result2 = $model->fetch($sql);
-            $result[$model->relationName] = $result2 ?? [];
+            $result[$model->relationName] = $model->fetch($sql) ?? [];
         }
 
-        $model->query = [];
-        return $result1;
+        $model->query = [] ;
     }
 
     public static function nested ($relation1, $relation2, $primaryKey, $foreignKey) 

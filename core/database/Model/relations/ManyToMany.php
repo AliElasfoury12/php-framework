@@ -6,25 +6,23 @@ use core\App;
 
 class ManyToMany extends Relations{
 
-    public static function run ($table1, $table2, $pivotKey, $relatedKey): array //followers, user_id, follower_id 
+    public static function run ($table1, $table2, $pivotKey, $relatedKey) //followers, user_id, follower_id 
     {
         $model= App::$app->model;
         
-        if($model->relationData) {
-            $result1 = $model->relationData;
-        }else {
+        if(!$model->relationData) {
             $query = $model->getQuery();
             $select = $model->handleSelect();
 
             $sql = "SELECT $select FROM  $table1 $query";
             $model->query = [];
-            $result1 = $model->fetch($sql);
+            $model->relationData = $model->fetch($sql);
         }
 
         $primaryKey1 = $model->getPK($table1);
         $requestedCoulmns = $model->getRequestedColumns($table1);
 
-        foreach ($result1 as &$result) {
+        foreach ($model->relationData as &$result) {
             $id = $result[$primaryKey1];
 
             $sql = "SELECT $requestedCoulmns FROM $table1
@@ -33,8 +31,6 @@ class ManyToMany extends Relations{
 
             $result[$model->relationName] = $model->fetch($sql);
         }
-
-        return $result1;
     }
 
     public static function nested ($table1, $table2, $relation1, $relation2, $primaryKey, $relatedKey, $pivotKey): void

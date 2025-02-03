@@ -12,7 +12,7 @@ trait SQLTrait
         $wheres = '';
         $extraQuery = '';
 
-        if(array_key_exists('where', $query)) {
+        if($query['where']) {
             $wheres = $query['where'];
             if(!empty($wheres)) {
                 if(count($wheres) > 1) {
@@ -27,7 +27,7 @@ trait SQLTrait
             }
         }
        
-        if(array_key_exists('query', $query)) {
+        if($query['query']) {
             $extraQuery = $query['query'];
             if(!empty($extraQuery)) {
                 $extraQuery = implode(' ', $extraQuery);
@@ -42,7 +42,7 @@ trait SQLTrait
     public function handleSelect ($table = '') 
     {
         $select = null;
-        if(array_key_exists('select',App::$app->model->query)) {
+        if(App::$app->model->query['select']) {
             if(array_key_exists(0 ,App::$app->model->query['select']))
             $select = App::$app->model->query['select'][0];
         }

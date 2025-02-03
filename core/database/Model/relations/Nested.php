@@ -42,14 +42,27 @@ class Nested extends Relations {
     {
         $model = App::$app->model;
 
-        $table1 = $class::getTableName();
-        $primaryKey = $model->getPK($table1);//posts.id
+        $class = new $class();
+        $relation1Data = call_user_func([$class, $relation1]);
 
         $relation2 = str_replace("$relation1.", '', $relation); //comments
-        $class = self::getClassName($relation1);
-        $class = new $class();// new Post()
 
-        $nestedRelation = call_user_func([$class, $relation2]); //posts::comments
+        if($relation1Data[0] == 'MANYTOMANY') {
+            $sql = "show TABLES LIKE '$relation2'";
+            $exists = $model->fetch($sql);
+            $exists ? $table1 = $exists : $table1 = $relation2.'s';
+
+            $class1 = $class;
+        }else {
+            $table1 = $class::getTableName();
+            $class1 = self::getClassName($relation1);
+        } 
+
+        $primaryKey = $model->getPK($table1);//posts.id
+
+        $class1 = new $class1();// new Post()
+
+        $nestedRelation = call_user_func([$class1, $relation2]); //posts::comments
 
         switch ($nestedRelation[0]) {
             case 'HASMANY':
@@ -58,11 +71,13 @@ class Nested extends Relations {
             break;
 
             case 'BELONGSTO':
-                $class = self::getClassName($relation1);
-                $table1 = $class::getTableName();
+                /*$class1 = self::getClassName($relation1);
+                $table1 = $class1::getTableName();
 
                 $class2 = self::getClassName($relation2);
-                $table2 = $class2::getTableName();
+                $table2 = $class2::getTableName();*/
+                $table1 = $nestedRelation[1];
+                $table2 = $nestedRelation[2];
 
                 $foreignKey = $model->getFK($table1, $table2);
                 BelongsTo::nested($relation1, $relation2, $table2, $primaryKey, $foreignKey);

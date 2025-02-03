@@ -10,7 +10,7 @@ class UserController extends Controller {
 
     public function index () 
     {
-        $res = User::select('id,name,email')::with(['posts','followings:id,name']);
+        $res = User::select('id,name,email')::with(['posts.user','followings:id,name']);
         App::dump($res);
       // App::dump(User::select('id,name')->limit(1)->with(['posts:post']) );
       //return Response::json(User::all());
