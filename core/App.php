@@ -57,7 +57,7 @@ class App  {
     public static  function dump (array $vars) {
         echo "<pre>";
         foreach ($vars as $var) {
-            var_dump($var);
+            print_r($var);
         }
         echo "</pre> \n";
     }

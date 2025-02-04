@@ -27,8 +27,6 @@ class HasMany extends Relations {
            // echo "$sql </br>";
             $result[$model->relationName] = $model->fetch($sql) ?? [];
         }
-
-        $model->query = [] ;
     }
 
     public static function nested ($relation1, $relation2, $primaryKey, $foreignKey) 
