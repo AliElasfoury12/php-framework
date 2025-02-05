@@ -4,19 +4,10 @@ namespace core\database\Model\relations;
 
 use core\App;
 class HasMany extends Relations {
-    public static function run ($table1, $table2, $foreignKey , $primaryKey ) 
+    public static function run ($table1, $table2, $foreignKey , $primaryKey ): void 
     {
         //table1 users hasMany table2 posts
         $model = App::$app->model;
-
-        if(!$model->relationData) {
-            $query = $model->getQuery();
-            $select = $model->handleSelect();
-            $sql = "SELECT $select FROM  $table1 $query";
-            //echo "$sql </br>";
-            $model->relationData = $model->fetch($sql); 
-        }
-
         $requestedCoulmns = $model->getRequestedColumns();
 
         foreach ($model->relationData as &$result) { 

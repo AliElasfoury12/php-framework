@@ -21,6 +21,15 @@ class Command
         if($argv[0] != 'bmbo' || empty($argv[1])) {
             $this->notFound();
         }
+
+        if($argv[1] == 'start'){
+            $port = 8000;
+            while (is_resource(@fsockopen('localhost',$port))) {
+               $port++;
+            }
+            exec("php -S localhost:$port -t public/");
+            exit;
+        }
     
         if($argv[1] == 'migrate'){
             $this->migrations->applyMigrations();
