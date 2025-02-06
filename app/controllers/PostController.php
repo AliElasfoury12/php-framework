@@ -29,7 +29,12 @@ class PostController extends Controller {
           return strtolower(preg_replace('/(?<!^)[A-Z]/', '_$0', $string));
         }
 
-       App::dump([$string, $res]);
+        $start = microtime(true);
+      
+        $end = microtime(true);
+        $time = ($end - $start)*1000;
+
+       App::dump([$res]);
        //return json_encode($res, JSON_PRETTY_PRINT);
     }
 }

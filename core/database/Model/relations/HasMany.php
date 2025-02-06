@@ -4,7 +4,7 @@ namespace core\database\Model\relations;
 
 use core\App;
 class HasMany extends Relations {
-    public static function run ($table1, $table2, $foreignKey , $primaryKey ): void 
+    public static function run ($table1, $table2, $foreignKey , $primaryKey): void 
     {
         //table1 users hasMany table2 posts
         $model = App::$app->model;
@@ -14,8 +14,8 @@ class HasMany extends Relations {
             $id = $result[$primaryKey];
             $sql = "SELECT $requestedCoulmns 
             FROM $table2 
-            WHERE $table2.$foreignKey = '$id'" ;
-            echo "$sql </br>";
+            WHERE $foreignKey = '$id'" ;
+            //echo "$sql </br>";
             $result[$model->relationName] = $model->fetch($sql) ?? [];
         }
     }

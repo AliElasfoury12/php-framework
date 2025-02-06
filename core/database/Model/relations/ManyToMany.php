@@ -10,15 +10,6 @@ class ManyToMany extends Relations{
     {
         $model= App::$app->model;
         
-        if(!$model->relationData) {
-            $query = $model->getQuery();
-            $select = $model->handleSelect();
-
-            $sql = "SELECT $select FROM  $table1 $query";
-            $model->query = [];
-            $model->relationData = $model->fetch($sql);
-        }
-
         $primaryKey1 = $model->getPK($table1);
         $requestedCoulmns = $model->getRequestedColumns($table1);
 

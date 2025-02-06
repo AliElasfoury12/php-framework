@@ -69,9 +69,20 @@ trait ModelMethodsTrait
         $class = stripslashes($class);// User
         $class = strtolower($class);// user 
         
-        $sql = "show TABLES LIKE '$class'";
-        $exsists = self::model()->fetch($sql);
-        !$exsists ?  $table = $class.'s':  $table = $class;
+        function isTableExsists (string $class): mixed 
+        {   
+            $sql = "show TABLES LIKE '$class'";
+            return App::$app->model->fetch($sql);
+        }
+
+        if(isTableExsists($class.'s')) $table = $class.'s';
+        else if(isTableExsists($class))  $table = $class;
+        else{
+            $classSnakeCase = strtolower(preg_replace('/(?<!^)[A-Z]/', '_$0', $class));
+            if(isTableExsists($classSnakeCase.'s')) $table = $classSnakeCase.'s';
+            else if(isTableExsists($classSnakeCase)) $table = $classSnakeCase;
+        } 
+        
     
         return  $table;
     }

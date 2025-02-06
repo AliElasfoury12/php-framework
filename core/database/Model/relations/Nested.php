@@ -22,14 +22,8 @@ class Nested extends Relations {
         $relation1 = $match[1];//posts
         
         $exists = false;
-        foreach ($model->relationData as $items) {
-            if(array_key_exists($relation1, $items)) //data[posts]
-            {
-                $exists = true;
-                break;
-            }
-        }
- 
+        if(array_key_exists($relation1, $model->relationData[0])) $exists = true;
+       
         if(!$exists) {
             $model->relationName = $relation1; //posts
             $model->handleRelation($class);// get data[posts]

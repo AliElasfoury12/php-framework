@@ -64,9 +64,5 @@ class DB
         return $this->exec($sql); 
     }
 
-    public function istableExsists () 
-    {
-
-    }
-
+    
 }
