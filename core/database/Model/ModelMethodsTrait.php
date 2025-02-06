@@ -39,7 +39,7 @@ trait ModelMethodsTrait
 
     public static function get ()  
     {
-        $tableName = static::getTableName();
+        $tableName = static::getClassTable();
         $sql = self::model()->getQuery();
         $select = self::model()->handleSelect();
   
@@ -47,16 +47,23 @@ trait ModelMethodsTrait
         //echo $sql;
         self::model()->query = [];
         self::model()->relationData = self::model()->fetch($sql);
-
+     
         if(self::model()->relations) {
             static::handleWith(self::model()->relations);
         }
 
-        if(count(self::model()->relationData) == 1) return (object) self::model()->relationData[0];
+        if(!array_key_exists(1, self::model()->relationData)) return (object) self::model()->relationData[0];
         return self::model()->relationData;
     }
 
-    public static function getTableName ($nameSpace = 'app\models') //app\models\User
+    public function getClassName (string $relation): string 
+    {
+        $class = ucfirst($relation);//Posts
+        $class = trim($class, 's');//Post
+        return str_replace('/', '', "app\models\/$class");// app\models\Post
+    }
+
+    public static function getClassTable ($nameSpace = 'app\models') //app\models\User
     {
         $table = self::$table;
         if ($table) {
@@ -64,27 +71,10 @@ trait ModelMethodsTrait
             return $table;
         }
 
-        $class = get_called_class();
-        $class = str_replace($nameSpace,"" , $class);// \User
-        $class = stripslashes($class);// User
-        $class = strtolower($class);// user 
-        
-        function isTableExsists (string $class): mixed 
-        {   
-            $sql = "show TABLES LIKE '$class'";
-            return App::$app->model->fetch($sql);
-        }
-
-        if(isTableExsists($class.'s')) $table = $class.'s';
-        else if(isTableExsists($class))  $table = $class;
-        else{
-            $classSnakeCase = strtolower(preg_replace('/(?<!^)[A-Z]/', '_$0', $class));
-            if(isTableExsists($classSnakeCase.'s')) $table = $classSnakeCase.'s';
-            else if(isTableExsists($classSnakeCase)) $table = $classSnakeCase;
-        } 
-        
-    
-        return  $table;
+        $class = str_replace("$nameSpace\\","" , static::class);// User
+       // $class = strtolower($class);// user 
+              
+        return App::$app->db->getTable($class);
     }
 
     public static function limit ($limit) //app\models\User
@@ -135,7 +125,7 @@ trait ModelMethodsTrait
 
     public static function minRepeat ($column) 
     {
-        $tableName = static::getTableName();
+        $tableName = static::getClassTable();
 
         $sql = "SELECT $column FROM $tableName
         GROUP BY $column HAVING COUNT(*) > 1

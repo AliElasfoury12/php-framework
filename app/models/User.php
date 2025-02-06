@@ -18,10 +18,10 @@ class User extends Model {
     }
 
     public function followers () {
-        return $this->manyToMany(User::class,'follower_user', 'user_id', 'follower_id');
+        return $this->manyToMany(User::class,'followers', 'user_id', 'follower_id');
     }
 
     public function followings () {
-        return $this->manyToMany(User::class,'follower_user', 'follower_id', 'user_id');
+        return $this->manyToMany(User::class,'followers', 'follower_id', 'user_id');
     }
 }

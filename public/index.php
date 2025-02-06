@@ -25,19 +25,7 @@
         }
         $app->run();
     } catch (Error $e) {
-        $error = [
-            'Message:  '.$e->getMessage(),
-            'In Line:  '.$e->getLine(),
-            'File:  '.$e->getFile(), 
-        ];
-
-        foreach ($error as $line) {
-            echo "$line <br> <br>";
-        }
-
-        foreach ($e->getTrace() as $path) {
-           if(array_key_exists('file',$path))  echo $path['file']."<br> <br>";
-        }
+       App::displayError($e);
     }
 
     

@@ -42,14 +42,11 @@ class Nested extends Relations {
         $relation2 = str_replace("$relation1.", '', $relation); //comments
 
         if($relation1Data[0] == 'MANYTOMANY') {
-            $sql = "show TABLES LIKE '$relation2'";
-            $exists = $model->fetch($sql);
-            $exists ? $table1 = $exists : $table1 = $relation2.'s';
-
+            $table1 = App::$app->db->getTable($relation2);
             $class1 = $class;
         }else {
-            $table1 = $class::getTableName();
-            $class1 = self::getClassName($relation1);
+            $table1 = $class::getClassTable();
+            $class1 = $model->getClassName($relation1);
         } 
 
         $primaryKey = $model->getPK($table1);//posts.id
@@ -88,12 +85,7 @@ class Nested extends Relations {
         }
     }
 
-    private static function getClassName ($relation) 
-    {
-        $class = ucfirst($relation);//Posts
-        $class = trim($class, 's');//Post
-        return str_replace('/', '', "app\models\/$class");// app\models\Post
-    }
+  
 }
 
 /*

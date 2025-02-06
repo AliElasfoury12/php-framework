@@ -2,6 +2,7 @@
 
 namespace core\database;
 
+use core\App;
 use PDO;
 
 class DB 
@@ -27,7 +28,12 @@ class DB
     {
         //echo "$sql <br>";
         $statment = self::$pdo->prepare($sql);
-        $statment->execute();
+        try {
+            $statment->execute();
+        } catch (\Throwable $th) {
+            App::displayError($th);
+            exit;
+        }
         return $statment;
     }
 
@@ -64,5 +70,24 @@ class DB
         return $this->exec($sql); 
     }
 
-    
+    public function tableIsExsists (string $class): mixed 
+    {   
+        $sql = "show TABLES LIKE '$class'";
+        return $this->fetch($sql);
+    }
+
+    public function getTable (string $class) 
+    {
+        $table = '';
+        $classLowerCase = strtolower($class); 
+        if($this->tableIsExsists($classLowerCase.'s')) $table = $classLowerCase.'s';
+        else if($this->tableIsExsists($classLowerCase))  $table = $classLowerCase;
+        else{
+            $classSnakeCase = strtolower(preg_replace('/(?<!^)[A-Z]/', '_$0', $class));
+
+            if($this->tableIsExsists($classSnakeCase.'s')) $table = $classSnakeCase.'s';
+            else if($this->tableIsExsists($classSnakeCase)) $table = $classSnakeCase;
+        } 
+        return $table;
+    }
 }

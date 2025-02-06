@@ -21,6 +21,7 @@ class Relations {
     public function getPK ($table) 
     {
         $sql = "SHOW KEYS FROM $table WHERE Key_name = 'PRIMARY'";
+        //echo "$sql <br>";
         $result = App::$app->db->fetch($sql);
         return $result[0]["Column_name"];
     }
@@ -45,8 +46,8 @@ class Relations {
 
         $class = get_called_class();
 
-        $table1 = $class::getTableName();//posts
-        $table2 = $class2::getTableName();//users
+        $table1 = $class::getClassTable();//posts
+        $table2 = $class2::getClassTable();//users
 
         !$primaryKey ? $primaryKey = $this->getPK($table2) : '';
         !$foreignKey ? 
@@ -63,7 +64,7 @@ class Relations {
 
     protected function manyToMany ($relatedClass, $table2, $pivotKey, $relatedKey): array 
     {
-        $table1 = $relatedClass::getTableName();
+        $table1 = $relatedClass::getClassTable();
         return ['MANYTOMANY', $table1, $table2, $pivotKey, $relatedKey];
     }
 
@@ -71,8 +72,8 @@ class Relations {
     {
         $class = get_called_class();
 
-        $table1 = $class::getTableName();//posts
-        $table2 = $class2::getTableName();//users
+        $table1 = $class::getClassTable();//posts
+        $table2 = $class2::getClassTable();//users
 
         !$primaryKey ? $primaryKey = $this->getPK($table1) : '';
 

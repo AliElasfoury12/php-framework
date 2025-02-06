@@ -2,7 +2,7 @@
 
 namespace app\models;
 
-class Post_img extends Model {
+class PostImg extends Model {
 
     public static $fillable = [
      

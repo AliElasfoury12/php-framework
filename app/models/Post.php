@@ -15,7 +15,7 @@ class Post extends Model {
 
     public function postImg (): array 
     {
-      return $this->hasMany(Post_img::class);
+      return $this->hasMany(PostImg::class);
     }
 
     public function comments (): array 
@@ -28,7 +28,7 @@ class Post extends Model {
       return $this->manyToMany(User::class,'likes', 'post_id', 'user_id');
     }
 
-    public function shared_posts (): array 
+    public function sharedPosts (): array 
     {
       return $this->manyToMany(Post::class, 'shared_posts', 'post_id', 'shared_post_id');
     }

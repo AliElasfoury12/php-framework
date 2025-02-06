@@ -62,6 +62,23 @@ class App  {
         echo "</pre> \n";
     }
 
+    public static function displayError ($error) 
+    {
+        $errors = [
+            'Message:  '.$error->getMessage(),
+            'In Line:  '.$error->getLine(),
+            'File:  '.$error->getFile(), 
+        ];
+
+        foreach ($errors as $line) {
+            echo "$line <br> <br>";
+        }
+
+        foreach ($error->getTrace() as $path) {
+           if(array_key_exists('file',$path))  echo $path['file']."<br> <br>";
+        }
+    }
+
     public function on($eventName, $callback) {
       
         $this->eventListeners[$eventName][] = $callback;

@@ -10,7 +10,7 @@ trait InsertArr
         if (is_string($inputs)) return $inputs;
 
         $columns = static::$fillable;
-        $tableName = static::getTableName();
+        $tableName = static::getClassTable();
         $result = [];
 
         foreach ($inputs as $input) {
