@@ -15,7 +15,7 @@ class HasMany extends Relations {
             $sql = "SELECT $requestedCoulmns 
             FROM $table2 
             WHERE $table2.$foreignKey = '$id'" ;
-           // echo "$sql </br>";
+            echo "$sql </br>";
             $result[$model->relationName] = $model->fetch($sql) ?? [];
         }
     }

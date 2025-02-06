@@ -2,6 +2,7 @@
 
 namespace core\database\migrations;
 
+use core\App;
 use core\database\DB;
 use core\database\migrations\table\Table;
 
@@ -19,7 +20,7 @@ class Schema  {
         }
         $sql = " CREATE TABLE IF NOT EXISTS $tableName ( $columns ) ";
         //echo $sql;
-        DB::exec($sql);
+        App::$app->db->exec($sql);
     }
 
     public static function table ($tableName, $callback) {
@@ -53,11 +54,11 @@ class Schema  {
         if($dropColumns && $addColumns ){
             $sql ="ALTER TABLE $tableName ADD COLUMN  $addColumns, $dropColumns ;";
         }
-        DB::exec($sql);
+        App::$app->db->exec($sql);
     }
 
     public static function dropTable ($tableName) {
         $sql ="DROP TABLE IF EXISTS $tableName";
-        DB::exec($sql);
+        App::$app->db->exec($sql);
     }
 }

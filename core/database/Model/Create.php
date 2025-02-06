@@ -4,7 +4,6 @@ namespace core\database\Model;
 
 use core\App;
 
-
 trait Create
 {
     public static function create ($inputs) {
@@ -31,7 +30,7 @@ trait Create
 
         $sql = "INSERT INTO $tableName ( $columns ) VALUES ( $values )";
         //echo $sql;
-        self::exec($sql);
+        App::$app->db->exec($sql);
 
         return $inputs;
     }

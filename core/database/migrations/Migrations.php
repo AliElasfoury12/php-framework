@@ -2,6 +2,7 @@
 
 namespace core\database\migrations;
 
+use core\App;
 use PDO;
 use core\database\DB;
 
@@ -43,7 +44,7 @@ class Migrations extends DB
     public function getAppliedMigrations ()
     {
        try {
-            $statment = self::exec("SELECT  migration FROM migrations");
+            $statment = App::$app->db->exec("SELECT  migration FROM migrations");
             return $statment->fetchAll(PDO::FETCH_COLUMN) ;
         } catch (\Throwable $th) {
             return [];
@@ -54,7 +55,7 @@ class Migrations extends DB
     {
         $migrations = array_map(fn ($m) => "('$m')",$migrations);
         $str = implode(',', $migrations);
-        self::exec("INSERT INTO migrations ( migration ) VALUES $str");
+        App::$app->db->exec("INSERT INTO migrations ( migration ) VALUES $str");
     }
 
     public function log ($message)

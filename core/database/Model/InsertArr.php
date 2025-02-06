@@ -6,16 +6,12 @@ use core\App;
 
 trait InsertArr
 {
-    static public function insertArr ($inputs) {
-        if (is_string($inputs)) {
-            return $inputs;
-        }
+    public static function insertArr ($inputs) {
+        if (is_string($inputs)) return $inputs;
 
-        $className = get_called_class();
-        $columns = $className::$fillable;
-        $tableName = $className::getTableName($className);
+        $columns = static::$fillable;
+        $tableName = static::getTableName();
         $result = [];
-
 
         foreach ($inputs as $input) {
             foreach ($input as $column => $value) {
@@ -27,7 +23,7 @@ trait InsertArr
                 }
             }
 
-            if(empty($value)){continue;}
+            if(empty($value)) continue;
 
             $values = implode(',', $values);
             $values = "($values)";
@@ -40,7 +36,7 @@ trait InsertArr
 
         $sql = "INSERT INTO $tableName ( $columns ) VALUES  $result";
         //echo $sql;
-        self::exec($sql);
+        App::$app->db->exec($sql);
         return $inputs;
     }
 }

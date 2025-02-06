@@ -18,7 +18,7 @@ class Post extends Model {
       return $this->hasMany(Post_img::class);
     }
 
-    public function comments () 
+    public function comments (): array 
     {
         return $this->hasMany(Comment::class);
     }

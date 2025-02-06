@@ -23,14 +23,15 @@ class DB
     }
 
    
-    public static function exec ($sql){
+    public function exec (string $sql): bool|\PDOStatement
+    {
         //echo "$sql <br>";
         $statment = self::$pdo->prepare($sql);
         $statment->execute();
         return $statment;
     }
 
-     public function fetch ($sql, $type = ''){
+     public function fetch (string $sql, string $type = ''){
         switch ($type) {
             case 'obj':
                 $type = PDO::FETCH_OBJ;
@@ -43,11 +44,11 @@ class DB
                $type = PDO::FETCH_ASSOC;
         }
 
-        $statment = self::exec ($sql);
+        $statment = $this->exec ($sql);
         return $statment->fetchAll($type);
     }
 
-    public static function insert ($table, $columns, $values)
+    public function insert ($table, $columns, $values)
     {
         if(is_array($columns)){
             $columns = implode(', ',  $columns);
@@ -59,8 +60,13 @@ class DB
         }
         
         $sql = "INSERT INTO $table ( $columns ) VALUES ( $values ) ";
-        echo $sql;
-        return DB::exec($sql); 
+        //echo $sql;
+        return $this->exec($sql); 
+    }
+
+    public function istableExsists () 
+    {
+
     }
 
 }

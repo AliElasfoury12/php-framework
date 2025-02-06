@@ -10,13 +10,14 @@ trait Auth  {
     public static function createAccessToken ($id) {
         self::delteAccessToken($id);
         $token = base64_encode(openssl_random_pseudo_bytes(42));
-        DB::insert('accessTokens', ['token', 'tokenable_id'], [$token, $id]);
+        App::$app->db->insert('accessTokens', ['token', 'tokenable_id'], [$token, $id]);
         return $token;
     }
 
-    public static function delteAccessToken ($id) {
+    public static function delteAccessToken ($id) 
+    {
         $sql = "DELETE FROM accessTokens WHERE tokenable_id = '$id'";
-        DB::exec($sql);
+        App::$app->db->exec($sql);
     }
 
     public static function login (User $user) {
