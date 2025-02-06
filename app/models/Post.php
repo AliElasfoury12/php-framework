@@ -28,7 +28,7 @@ class Post extends Model {
       return $this->manyToMany(User::class,'likes', 'post_id', 'user_id');
     }
 
-    public function sharedPosts (): array 
+    public function sharedPost (): array 
     {
       return $this->manyToMany(Post::class, 'shared_posts', 'post_id', 'shared_post_id');
     }

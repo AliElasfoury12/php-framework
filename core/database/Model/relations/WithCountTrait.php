@@ -6,28 +6,25 @@ use core\App;
 
 trait WithCountTrait
 {
+    private static array $relationNames; 
     public static function withCount ($relationNames)//(likes) 
     {
         // get count of likes on post
-        $class = get_called_class();
-        $class = new $class();
+               
+        self::$relationNames = explode(',', $relationNames);
+
+        return  new static;
+    }
+
+    public static function handleWithCount () 
+    {
+        $class = new static();
 
         $model = App::$app->model;
-        $table1 =  $class->getTableName();//posts
+        $table1 =  $class->getClassTable();//posts
         $primaryKey = $model->getPK($table1);
 
-        if(!$model->relationData){
-            $select = $model->handleSelect();
-            $query = $model->getQuery();
-
-            $sql = "SELECT $select FROM $table1 $query";
-            //echo "$sql <br>";
-            $model->relationData = $model->fetch($sql);
-        }
-
-        $relationNames = explode(',', $relationNames);
-
-        foreach ($relationNames as $relationName) {
+        foreach (self::$relationNames as $relationName) {
             $forigenKey = $model->getFK($relationName, $table1);
 
             foreach ($model->relationData as &$item) {
@@ -37,7 +34,5 @@ trait WithCountTrait
                 $item[$relationName.'Count'] = $count ?? 0;
             }
         }
-
-        return  $class;
     }
 }

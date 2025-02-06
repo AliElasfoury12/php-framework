@@ -50,6 +50,7 @@ trait ModelMethodsTrait
      
         if(self::model()->relations) {
             static::handleWith(self::model()->relations);
+            static::handleWithCount();
         }
 
         if(!array_key_exists(1, self::model()->relationData)) return (object) self::model()->relationData[0];
