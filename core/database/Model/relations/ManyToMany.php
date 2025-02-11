@@ -49,9 +49,16 @@ class ManyToMany extends Relations{
             $columns = implode(',', $columns);
         }else $columns = "$table1.*";
 
+        $query = $model->getQuery();
+        if($query) {
+            $query = str_replace('WHERE', 'AND', $query);
+        }
+
         $sql = "SELECT $columns FROM $table1
         JOIN $table2 ON $table2.$relatedKey = $table1.$primaryKey
-        WHERE $table2.$pivotKey = :id";
+        WHERE $table2.$pivotKey = :id $query";
+
+        //echo "$sql <br>";
 
         foreach ($model->relationData as &$items) {
             if(empty($items[$relation1])) continue;
@@ -70,6 +77,8 @@ class ManyToMany extends Relations{
                 }
             }
         }
+
+        $model->query = [];
     }
 }
 

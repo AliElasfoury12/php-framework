@@ -13,15 +13,23 @@ class User extends Model {
         'password'
     ];
 
-    public function posts () {
+    public function posts () 
+    {
        return $this->hasMany(Post::class);
     }
 
-    public function followers () {
+    public function followers () 
+    {
         return $this->manyToMany(User::class,'followers', 'user_id', 'follower_id');
     }
 
-    public function followings () {
+    public function followings () 
+    {
         return $this->manyToMany(User::class,'followers', 'follower_id', 'user_id');
+    }
+
+    public function follows () 
+    {
+        return $this->followings()->where('user_id', 108);
     }
 }

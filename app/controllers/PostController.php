@@ -16,12 +16,12 @@ class PostController extends Controller {
        ->withCount('likes,comments')
        ->with([
         'user:id,name',
-        'user.followings:id',
-        //'user.posts',
+        'user.follows:id',
         'postImg:id,post_id,img',
-        //'likes:id',
         'sharedPost:id,user_id,post',
         'sharedPost.user:id,name'
+        //'user.posts',
+        //'likes:id',
         ])->get();
        // $res = Post::all('id,post');
        //$res = Post::find(40);
