@@ -63,7 +63,7 @@ trait SQLTrait
 
     public function getRequestedColumns ($table = ''): mixed 
     {
-        $model = &App::$app->model;
+        $model = App::$app->model;
         if (array_key_exists($model->relationName,  $model->requestedCoulmns)) 
         {
             $requestedCoulmns = $model->requestedCoulmns[$model->relationName];

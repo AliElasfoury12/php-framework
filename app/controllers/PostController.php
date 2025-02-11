@@ -17,6 +17,7 @@ class PostController extends Controller {
        ->with([
         'user:id,name',
         'user.followings:id',
+        //'user.posts',
         'postImg:id,post_id,img',
         //'likes:id',
         'sharedPost:id,user_id,post',

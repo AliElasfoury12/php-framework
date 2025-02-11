@@ -34,7 +34,8 @@ trait WithTrait
             }
 
             $model->relationName = $relation;
-            $model->handleRelation($class);
+            call_user_func([new static, $relation]);
+            $model->handleRelation();
         }
 
         return $model->relationData;
@@ -66,28 +67,25 @@ trait WithTrait
     X posts.comments:id
      */
 
-    protected function handleRelation ($class): void 
+    protected function handleRelation (): void 
     {
-        $model = App::$app->model;
+        $type = App::$app->model->currentRelation['type'];
 
-        $relation = call_user_func([$class, $model->relationName]);// users.posts
-        $r = $relation;
-
-        switch ($r[0]) {
+        switch ($type) {
             case 'HASMANY':
-                HasMany::run($r[1], $r[2], $r[3], $r[4]);
+                HasMany::run();
             break;
 
             case 'BELONGSTO' :
-                BelongsTo::run($r[1], $r[2], $r[3], $r[4]);
+                BelongsTo::run();
             break;
 
             case 'HASONE':
-                BelongsTo::run($r[1], $r[2], $r[4], $r[3]);
+                BelongsTo::run();
             break;
 
             case 'MANYTOMANY':
-                ManyToMany::run($r[1], $r[2], $r[3], $r[4]);
+                ManyToMany::run();
             break;
         }
     }    

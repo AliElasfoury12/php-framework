@@ -6,12 +6,17 @@ use core\App;
 
 class ManyToMany extends Relations{
 
-    public static function run ($table1, $table2, $pivotKey, $relatedKey) //followers, user_id, follower_id 
+    public static function run () //followers, user_id, follower_id 
     {
         $model= App::$app->model;
+        $table1 = $model->mainTable;
         
         $primaryKey1 = $model->getPK($table1);
         $requestedCoulmns = $model->getRequestedColumns($table1);
+
+        $table2 = $model->currentRelation['table2'];
+        $pivotKey = $model->currentRelation['pivotKey'];
+        $relatedKey = $model->currentRelation['relatedKey'];
 
         foreach ($model->relationData as &$result) {
             $id = $result[$primaryKey1];
@@ -24,32 +29,44 @@ class ManyToMany extends Relations{
         }
     }
 
-    public static function nested ($table1, $table2, $relation1, $relation2, $primaryKey, $relatedKey, $pivotKey): void
+    public static function nested (): void
     {
         $model = App::$app->model;
+        
+        $model = App::$app->model;
+        $relation1 = $model->currentRelation['relation1'];
+        $relation2 = $model->currentRelation['relation2'];
+        $table1 = $model->currentRelation['table1'];
+        $table2 = $model->currentRelation['table2'];
+        $primaryKey = $model->getPK($table1);
+        $relatedKey = $model->currentRelation['relatedKey'];
+        $pivotKey = $model->currentRelation['pivotKey'];
+
         if(array_key_exists("$relation1.$relation2",$model->requestedCoulmns)){
             $columns = $model->requestedCoulmns["$relation1.$relation2"];
             $columns = explode(',', $columns);
             $columns = array_map(fn($c) => "$table1.$c" ,$columns);
             $columns = implode(',', $columns);
         }else $columns = "$table1.*";
-        
 
         $sql = "SELECT $columns FROM $table1
         JOIN $table2 ON $table2.$relatedKey = $table1.$primaryKey
         WHERE $table2.$pivotKey = :id";
 
         foreach ($model->relationData as &$items) {
-            $items = &$items[$relation1];
+            if(empty($items[$relation1])) continue;
+
             if(array_key_exists($primaryKey, $items)){
-                $id = $items[$primaryKey];
+                $id = $items[$relation1][$primaryKey];
                 $sql = str_replace(':id', $id, $sql);
-                $items[$relation2] = $model->fetch($sql);
+                //echo "$sql <br>";
+                $items[$relation1][$relation2] = $model->fetch($sql);
             }else {
                 foreach ($items as &$item) {
                     $id = $item[$primaryKey];
-                    $sql = str_replace(':id', $id, $sql);            
-                    $item[$relation2] = $model->fetch($sql);
+                    $sql = str_replace(':id', $id, $sql); 
+                   // echo "$sql <br>";           
+                    $item[$relation1][$relation2] = $model->fetch($sql);
                 }
             }
         }

@@ -6,7 +6,7 @@ use core\App;
 trait ModelMethodsTrait
 {
     public array $query = ['where' => [], 'query' => [], 'select' => []];
-    private static string $table = '';
+    private string $table = '';
     public int $pageNum = 1;
     public array $relations;
 
@@ -25,7 +25,6 @@ trait ModelMethodsTrait
         return static::select($columns)->get();
     }
 
-   
     public static function find ($value, $column = 'id') 
     {
        return static::where($column, $value)->get();
@@ -47,8 +46,9 @@ trait ModelMethodsTrait
         //echo $sql;
         self::model()->query = [];
         self::model()->relationData = self::model()->fetch($sql);
-     
+        
         if(self::model()->relations) {
+            self::model()->mainTable = $tableName;
             static::handleWith(self::model()->relations);
             static::handleWithCount();
         }
@@ -66,15 +66,13 @@ trait ModelMethodsTrait
 
     public static function getClassTable ($nameSpace = 'app\models') //app\models\User
     {
-        $table = self::$table;
+        $table = self::model()->table;
         if ($table) {
-            self::$table = '';
+            self::model()->table = '';
             return $table;
         }
 
         $class = str_replace("$nameSpace\\","" , static::class);// User
-       // $class = strtolower($class);// user 
-              
         return App::$app->db->getTable($class);
     }
 

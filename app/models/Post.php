@@ -8,27 +8,27 @@ class Post extends Model {
      
     ];
 
-    public function user (): array 
+    public function user ()
     {
       return $this->belongsTo(User::class);
     }
 
-    public function postImg (): array 
+    public function postImg ()
     {
       return $this->hasMany(PostImg::class);
     }
 
-    public function comments (): array 
+    public function comments ()
     {
         return $this->hasMany(Comment::class);
     }
 
-    public function likes (): array 
+    public function likes ()
     {
       return $this->manyToMany(User::class,'likes', 'post_id', 'user_id');
     }
 
-    public function sharedPost (): array 
+    public function sharedPost ()
     {
       return $this->manyToMany(Post::class, 'shared_posts', 'post_id', 'shared_post_id');
     }

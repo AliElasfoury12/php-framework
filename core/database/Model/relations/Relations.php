@@ -8,9 +8,11 @@ class Relations {
 
     use WithTrait, WithCountTrait;
 
-    public $relationName;
-    public $relationData = [];
-    public $requestedCoulmns = [];
+    public string $relationName;
+    public array $relationData = [];
+    public array $requestedCoulmns = [];
+    public array $currentRelation;
+    public string $mainTable;
 
     public function implodeColumns ($table, $coulmns) 
     {
@@ -43,44 +45,56 @@ class Relations {
     protected function belongsTo ($class2, $foreignKey = '', $primaryKey = '') 
     {
         //table1 posts belongsTO table2 users
-
-        $class = get_called_class();
-
-        $table1 = $class::getClassTable();//posts
+        $model = App::$app->model;
         $table2 = $class2::getClassTable();//users
 
         !$primaryKey ? $primaryKey = $this->getPK($table2) : '';
         !$foreignKey ? 
-        $foreignKey = $this->getFK($table1, substr($table2, 0, -1)) 
+        $foreignKey = $this->getFK($model->mainTable, substr($table2, 0, -1)) 
         : '';
 
-        return ['BELONGSTO', $table1, $table2, $foreignKey, $primaryKey];
+        $model->currentRelation = [
+            'type' => 'BELONGSTO',
+            'table2' => $table2,
+            'foreignKey' => $foreignKey,
+            'primaryKey' => $primaryKey
+        ];
+
+        return new static;
     }
 
-    protected function hasMany ($class2, $foreignKey = '', $primaryKey = ''): array 
+    protected function hasMany ($class2, $foreignKey = '', $primaryKey = '') 
     {
-        return $this->tablesAndKeys($class2, $foreignKey, $primaryKey,'HASMANY');
+        $this->tablesAndKeys($class2, $foreignKey, $primaryKey,'HASMANY');
+        return new static;
     }
 
-    protected function manyToMany ($relatedClass, $table2, $pivotKey, $relatedKey): array 
+    protected function manyToMany ($relatedClass, $table2, $pivotKey, $relatedKey) 
     {
         $table1 = $relatedClass::getClassTable();
-        return ['MANYTOMANY', $table1, $table2, $pivotKey, $relatedKey];
+        App::$app->model->currentRelation = [
+            'type' => 'MANYTOMANY',
+            'table2' => $table2,
+            'pivotKey' =>  $pivotKey,
+            'relatedKey' => $relatedKey
+        ];
+        return new static;
     }
 
-    private function tablesAndKeys ($class2, $primaryKey, $foreignKey, $relation): array 
+    private function tablesAndKeys ($class2, $primaryKey, $foreignKey, $relation): void
     {
-        $class = get_called_class();
-
-        $table1 = $class::getClassTable();//posts
+        $model = App::$app->model;
+        $table1 = $model->mainTable;
         $table2 = $class2::getClassTable();//users
 
-        !$primaryKey ? $primaryKey = $this->getPK($table1) : '';
+        $primaryKey = $primaryKey?: $this->getPK($table1);
+        $foreignKey = $foreignKey ?: $this->getFK($table2, $table1) ;
 
-        !$foreignKey ? 
-        $foreignKey = $this->getFK($table2, $table1) 
-        : '';
-
-        return [$relation, $table1, $table2, $foreignKey, $primaryKey];
+        $model->currentRelation = [
+            'type' => $relation,
+            'table2' => $table2,
+            'foreignKey' => $foreignKey,
+            'primaryKey' => $primaryKey
+        ];
     }
 }

@@ -4,88 +4,68 @@ namespace core\database\Model\relations;
 
 use core\App;
 
-
 class Nested extends Relations {
-   
+    private static $relation1; 
+    private static $relation2; 
+
     public static function run ($class, $relation) 
     {
         //user -> posts.comments
-        $relation1 = self::handleFirstRelation($class, $relation);
-        self::handleSecondRelation($class, $relation, $relation1);
+        self::handleFirstRelation($class, $relation);
+        self::handleSecondRelation($class);
     }
 
     private static function handleFirstRelation ($class, $relation) 
     {
         $model = App::$app->model;
 
-        preg_match('/(\w+)\./',$relation, $match);
-        $relation1 = $match[1];//posts
-        
-        $exists = false;
-        if(array_key_exists($relation1, $model->relationData[0])) $exists = true;
-       
-        if(!$exists) {
-            $model->relationName = $relation1; //posts
-            $model->handleRelation($class);// get data[posts]
-        }
+        preg_match('/(\w+).(\w+)/',$relation, $match);
 
-        return $relation1;
+        self::$relation1 = $match[1];//posts
+        self::$relation2 = $match[2];
+               
+        if(!array_key_exists(self::$relation1, $model->relationData[0])) {
+            $model->relationName = self::$relation1; //posts
+            $class = new $class;
+            call_user_func([$class, self::$relation1]);
+            $model->handleRelation();// get data[posts]
+        }
     }
 
-    private static function handleSecondRelation ($class, $relation, $relation1): void 
+    private static function handleSecondRelation ($class): void 
     {
         $model = App::$app->model;
-
-        $class = new $class();
-        $relation1Data = call_user_func([$class, $relation1]);
-
-        $relation2 = str_replace("$relation1.", '', $relation); //comments
-
-        if($relation1Data[0] == 'MANYTOMANY') {
-            $table1 = App::$app->db->getTable($relation2);
+        $class1 = $model->getClassName(self::$relation1);
+        if(!class_exists($class1)){
             $class1 = $class;
-        }else {
-            $table1 = $class::getClassTable();
-            $class1 = $model->getClassName($relation1);
-        } 
-
-        $primaryKey = $model->getPK($table1);//posts.id
-
+        }
+        $table1 = $class1::getClassTable();
         $class1 = new $class1();// new Post()
 
-        $nestedRelation = call_user_func([$class1, $relation2]); //posts::comments
+        if(!method_exists($class1, self::$relation2) ) {
+            $table1 = $model->mainTable;
+        }
 
-        switch ($nestedRelation[0]) {
+        call_user_func([$class1, self::$relation2]); //posts::comments
+
+        $model->currentRelation['relation1'] = self::$relation1;
+        $model->currentRelation['relation2'] = self::$relation2;
+
+        switch ($model->currentRelation['type']) {
             case 'HASMANY':
-                $foreignKey = $model->getFK($relation2, $relation1);// post_id
-                HasMany::nested ($relation1, $relation2, $primaryKey, $foreignKey);
+                HasMany::nested();
             break;
 
             case 'BELONGSTO':
-                $table1 = $nestedRelation[1];
-                $table2 = $nestedRelation[2];
-                $foreignKey = $model->getFK($table1, $table2);
-                BelongsTo::nested($relation1, $relation2, $table2, $primaryKey, $foreignKey);
+                BelongsTo::nested();
             break;
 
             case 'MANYTOMANY':
-                $table1 = $nestedRelation[1];
-                $table2 = $nestedRelation[2];
-                $pivotKey = $nestedRelation[3];
-                $relatedKey = $nestedRelation[4];
-    
-                ManyToMany::nested($table1,
-                                       $table2, 
-                                       $relation1, 
-                                       $relation2, 
-                                       $primaryKey, 
-                                       $relatedKey, 
-                                       $pivotKey);
+                $model->currentRelation['table1'] = $table1;
+                ManyToMany::nested();
             break;
         }
     }
-
-  
 }
 
 /*
