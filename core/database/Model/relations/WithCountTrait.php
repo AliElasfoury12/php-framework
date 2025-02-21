@@ -7,7 +7,7 @@ use core\App;
 trait WithCountTrait
 {
     private static array $relationNames; 
-    public static function withCount ($relationNames)//(likes) 
+    public static function withCount (string $relationNames): static//(likes) 
     {
         // get count of likes on post
                
@@ -16,16 +16,13 @@ trait WithCountTrait
         return  new static;
     }
 
-    public static function handleWithCount () 
+    public static function handleWithCount (): void 
     {
-        $class = new static();
-
         $model = App::$app->model;
-        $table1 =  $class->getClassTable();//posts
-        $primaryKey = $model->getPK($table1);
+        $primaryKey = $model->primaryKey;
 
         foreach (self::$relationNames as $relationName) {
-            $forigenKey = $model->getFK($relationName, $table1);
+            $forigenKey = $model->getFK($relationName, $model->table);
 
             foreach ($model->relationData as &$item) {
                 $id = $item[$primaryKey];

@@ -12,7 +12,6 @@ class Relations {
     public array $relationData;
     public string $requestedCoulmns = '*';
     public array $currentRelation;
-    public string $mainTable;
 
     public function implodeColumns (string $table, array $coulmns): string 
     {
@@ -20,7 +19,7 @@ class Relations {
         return implode(',', $coulmns);
     }
 
-    public function getPK ($table) 
+    public function getPK (string $table): mixed 
     {
         $sql = "SHOW KEYS FROM $table WHERE Key_name = 'PRIMARY'";
         //echo "$sql <br>";
@@ -28,7 +27,7 @@ class Relations {
         return $result[0]["Column_name"];
     }
 
-    public function getFK ($table, $keyPart) 
+    public function getFK (string $table, string $keyPart): mixed 
     {
         $keyPart = rtrim($keyPart, 's');
         $sql = "SHOW KEYS FROM $table WHERE Key_name Like '%$keyPart%'";
@@ -42,16 +41,14 @@ class Relations {
        return $this->tablesAndKeys($class2, $foreignKey, $primaryKey,'HASONE');
     }
 
-    protected function belongsTo ($class2, $foreignKey = '', $primaryKey = '') 
+    protected function belongsTo ($class2, string $foreignKey = '', string $primaryKey = ''): static 
     {
         //table1 posts belongsTO table2 users
         $model = App::$app->model;
-        $table2 = $class2::getClassTable();//users
+        $table2 = $model->getClassTable($class2);//users
 
-        !$primaryKey ? $primaryKey = $this->getPK($table2) : '';
-        !$foreignKey ? 
-        $foreignKey = $this->getFK($model->mainTable, substr($table2, 0, -1)) 
-        : '';
+        $primaryKey = $primaryKey ?: $this->getPK($table2) ;
+        $foreignKey = $foreignKey ?: $this->getFK($model->table,$table2) ;
 
         $model->currentRelation = [
             'type' => 'BELONGSTO',
@@ -71,7 +68,6 @@ class Relations {
 
     protected function manyToMany ($relatedClass, $table2, $pivotKey, $relatedKey) 
     {
-        $table1 = $relatedClass::getClassTable();
         App::$app->model->currentRelation = [
             'type' => 'MANYTOMANY',
             'table2' => $table2,
@@ -81,14 +77,13 @@ class Relations {
         return new static;
     }
 
-    private function tablesAndKeys ($class2, $primaryKey, $foreignKey, $relation): void
+    private function tablesAndKeys ($class2, string $primaryKey, string $foreignKey, string $relation): void
     {
         $model = App::$app->model;
-        $table1 = $model->mainTable;
-        $table2 = $class2::getClassTable();//users
+        $table2 = $model->getClassTable($class2);//users
 
-        $primaryKey = $primaryKey?: $this->getPK($table1);
-        $foreignKey = $foreignKey ?: $this->getFK($table2, $table1) ;
+        $primaryKey = $primaryKey?: $model->primaryKey;
+        $foreignKey = $foreignKey ?: $this->getFK($table2, $model->table) ;
 
         $model->currentRelation = [
             'type' => $relation,

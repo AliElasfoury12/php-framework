@@ -8,14 +8,14 @@ class Nested extends Relations {
     private static $relation1; 
     private static $relation2; 
 
-    public static function run ($class, $relation) 
+    public static function run (string $class, string $relation): void 
     {
         //user -> posts.comments
         self::handleFirstRelation($class, $relation);
         self::handleSecondRelation($class);
     }
 
-    private static function handleFirstRelation (object $class, string $relation): void 
+    private static function handleFirstRelation (string $class, string $relation): void 
     {
         $model = App::$app->model;
 
@@ -33,18 +33,18 @@ class Nested extends Relations {
         }
     }
 
-    private static function handleSecondRelation ($class): void 
+    private static function handleSecondRelation (string $class): void 
     {
         $model = App::$app->model;
         $class1 = $model->getClassName(self::$relation1);
         if(!class_exists($class1)){
             $class1 = $class;
         }
-        $table1 = $class1::getClassTable();
+        $table1 = $model->getClassTable($class1);
         $class1 = new $class1();// new Post()
 
         if(!method_exists($class1, self::$relation2) ) {
-            $table1 = $model->mainTable;
+            $table1 = $model->table;
         }
 
         call_user_func([$class1, self::$relation2]); //posts::comments

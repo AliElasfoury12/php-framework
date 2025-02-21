@@ -60,22 +60,4 @@ trait SQLTrait
 
         return '*';
     }
-
-    public function getRequestedColumns ($table = ''): mixed 
-    {
-        $model = App::$app->model;
-        if (array_key_exists($model->relationName,  $model->requestedCoulmns)) 
-        {
-            $requestedCoulmns = $model->requestedCoulmns[$model->relationName];
-            if($table) {
-                $requestedCoulmns = explode(',', $requestedCoulmns);
-                return $model->implodeColumns($table, $requestedCoulmns);
-            }
-            return $requestedCoulmns;
-        }
-
-       if($table && $model->requestedCoulmns) return "$table.*";
-
-       return '*';
-    }
 }

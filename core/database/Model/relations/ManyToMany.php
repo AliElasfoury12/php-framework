@@ -9,8 +9,8 @@ class ManyToMany extends Relations{
     public static function run () //followers, user_id, follower_id 
     {
         $model= App::$app->model;
-        $table1 = $model->mainTable;
-        $primaryKey1 = $model->getPK($table1);
+        $table1 = $model->table;
+        $primaryKey1 = $model->primaryKey;
 
         $extraQuery = $model->extraQuery($table1);
         $query = $extraQuery['query'];
@@ -41,7 +41,7 @@ class ManyToMany extends Relations{
         $relation2 = $model->currentRelation['relation2'];
         $table1 = $model->currentRelation['table1'];
         $table2 = $model->currentRelation['table2'];
-        $primaryKey = $model->getPK($table1);
+        $primaryKey = $model->primaryKey;
         $relatedKey = $model->currentRelation['relatedKey'];
         $pivotKey = $model->currentRelation['pivotKey'];
 

@@ -8,11 +8,12 @@ trait ModelMethodsTrait
     public array $query = [/*'where' => [], 'query' => [], 'select' => []*/];
     public array $nestedQuery = [/*'where' => [], 'query' => [], 'select' => []*/];
     public string $nestedSelect = '*';
-    private string $table = '';
+    public string $table = '';
+    public string $primaryKey;
     public int $pageNum = 1;
     public array $relations;
 
-    private static function addQuery ($value, $section = 'query'): void 
+    private static function addQuery ($value, string $section = 'query'): void 
     {
         App::$app->model->query[$section][] = $value;
     }
@@ -22,12 +23,12 @@ trait ModelMethodsTrait
         return App::$app->model;
     }
     
-    public static function all (string $columns = '*')
+    public static function all (string $columns = '*'): mixed
     {
         return static::select($columns)->get();
     }
 
-    public static function find ($value, $column = 'id') 
+    public static function find ($value, $column = 'id'): mixed 
     {
        return static::where($column, $value)->get();
     }
@@ -38,9 +39,9 @@ trait ModelMethodsTrait
         return self::get();
     }
 
-    public static function get ()  
+    public static function get (): mixed  
     {
-        $tableName = static::getClassTable();
+        $tableName = self::model()->getClassTable(static::class);
         $sql = self::model()->getQuery();
         $select = self::model()->handleSelect();
   
@@ -50,7 +51,8 @@ trait ModelMethodsTrait
         self::model()->relationData = self::model()->fetch($sql);
         
         if(self::model()->relations) {
-            self::model()->mainTable = $tableName;
+            self::model()->table = $tableName;
+            self::model()->primaryKey = self::model()->getPK($tableName);
             static::handleWith(self::model()->relations);
             static::handleWithCount();
         }
@@ -66,15 +68,9 @@ trait ModelMethodsTrait
         return str_replace('/', '', "app\models\/$class");// app\models\Post
     }
 
-    public static function getClassTable ($nameSpace = 'app\models') //app\models\User
+    public function getClassTable (string $class ,string $nameSpace = 'app\models'): string //app\models\User
     {
-        $table = self::model()->table;
-        if ($table) {
-            self::model()->table = '';
-            return $table;
-        }
-
-        $class = str_replace("$nameSpace\\","" , static::class);// User
+        $class = str_replace("$nameSpace\\","" , $class);// User
         return App::$app->db->getTable($class);
     }
 

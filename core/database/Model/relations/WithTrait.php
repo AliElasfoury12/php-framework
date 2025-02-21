@@ -28,7 +28,7 @@ trait WithTrait
 
             if(str_contains($relation, '.')) //posts.comments
             {
-                Nested::run($class, $relation);
+                Nested::run($class::class, $relation);
                 continue;
             }
 
