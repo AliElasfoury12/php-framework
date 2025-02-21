@@ -6,7 +6,7 @@ use core\App;
 
 trait WithTrait
 {
-    public static function with (array $relations)
+    public static function with (array $relations): static
     {
         App::$app->model->relations = $relations;
 
@@ -15,15 +15,14 @@ trait WithTrait
 
     public static function handleWith(array $relations):array
     {
-        $class = new static();
-
+        $class = new static;
         $model = App::$app->model;
         
         foreach ($relations as $relation) { 
 
             if(str_contains($relation, ':')) //posts:id,post
             {
-                $model->handleRequestedColumns($relation);
+                $model->getRequestedColumns($relation);
                 $relation = $model->relationName;
             }
 
@@ -33,8 +32,8 @@ trait WithTrait
                 continue;
             }
 
-            $model->relationName = $relation;
-            call_user_func([new static, $relation]);
+            $model->select($model->requestedCoulmns);
+            call_user_func([$class, $model->relationName]);
             $model->handleRelation();
         }
 
@@ -52,12 +51,12 @@ trait WithTrait
         ]
     ]
     */
-    private function handleRequestedColumns ($relation) 
+    private function getRequestedColumns (string $relation): void 
     {
         $model = App::$app->model;
-        preg_match("/([\w\.]+):\s*([\w+,\s*]+)/",$relation, $match);
-        $model->relationName = $match[1];//posts
-        $model->requestedCoulmns[$model->relationName] = $match[2]; //reqcol[posts] id,post
+        $colonPostion = strpos($relation,':');
+        $model->relationName = substr($relation, 0, $colonPostion);
+        $model->requestedCoulmns = substr($relation, $colonPostion + 1);
     }
 
     /*

@@ -5,7 +5,9 @@ namespace core\database\Model;
 use core\App;
 trait ModelMethodsTrait
 {
-    public array $query = ['where' => [], 'query' => [], 'select' => []];
+    public array $query = [/*'where' => [], 'query' => [], 'select' => []*/];
+    public array $nestedQuery = [/*'where' => [], 'query' => [], 'select' => []*/];
+    public string $nestedSelect = '*';
     private string $table = '';
     public int $pageNum = 1;
     public array $relations;

@@ -6,13 +6,13 @@ use core\App;
 
 trait SQLTrait
 {
-    public function getQuery ($table = '') 
+    public function getQuery (string $table = ''): string 
     {
         $query = App::$app->model->query;
         $wheres = '';
         $extraQuery = '';
 
-        if($query['where']) {
+        if(isset($query['where'])) {
             $wheres = $query['where'];
             if(!empty($wheres)) {
                 if(count($wheres) > 1) {
@@ -27,7 +27,7 @@ trait SQLTrait
             }
         }
        
-        if($query['query']) {
+        if(isset($query['query'])) {
             $extraQuery = $query['query'];
             if(!empty($extraQuery)) {
                 $extraQuery = implode(' ', $extraQuery);

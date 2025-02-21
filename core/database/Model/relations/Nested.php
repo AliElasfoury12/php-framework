@@ -15,16 +15,17 @@ class Nested extends Relations {
         self::handleSecondRelation($class);
     }
 
-    private static function handleFirstRelation ($class, $relation) 
+    private static function handleFirstRelation (object $class, string $relation): void 
     {
         $model = App::$app->model;
 
-        preg_match('/(\w+).(\w+)/',$relation, $match);
-
-        self::$relation1 = $match[1];//posts
-        self::$relation2 = $match[2];
-               
-        if(!array_key_exists(self::$relation1, $model->relationData[0])) {
+        //preg_match('/(\w+).(\w+)/',$relation, $match);
+        $dotPositon = strpos($model->relationName,'.');
+        self::$relation1 = substr($model->relationName, 0, $dotPositon);
+        self::$relation2 = substr($model->relationName, $dotPositon + 1);
+         
+        if(!array_key_exists(self::$relation1, $model->relationData[0]) 
+        || !array_key_exists(self::$relation1, $model->relationData)) {
             $model->relationName = self::$relation1; //posts
             $class = new $class;
             call_user_func([$class, self::$relation1]);
@@ -50,6 +51,8 @@ class Nested extends Relations {
 
         $model->currentRelation['relation1'] = self::$relation1;
         $model->currentRelation['relation2'] = self::$relation2;
+
+        if($model->requestedCoulmns) $model->select($model->requestedCoulmns);
 
         switch ($model->currentRelation['type']) {
             case 'HASMANY':

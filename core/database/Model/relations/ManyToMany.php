@@ -10,9 +10,11 @@ class ManyToMany extends Relations{
     {
         $model= App::$app->model;
         $table1 = $model->mainTable;
-        
         $primaryKey1 = $model->getPK($table1);
-        $requestedCoulmns = $model->getRequestedColumns($table1);
+
+        $extraQuery = $model->extraQuery($table1);
+        $query = $extraQuery['query'];
+        $select = $extraQuery['select'];
 
         $table2 = $model->currentRelation['table2'];
         $pivotKey = $model->currentRelation['pivotKey'];
@@ -21,19 +23,20 @@ class ManyToMany extends Relations{
         foreach ($model->relationData as &$result) {
             $id = $result[$primaryKey1];
 
-            $sql = "SELECT $requestedCoulmns FROM $table1
+            $sql = "SELECT $select FROM $table1
             JOIN $table2 ON $table2.$relatedKey = $table1.$primaryKey1
-            WHERE $table2.$pivotKey = $id";
+            WHERE $table2.$pivotKey = $id $query";
 
             $result[$model->relationName] = $model->fetch($sql);
         }
+
+        $model->query = [];
     }
 
     public static function nested (): void
     {
         $model = App::$app->model;
         
-        $model = App::$app->model;
         $relation1 = $model->currentRelation['relation1'];
         $relation2 = $model->currentRelation['relation2'];
         $table1 = $model->currentRelation['table1'];
@@ -42,23 +45,13 @@ class ManyToMany extends Relations{
         $relatedKey = $model->currentRelation['relatedKey'];
         $pivotKey = $model->currentRelation['pivotKey'];
 
-        if(array_key_exists("$relation1.$relation2",$model->requestedCoulmns)){
-            $columns = $model->requestedCoulmns["$relation1.$relation2"];
-            $columns = explode(',', $columns);
-            $columns = array_map(fn($c) => "$table1.$c" ,$columns);
-            $columns = implode(',', $columns);
-        }else $columns = "$table1.*";
+        $extraQuery = $model->extraQuery($table1);
+        $query = $extraQuery['query'];
+        $select = $extraQuery['select'];
 
-        $query = $model->getQuery();
-        if($query) {
-            $query = str_replace('WHERE', 'AND', $query);
-        }
-
-        $sql = "SELECT $columns FROM $table1
+        $sql = "SELECT $select FROM $table1
         JOIN $table2 ON $table2.$relatedKey = $table1.$primaryKey
         WHERE $table2.$pivotKey = :id $query";
-
-        //echo "$sql <br>";
 
         foreach ($model->relationData as &$items) {
             if(empty($items[$relation1])) continue;
