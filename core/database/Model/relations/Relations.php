@@ -41,7 +41,7 @@ class Relations {
        return $this->tablesAndKeys($class2, $foreignKey, $primaryKey,'HASONE');
     }
 
-    protected function belongsTo ($class2, string $foreignKey = '', string $primaryKey = ''): static 
+    protected function belongsTo (string $class2, string $foreignKey = '', string $primaryKey = ''): static 
     {
         //table1 posts belongsTO table2 users
         $model = App::$app->model;

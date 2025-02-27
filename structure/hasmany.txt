@@ -1,0 +1,22 @@
+posts = [
+    [
+        id => 1,
+        post => 'post1'
+    ],[
+        id => 2,
+        post => 'post2'
+    ]
+]
+
+data = [
+    [
+        id => 3,
+        post_id => 2,
+        img => 'img1'
+    ],
+    [
+        id => 4,
+        post_id => 2,
+        img => 'img2'
+    ]
+]

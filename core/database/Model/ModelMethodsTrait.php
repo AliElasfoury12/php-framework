@@ -6,12 +6,13 @@ use core\App;
 trait ModelMethodsTrait
 {
     public array $query = [/*'where' => [], 'query' => [], 'select' => []*/];
-    public array $nestedQuery = [/*'where' => [], 'query' => [], 'select' => []*/];
+    public string $orderBy = '';
     public string $nestedSelect = '*';
     public string $table = '';
     public string $primaryKey;
     public int $pageNum = 1;
     public array $relations;
+    public string $dataIds;
 
     private static function addQuery ($value, string $section = 'query'): void 
     {
@@ -41,37 +42,59 @@ trait ModelMethodsTrait
 
     public static function get (): mixed  
     {
-        $tableName = self::model()->getClassTable(static::class);
-        $sql = self::model()->getQuery();
-        $select = self::model()->handleSelect();
+        $model = self::model();
+        $tableName = $model->getClassTable(static::class);
+        $model->table = $tableName;
+        $primaryKey = $model->getPK($tableName);
+
+        $query = $model->getQuery();
+        $select = $model->handleSelect();
+
+        if($model->orderBy){
+            $orderBy = "ORDER BY $tableName".$model->orderBy;
+        }else $orderBy = "ORDER BY $tableName.$primaryKey ASC";
   
-        $sql = "SELECT $select FROM $tableName $sql";
+        $sql = "SELECT $select FROM $tableName $query $orderBy";
         //echo $sql;
-        self::model()->query = [];
-        self::model()->relationData = self::model()->fetch($sql);
+        $model->query = [];
+        $model->relationData = $model->fetch($sql);
         
-        if(self::model()->relations) {
-            self::model()->table = $tableName;
-            self::model()->primaryKey = self::model()->getPK($tableName);
-            static::handleWith(self::model()->relations);
+        if($model->relations) {
+            $model->table = $tableName;
+            $model->primaryKey = $primaryKey;
+            $model->orderBy = $orderBy;
+
+            $sql = "SELECT $primaryKey FROM $tableName $query $orderBy";
+            //echo $sql;
+            $ids = $model->fetch($sql, 'col');
+            $model->dataIds = implode(',',  $ids);
+
+            static::handleWith($model->relations);
             static::handleWithCount();
         }
 
-        if(!array_key_exists(1, self::model()->relationData)) return (object) self::model()->relationData[0];
-        return self::model()->relationData;
+        if(!array_key_exists(1, $model->relationData)) return (object) $model->relationData[0];
+        return $model->relationData;
     }
 
     public function getClassName (string $relation): string 
     {
         $class = ucfirst($relation);//Posts
         $class = trim($class, 's');//Post
-        return str_replace('/', '', "app\models\/$class");// app\models\Post
+        return "app\models\\$class";// app\models\Post
     }
 
     public function getClassTable (string $class ,string $nameSpace = 'app\models'): string //app\models\User
     {
         $class = str_replace("$nameSpace\\","" , $class);// User
         return App::$app->db->getTable($class);
+    }
+
+    public static function latest (): static 
+    {
+        $model =  self::model();
+        $model->orderBy = '.created_at DESC';
+        return new static;
     }
 
     public static function limit ($limit) //app\models\User
@@ -105,7 +128,7 @@ trait ModelMethodsTrait
 
     public static function table (string $table): static 
     {
-        self::$table = $table;
+        self::model()->$table = $table;
         return new static;
     }
 
@@ -120,7 +143,7 @@ trait ModelMethodsTrait
         return  new static;
     }
 
-    public static function minRepeat ($column) 
+    public static function minRepeat (string $column) 
     {
         $tableName = static::getClassTable();
 
@@ -132,7 +155,19 @@ trait ModelMethodsTrait
         return $result[0][$column];
     }
 
-    public static function offset($offset) {
+    public static function offset(string $offset): static 
+    {
         self::addQuery("OFFSET $offset");
+        return new static;
     }
+
+    public static function orderBy(string $column, string $type): static 
+    {
+        $model = self::model();
+        $model->orderBy = ".$column $type";
+        return new static;
+    }
+
+
+
 }

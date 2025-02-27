@@ -8,9 +8,9 @@ use core\database\Model\relations\Relations;
 class MainModel extends Relations {
     use ModelMethodsTrait, SQLTrait, Create, InsertArr;
 
-    public function fetch($sql) 
+    public function fetch(string $sql, string $type = ''): array 
     {
-        return App::$app->db->fetch($sql);
+        return App::$app->db->fetch($sql, $type);
     }
    
 }

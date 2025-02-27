@@ -24,8 +24,7 @@ class Nested extends Relations {
         self::$relation1 = substr($model->relationName, 0, $dotPositon);
         self::$relation2 = substr($model->relationName, $dotPositon + 1);
          
-        if(!array_key_exists(self::$relation1, $model->relationData[0]) 
-        || !array_key_exists(self::$relation1, $model->relationData)) {
+        if(!array_key_exists(self::$relation1, $model->relationData[0]) ) {
             $model->relationName = self::$relation1; //posts
             $class = new $class;
             call_user_func([$class, self::$relation1]);

@@ -8,21 +8,35 @@ class HasMany extends Relations {
     {
         //table1 users hasMany table2 posts
         $model = App::$app->model;
+        $table1 = $model->table;
+        $primaryKey1 = $model->primaryKey;
         $table2 = $model->currentRelation['table2'];
         $foreignKey = $model->currentRelation['foreignKey'];
         $primaryKey = $model->currentRelation['primaryKey'];
 
-        $extraQuery = $model->extraQuery();
+        $extraQuery = $model->extraQuery($table2);
         $query = $extraQuery['query'];
         $select = $extraQuery['select'];
+        $orderBy = $model->orderBy;
 
-        foreach ($model->relationData as &$result) { 
-            $id = $result[$primaryKey];
-            $sql = "SELECT $select 
-            FROM $table2 
-            WHERE $foreignKey = '$id' $query";
-            //echo "$sql </br>";
-            $result[$model->relationName] = $model->fetch($sql) ?? [];
+        $ids = $model->dataIds;
+       
+        $sql = "SELECT $select FROM $table1 INNER JOIN $table2 
+        ON $table1.$primaryKey = $table2.$foreignKey
+        WHERE $table1.$primaryKey1 IN ($ids) 
+        $query $orderBy";
+        // echo "$sql <br>"; 
+        $data =  $model->fetch($sql);
+        $dataLength = count($data);
+
+        $i = 0;
+        foreach ($model->relationData as &$item) {
+            $item[$model->relationName] = [];
+
+            while($i < $dataLength-1 && $item[$primaryKey] == $data[$i][$foreignKey]){
+                $item[$model->relationName][] = $data[$i];
+                $i++;
+            }
         }
 
         $model->query = [];

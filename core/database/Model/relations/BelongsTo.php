@@ -11,20 +11,27 @@ class BelongsTo extends Relations {
         //table1 posts belongsTO table2 users
         $model = App::$app->model;
 
-        $extraQuery = $model->extraQuery();
-        $query = $extraQuery['query'];
-        $select = $extraQuery['select'];
-
+        $table1 = $model->table;
+        $primaryKey1 = $model->primaryKey;
         $table2 = $model->currentRelation['table2'];
         $foreignKey = $model->currentRelation['foreignKey'];
         $primaryKey = $model->currentRelation['primaryKey'];
 
-        foreach ($model->relationData as &$item) { 
-            $id = $item[$foreignKey];
-            $sql = "SELECT $select FROM $table2 
-            WHERE $primaryKey = '$id' $query" ;
-            //echo "$sql </br>";
-            $item[$model->relationName] = $model->fetch($sql)[0] ?? [];
+        $extraQuery = $model->extraQuery($table2);
+        $query = $extraQuery['query'];
+        $select = $extraQuery['select'];
+        $orderBy = $model->orderBy;
+
+        $ids = $model->dataIds;
+       
+        $sql = "SELECT $select FROM $table1 LEFT JOIN $table2 
+        ON $table2.$primaryKey = $table1.$foreignKey
+        WHERE $table1.$primaryKey1 IN ($ids) $query $orderBy";
+        //echo "$sql <br>"; 
+        $data = $model->fetch($sql);
+
+        foreach ($model->relationData as $key => &$item) {
+            $item[$model->relationName] = $data[$key];
         }
 
         $model->query = [];
@@ -56,7 +63,7 @@ class BelongsTo extends Relations {
                     $id = $item[$foreignKey]; 
                     $sql = "SELECT $select FROM $table2 WHERE $primaryKey = '$id' $query";
                     //echo "$sql <br>";
-                    $item[$relation1][$relation2] = $model->fetch($sql)[0];
+                    $item[$relation2] = $model->fetch($sql)[0];
                 }
             }
         }

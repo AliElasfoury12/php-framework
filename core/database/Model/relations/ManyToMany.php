@@ -15,19 +15,31 @@ class ManyToMany extends Relations{
         $extraQuery = $model->extraQuery($table1);
         $query = $extraQuery['query'];
         $select = $extraQuery['select'];
+        $orderBy = $model->orderBy;
 
         $table2 = $model->currentRelation['table2'];
         $pivotKey = $model->currentRelation['pivotKey'];
         $relatedKey = $model->currentRelation['relatedKey'];
 
-        foreach ($model->relationData as &$result) {
-            $id = $result[$primaryKey1];
+        $ids = $model->dataIds;
 
-            $sql = "SELECT $select FROM $table1
-            JOIN $table2 ON $table2.$relatedKey = $table1.$primaryKey1
-            WHERE $table2.$pivotKey = $id $query";
+        $sql = "SELECT $select,$table2.$pivotKey AS pivot FROM $table1
+        JOIN $table2 ON $table2.$relatedKey = $table1.$primaryKey1
+        WHERE $table2.$pivotKey IN ($ids) 
+        $query $orderBy";
+        //echo "$sql <br>"; 
 
-            $result[$model->relationName] = $model->fetch($sql);
+        $data = $model->fetch($sql);
+        $dataLength = count($data);
+
+        $i = 0;
+        foreach ($model->relationData as &$item) {
+            $item[$model->relationName] = [];
+
+            while($i < $dataLength-1 && $item[$primaryKey1] == $data[$i]['pivot']){
+                $item[$model->relationName][] = $data[$i];
+                $i++;
+            }
         }
 
         $model->query = [];

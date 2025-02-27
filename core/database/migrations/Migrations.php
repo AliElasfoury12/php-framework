@@ -9,7 +9,7 @@ use core\database\DB;
 class Migrations extends DB
 {
    
-    public function applyMigrations ()
+    public function applyMigrations (): void
     {
         $appliedMigrations = $this->getAppliedMigrations();
 
@@ -41,7 +41,7 @@ class Migrations extends DB
         }
     }
 
-    public function getAppliedMigrations ()
+    public function getAppliedMigrations (): array
     {
        try {
             $statment = App::$app->db->exec("SELECT  migration FROM migrations");
@@ -51,14 +51,14 @@ class Migrations extends DB
         }
     }
 
-    public function saveMigrations (array $migrations)
+    public function saveMigrations (array $migrations): void
     {
         $migrations = array_map(fn ($m) => "('$m')",$migrations);
         $str = implode(',', $migrations);
         App::$app->db->exec("INSERT INTO migrations ( migration ) VALUES $str");
     }
 
-    public function log ($message)
+    public function log (string $message): void
     {
         echo '['.date('Y-m-d H:i:s').'] - '.$message.PHP_EOL;
     }

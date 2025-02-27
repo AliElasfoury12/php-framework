@@ -37,7 +37,8 @@ class DB
         return $statment;
     }
 
-     public function fetch (string $sql, string $type = ''){
+     public function fetch (string $sql, string $type = ''): array
+     {
         switch ($type) {
             case 'obj':
                 $type = PDO::FETCH_OBJ;
@@ -45,12 +46,15 @@ class DB
             case 'col':
                 $type = PDO::FETCH_COLUMN;
             break;
+            case 'num':
+                $type = PDO::FETCH_NUM;
+            break;
             
             default:
                $type = PDO::FETCH_ASSOC;
         }
 
-        $statment = $this->exec ($sql);
+        $statment = $this->exec($sql);
         return $statment->fetchAll($type);
     }
 
