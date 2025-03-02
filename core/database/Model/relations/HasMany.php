@@ -10,9 +10,9 @@ class HasMany extends Relations {
         $model = App::$app->model;
         $table1 = $model->table;
         $primaryKey1 = $model->primaryKey;
-        $table2 = $model->currentRelation['table2'];
-        $foreignKey = $model->currentRelation['foreignKey'];
-        $primaryKey = $model->currentRelation['primaryKey'];
+        $table2 = $model->currentRelation->table2;
+        $foreignKey = $model->currentRelation->foreignKey;
+        $primaryKey = $model->currentRelation->primaryKey;
 
         $extraQuery = $model->extraQuery($table2);
         $query = $extraQuery['query'];
@@ -33,7 +33,7 @@ class HasMany extends Relations {
         foreach ($model->relationData as &$item) {
             $item[$model->relationName] = [];
 
-            while($i < $dataLength-1 && $item[$primaryKey] == $data[$i][$foreignKey]){
+            while($i < $dataLength && $item[$primaryKey] == $data[$i][$foreignKey]){
                 $item[$model->relationName][] = $data[$i];
                 $i++;
             }
@@ -45,10 +45,10 @@ class HasMany extends Relations {
     public static function nested (): void 
     {
         $model = App::$app->model;
-        $relation1 = $model->currentRelation['relation1'];
-        $relation2 = $model->currentRelation['relation2'];
-        $primaryKey = $model->currentRelation['primaryKey'];
-        $foreignKey = $model->currentRelation['foreignKey'];
+        $relation1 = $model->currentRelation->relation1;
+        $relation2 = $model->currentRelation->relation2;
+        $foreignKey = $model->currentRelation->foreignKey;
+        $primaryKey = $model->currentRelation->primaryKey;
         
         $extraQuery = $model->extraQuery();
         $query = $extraQuery['query'];

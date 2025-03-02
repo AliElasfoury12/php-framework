@@ -13,9 +13,10 @@ class BelongsTo extends Relations {
 
         $table1 = $model->table;
         $primaryKey1 = $model->primaryKey;
-        $table2 = $model->currentRelation['table2'];
-        $foreignKey = $model->currentRelation['foreignKey'];
-        $primaryKey = $model->currentRelation['primaryKey'];
+
+        $table2 = $model->currentRelation->table2;
+        $foreignKey = $model->currentRelation->foreignKey;
+        $primaryKey = $model->currentRelation->primaryKey;
 
         $extraQuery = $model->extraQuery($table2);
         $query = $extraQuery['query'];
@@ -35,18 +36,20 @@ class BelongsTo extends Relations {
         }
 
         $model->query = [];
+
     }
 
     public static function nested (): void
     {
         $model = App::$app->model;
-        $relation1 = $model->currentRelation['relation1'];
-        $relation2 = $model->currentRelation['relation2'];
-        $table2 = $model->currentRelation['table2'];
-        $primaryKey = $model->currentRelation['primaryKey'];
-        $foreignKey = $model->currentRelation['foreignKey'];
+        $table1 = $model->table;
+        $relation1 = $model->currentRelation->relation1;
+        $relation2 = $model->currentRelation->relation2;
+       $table2 = $model->currentRelation->table2;
+        $foreignKey = $model->currentRelation->foreignKey;
+        $primaryKey = $model->currentRelation->primaryKey;
 
-        $extraQuery = $model->extraQuery();
+        $extraQuery = $model->extraQuery($table2);
         $query = $extraQuery['query'];
         $select = $extraQuery['select'];
 

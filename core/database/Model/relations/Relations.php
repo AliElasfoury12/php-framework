@@ -11,7 +11,14 @@ class Relations {
     public string $relationName;
     public array $relationData;
     public string $requestedCoulmns = '*';
-    public array $currentRelation;
+    public ?CurrentRelation $currentRelation = null;
+    public ?RELATIONSTYPE $relationTypes = null;
+
+    public function __construct() 
+    {
+        $this->currentRelation = new CurrentRelation;
+        $this->relationTypes = new RELATIONSTYPE;
+    }
 
     public function implodeColumns (string $table, array $coulmns): string 
     {
@@ -36,9 +43,11 @@ class Relations {
         return $result[0]["Column_name"];
     }
 
-    protected function hasOne ($class2, $foreignKey = '', $primaryKey = '') 
+    protected function hasOne (string $class2, string $foreignKey = '', string $primaryKey = ''): static
     {
-       return $this->tablesAndKeys($class2, $foreignKey, $primaryKey,'HASONE');
+        $model = App::$app->model;
+        $this->tablesAndKeys($class2, $foreignKey, $primaryKey,$model->relationTypes::HASONE);
+        return new static;
     }
 
     protected function belongsTo (string $class2, string $foreignKey = '', string $primaryKey = ''): static 
@@ -50,34 +59,50 @@ class Relations {
         $primaryKey = $primaryKey ?: $this->getPK($table2) ;
         $foreignKey = $foreignKey ?: $this->getFK($model->table,$table2) ;
 
-        $model->currentRelation = [
+        /*$model->currentRelation = [
             'type' => 'BELONGSTO',
             'table2' => $table2,
             'foreignKey' => $foreignKey,
             'primaryKey' => $primaryKey
-        ];
+        ];*/
+
+        $currentRelation = $model->currentRelation;
+        $currentRelation->type = $model->relationTypes::BELONGSTO;
+        $currentRelation->table2 = $table2;
+        $currentRelation->foreignKey = $foreignKey;
+        $currentRelation->primaryKey = $primaryKey;
 
         return new static;
     }
 
-    protected function hasMany ($class2, $foreignKey = '', $primaryKey = '') 
+    protected function hasMany (string $class2, string $foreignKey = '', string $primaryKey = ''): static 
     {
-        $this->tablesAndKeys($class2, $foreignKey, $primaryKey,'HASMANY');
+        $model = App::$app->model;
+        $this->tablesAndKeys($class2, $foreignKey, $primaryKey,$model->relationTypes::HASMANY);
         return new static;
     }
 
-    protected function manyToMany ($relatedClass, $table2, $pivotKey, $relatedKey) 
+    protected function manyToMany (string $relatedClass, string $pivotTable, string $pivotKey, string $relatedKey): static 
     {
-        App::$app->model->currentRelation = [
+       /* App::$app->model->currentRelation = [
             'type' => 'MANYTOMANY',
-            'table2' => $table2,
+            'pivotTable' => $pivotTable,
             'pivotKey' =>  $pivotKey,
             'relatedKey' => $relatedKey
-        ];
+        ];*/
+        $model = App::$app->model;
+
+
+        $currentRelation = $model->currentRelation;
+        $currentRelation->type = $model->relationTypes::MANYTOMANY;
+        $currentRelation->pivotTable = $pivotTable;
+        $currentRelation->pivotKey = $pivotKey;
+        $currentRelation->relatedKey = $relatedKey;
+
         return new static;
     }
 
-    private function tablesAndKeys ($class2, string $primaryKey, string $foreignKey, string $relation): void
+    private function tablesAndKeys (string $class2, string $primaryKey, string $foreignKey, string $relation): void
     {
         $model = App::$app->model;
         $table2 = $model->getClassTable($class2);//users
@@ -85,12 +110,19 @@ class Relations {
         $primaryKey = $primaryKey?: $model->primaryKey;
         $foreignKey = $foreignKey ?: $this->getFK($table2, $model->table) ;
 
-        $model->currentRelation = [
+       /* $model->currentRelation = [
             'type' => $relation,
             'table2' => $table2,
             'foreignKey' => $foreignKey,
             'primaryKey' => $primaryKey
-        ];
+        ];*/
+
+        $currentRelation = $model->currentRelation;
+        $currentRelation->type = $relation;
+        $currentRelation->table2 = $table2;
+        $currentRelation->foreignKey = $foreignKey;
+        $currentRelation->primaryKey = $primaryKey;
+
     }
 
     protected static function extraQuery (string $table = ''): array 

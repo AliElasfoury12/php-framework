@@ -10,8 +10,25 @@ class Nested extends Relations {
 
     public static function run (string $class, string $relation): void 
     {
+        $sql = "SELECT users.id, users.name from posts 
+        INNER JOIN shared_posts ON posts.id = shared_posts.shared_post_id
+        INNER JOIN posts as shared ON shared_posts.shared_post_id = shared.id
+        INNER JOIN users ON shared.user_id = users.id";
+
         //user -> posts.comments
         self::handleFirstRelation($class, $relation);
+        $model = App::$app->model;
+
+        if($model->relationData['type'] == $model->relationTypes::MANYTOMANY) {
+            $table1 = $model->table;
+            $pivotTable = $model->currentRelation->pivotTable;
+
+            $sql = "SELECT :select From $table1
+            INNER JOIN $pivotTable ON $pivotTable. ";
+        }
+
+       
+       
         self::handleSecondRelation($class);
     }
 
@@ -19,7 +36,6 @@ class Nested extends Relations {
     {
         $model = App::$app->model;
 
-        //preg_match('/(\w+).(\w+)/',$relation, $match);
         $dotPositon = strpos($model->relationName,'.');
         self::$relation1 = substr($model->relationName, 0, $dotPositon);
         self::$relation2 = substr($model->relationName, $dotPositon + 1);
@@ -48,22 +64,23 @@ class Nested extends Relations {
 
         call_user_func([$class1, self::$relation2]); //posts::comments
 
-        $model->currentRelation['relation1'] = self::$relation1;
-        $model->currentRelation['relation2'] = self::$relation2;
+        $model->currentRelation->relation1 = self::$relation1;
+        $model->currentRelation->relation2 = self::$relation2;
 
         if($model->requestedCoulmns) $model->select($model->requestedCoulmns);
+        $types = $model->relationTypes;
 
-        switch ($model->currentRelation['type']) {
-            case 'HASMANY':
+        switch ($model->currentRelation->type) {
+            case $types::HASMANY:
                 HasMany::nested();
             break;
 
-            case 'BELONGSTO':
+            case $types::BELONGSTO:
                 BelongsTo::nested();
             break;
 
-            case 'MANYTOMANY':
-                $model->currentRelation['table1'] = $table1;
+            case $types::MANYTOMANY:
+                $model->currentRelation->table1 = $table1;
                 ManyToMany::nested();
             break;
         }

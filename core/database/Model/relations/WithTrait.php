@@ -68,24 +68,29 @@ trait WithTrait
 
     protected function handleRelation (): void 
     {
-        $type = App::$app->model->currentRelation['type'];
+        $model = App::$app->model;
+        $type = $model->currentRelation->type;
+        $RelationsTypes = $model->relationTypes;
 
         switch ($type) {
-            case 'HASMANY':
+            case $RelationsTypes::HASMANY:
                 HasMany::run();
             break;
 
-            case 'BELONGSTO' :
+            case $RelationsTypes::BELONGSTO:
                 BelongsTo::run();
             break;
 
-            case 'HASONE':
+            case $RelationsTypes::HASONE:
                 BelongsTo::run();
             break;
 
-            case 'MANYTOMANY':
+            case $RelationsTypes::MANYTOMANY:
                 ManyToMany::run();
             break;
         }
+
     }    
 }
+
+
