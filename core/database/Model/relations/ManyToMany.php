@@ -6,26 +6,31 @@ use core\App;
 
 class ManyToMany extends Relations{
 
-    public static function run () //followers, user_id, follower_id 
+    public static function run (): string //followers, user_id, follower_id 
     {
         $model= App::$app->model;
         $table1 = $model->table;
         $primaryKey1 = $model->primaryKey;
+
+        $pivotTable = $model->currentRelation->pivotTable;
+        $pivotKey = $model->currentRelation->pivotKey;
+        $relatedKey = $model->currentRelation->relatedKey;
+
+        if(array_key_exists($model->relationName, $model->relationData[0])) {
+            return "SELECT :select FROM $table1
+            INNER JOIN $pivotTable ON $pivotTable.$relatedKey = $table1.$primaryKey1";
+        }
 
         $extraQuery = $model->extraQuery($table1);
         $query = $extraQuery['query'];
         $select = $extraQuery['select'];
         $orderBy = $model->orderBy;
 
-        $pivotTable = $model->currentRelation->pivotTable;
-        $pivotKey = $model->currentRelation->pivotKey;
-        $relatedKey = $model->currentRelation->relatedKey;
-
         $ids = $model->dataIds;
 
         $sql = "SELECT $select,$pivotTable.$pivotKey AS pivot FROM $table1
-        JOIN $pivotTable ON $pivotTable.$relatedKey = $table1.$primaryKey1
-        WHERE $pivotTable.$pivotKey IN ($ids) $query $orderBy";
+        INNER JOIN $pivotTable ON $pivotTable.$relatedKey = $table1.$primaryKey1
+        WHERE $table1.$primaryKey1 IN ($ids) $query $orderBy";
         //echo "$sql <br>"; 
 
         $data = $model->fetch($sql);
@@ -42,9 +47,11 @@ class ManyToMany extends Relations{
         }
 
         $model->query = [];
+        return "SELECT :select FROM $table1
+        INNER JOIN $pivotTable ON $pivotTable.$relatedKey = $table1.$primaryKey1";
     }
 
-    public static function nested (): void
+    public static function nested (string $firstSql): void
     {
         $model = App::$app->model;
         

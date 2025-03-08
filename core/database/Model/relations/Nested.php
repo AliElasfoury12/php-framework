@@ -16,39 +16,24 @@ class Nested extends Relations {
         INNER JOIN users ON shared.user_id = users.id";
 
         //user -> posts.comments
-        self::handleFirstRelation($class, $relation);
-        $model = App::$app->model;
-
-        if($model->relationData['type'] == $model->relationTypes::MANYTOMANY) {
-            $table1 = $model->table;
-            $pivotTable = $model->currentRelation->pivotTable;
-
-            $sql = "SELECT :select From $table1
-            INNER JOIN $pivotTable ON $pivotTable. ";
-        }
-
-       
-       
-        self::handleSecondRelation($class);
+        $firstSql = self::handleFirstRelation($class, $relation); 
+        self::handleSecondRelation($class, $firstSql);
     }
 
-    private static function handleFirstRelation (string $class, string $relation): void 
+    private static function handleFirstRelation (string $class, string $relation): string 
     {
-        $model = App::$app->model;
+        $dotPositon = strpos($relation,'.');
+        self::$relation1 = substr($relation, 0, $dotPositon);
+        self::$relation2 = substr($relation, $dotPositon + 1);
 
-        $dotPositon = strpos($model->relationName,'.');
-        self::$relation1 = substr($model->relationName, 0, $dotPositon);
-        self::$relation2 = substr($model->relationName, $dotPositon + 1);
-         
-        if(!array_key_exists(self::$relation1, $model->relationData[0]) ) {
-            $model->relationName = self::$relation1; //posts
-            $class = new $class;
-            call_user_func([$class, self::$relation1]);
-            $model->handleRelation();// get data[posts]
-        }
+        $model = App::$app->model;
+        $model->relationName = self::$relation1; //posts
+        $class = new $class;
+        call_user_func([$class, self::$relation1]);
+        return $model->handleRelation();
     }
 
-    private static function handleSecondRelation (string $class): void 
+    private static function handleSecondRelation (string $class, string $firstSql): void 
     {
         $model = App::$app->model;
         $class1 = $model->getClassName(self::$relation1);
@@ -72,16 +57,16 @@ class Nested extends Relations {
 
         switch ($model->currentRelation->type) {
             case $types::HASMANY:
-                HasMany::nested();
+                HasMany::nested($firstSql);
             break;
 
             case $types::BELONGSTO:
-                BelongsTo::nested();
+                BelongsTo::nested($firstSql);
             break;
 
             case $types::MANYTOMANY:
                 $model->currentRelation->table1 = $table1;
-                ManyToMany::nested();
+                ManyToMany::nested($firstSql);
             break;
         }
     }
