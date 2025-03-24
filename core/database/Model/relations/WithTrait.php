@@ -66,26 +66,32 @@ trait WithTrait
     X posts.comments:id
      */
 
-    protected function handleRelation (): void 
+    protected function handleRelation (): string 
     {
-        $type = App::$app->model->currentRelation['type'];
+        $model = App::$app->model;
+        $type = $model->currentRelation->type;
+        $RelationsTypes = $model->relationTypes;
 
         switch ($type) {
-            case 'HASMANY':
-                HasMany::run();
+            case $RelationsTypes::HASMANY:
+               $sql = HasMany::run();
             break;
 
-            case 'BELONGSTO' :
-                BelongsTo::run();
+            case $RelationsTypes::BELONGSTO:
+               $sql = BelongsTo::run();
             break;
 
-            case 'HASONE':
-                BelongsTo::run();
+            case $RelationsTypes::HASONE:
+                $sql = BelongsTo::run();
             break;
 
-            case 'MANYTOMANY':
-                ManyToMany::run();
+            case $RelationsTypes::MANYTOMANY:
+               $sql = ManyToMany::run();
             break;
         }
+
+        return $sql;
     }    
 }
+
+
