@@ -53,7 +53,7 @@ class ManyToMany extends Relations{
         INNER JOIN $table2 AS alias ON alias.$primaryKey2 = $pivotTable.$relatedKey";
     }
 
-    public static function nested (string $firstSql): void
+    public static function nested (): void
     {
         $model = App::$app->model;
         

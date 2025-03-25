@@ -6,32 +6,26 @@ use core\App;
 
 class BelongsTo extends Relations {
     
-    public static function run (): string 
+    public static function run (): void
     {
         //table1 posts belongsTO table2 users
         $model = App::$app->model;
-
         $table1 = $model->table;
         $primaryKey1 = $model->primaryKey;
+        $orderBy = $model->orderBy;
+        $ids = $model->dataIds;
 
         $table2 = $model->currentRelation->table2;
         $foreignKey = $model->currentRelation->foreignKey;
-        $primaryKey = $model->currentRelation->primaryKey;
-
-        if(array_key_exists($model->relationName, $model->relationData[0])) {
-            return "SELECT :select FROM $table1 
-            LEFT JOIN $table2  ON $table2.$primaryKey = $table1.$foreignKey";
-        }
+        $primaryKey2 = $model->currentRelation->primaryKey;
 
         $extraQuery = $model->extraQuery($table2);
         $query = $extraQuery['query'];
         $select = $extraQuery['select'];
-        $orderBy = $model->orderBy;
-
-        $ids = $model->dataIds;
+      
        
         $sql = "SELECT $select FROM $table1 
-        LEFT JOIN $table2  ON $table2.$primaryKey = $table1.$foreignKey
+        LEFT JOIN $table2  ON $table2.$primaryKey2 = $table1.$foreignKey
         WHERE $table1.$primaryKey1 IN ($ids) $query $orderBy";
         //echo "$sql <br>"; 
         $data = $model->fetch($sql);
@@ -41,41 +35,64 @@ class BelongsTo extends Relations {
         }
 
         $model->query = [];
-        return "SELECT :select FROM $table1 
-        LEFT JOIN $table2  ON $table2.$primaryKey = $table1.$foreignKey";
     }
 
-    public static function nested (string $firstSql): void
+    public static function nested (): void
     {
         $model = App::$app->model;
+        $table1 = $model->table;
+        $primaryKey1 = $model->primaryKey;
+        $ids = $model->dataIds;
+        $orderBy = $model->orderBy;
 
-        $relation1 = $model->currentRelation->relation1;
-        $relation2 = $model->currentRelation->relation2;
-        $table2 = $model->currentRelation->table2;
-        $foreignKey = $model->currentRelation->foreignKey;
-        $primaryKey = $model->currentRelation->primaryKey;
+        $current_relation = $model->currentRelation;
+        $relation1 = $current_relation->relation1;
+        $relation2 = $current_relation->relation2;
+        $table2 = $current_relation->table2;
+        $foreignKey = $current_relation->foreignKey;
+        $primaryKey2 = $current_relation->primaryKey;
+        $first_sql_part = $current_relation->FirstSqlPart;
 
         $extraQuery = $model->extraQuery($table2);
         $query = $extraQuery['query'];
         $select = $extraQuery['select'];
 
-        $sql = str_replace(':select', $select, $firstSql);
-        $sql = "$sql INNER JOIN $table2 ON $table2.$primaryKey =";
+        $sql = 
+        "SELECT $select FROM $table1 
+        $first_sql_part
+        INNER JOIN $table2 ON $table2.$primaryKey2 = alias.$foreignKey
+        WHERE $table1.$primaryKey1 IN ($ids) $query $orderBy";
+        //echo "$sql <br>";
+        
+        $data = $model->fetch($sql);
+        $dataLength = count($data);
 
+        $i = 0;
+   
         foreach ($model->relationData as &$unit) {
             if(empty($unit[$relation1])) continue;
 
             if(array_key_exists($foreignKey, $unit[$relation1])){
-                $id = $unit[$relation1][$foreignKey];
-                $sql = "SELECT $select FROM $table2 WHERE $primaryKey = '$id' $query";
+               /* $id = $unit[$relation1][$foreignKey];
+                $sql = "SELECT $select FROM $table2 WHERE $primaryKey2 = '$id' $query";
                 //echo "$sql <br>";
-                $unit[$relation1][$relation2] = $model->fetch($sql)[0];
+                $unit[$relation1][$relation2] = $model->fetch($sql)[0];*/
+                if($i < $dataLength && $unit[$relation1][$foreignKey] == $data[$i][$primaryKey2]){
+                    $unit[$relation1][$relation2] = $data[$i];
+                    $i++;
+                }
             }else {
                 foreach ($unit[$relation1] as &$item) {
+                    if($i < $dataLength  && $item[$foreignKey] == $data[$i][$primaryKey2]){
+                        $item[$relation2] = $data[$i];
+                        $i++; 
+                    }
+                    /*
                     $id = $item[$foreignKey]; 
-                    $sql = "SELECT $select FROM $table2 WHERE $primaryKey = '$id' $query";
+                    $sql = "SELECT $select FROM $table2 WHERE $primaryKey2 = '$id' $query";
                     //echo "$sql <br>";
                     $item[$relation2] = $model->fetch($sql)[0];
+                    */
                 }
             }
         }

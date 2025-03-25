@@ -11,8 +11,8 @@ class Nested extends Relations {
     public static function run (string $class, string $relation): void 
     {
         //user -> posts.comments
-        $firstSql = self::handleFirstRelation($class, $relation); 
-        self::handleSecondRelation($class, $firstSql);
+        self::handleFirstRelation($class, $relation); 
+        self::handleSecondRelation($class);
     }
 
     private static function handleFirstRelation (string $class, string $relation)
@@ -30,7 +30,7 @@ class Nested extends Relations {
         return $model->handleRelation();
     }
 
-    private static function handleSecondRelation (string $class, string $firstSql): void 
+    private static function handleSecondRelation (string $class): void 
     {
         $model = App::$app->model;
         $class1 = $model->getClassName(self::$relation1);
@@ -54,16 +54,16 @@ class Nested extends Relations {
 
         switch ($model->currentRelation->type) {
             case $types::HASMANY:
-                HasMany::nested($firstSql);
+                HasMany::nested();
             break;
 
             case $types::BELONGSTO:
-                BelongsTo::nested($firstSql);
+                BelongsTo::nested();
             break;
 
             case $types::MANYTOMANY:
                 $model->currentRelation->table1 = $table1;
-                ManyToMany::nested($firstSql);
+                ManyToMany::nested();
             break;
         }
     }

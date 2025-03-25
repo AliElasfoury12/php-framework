@@ -50,7 +50,7 @@ class HasMany extends Relations {
         INNER JOIN $table2 ON $table1.$primaryKey = $table2.$foreignKey";
     }
 
-    public static function nested (string $firstSql): void 
+    public static function nested (): void 
     {
         $model = App::$app->model;
         $relation1 = $model->currentRelation->relation1;

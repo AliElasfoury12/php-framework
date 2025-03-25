@@ -66,7 +66,7 @@ trait WithTrait
     X posts.comments:id
      */
 
-    protected function handleRelation (): string 
+    protected function handleRelation (): void
     {
         $model = App::$app->model;
         $type = $model->currentRelation->type;
@@ -74,23 +74,21 @@ trait WithTrait
 
         switch ($type) {
             case $RelationsTypes::HASMANY:
-               $sql = HasMany::run();
+                HasMany::run();
             break;
 
             case $RelationsTypes::BELONGSTO:
-               $sql = BelongsTo::run();
+                BelongsTo::run();
             break;
 
             case $RelationsTypes::HASONE:
-                $sql = BelongsTo::run();
+                BelongsTo::run();
             break;
 
             case $RelationsTypes::MANYTOMANY:
-               $sql = ManyToMany::run();
+                ManyToMany::run();
             break;
         }
-
-        return $sql;
     }    
 }
 
