@@ -84,17 +84,12 @@ class Relations {
 
     protected function manyToMany (string $relatedClass, string $pivotTable, string $pivotKey, string $relatedKey): static 
     {
-       /* App::$app->model->currentRelation = [
-            'type' => 'MANYTOMANY',
-            'pivotTable' => $pivotTable,
-            'pivotKey' =>  $pivotKey,
-            'relatedKey' => $relatedKey
-        ];*/
         $model = App::$app->model;
-
 
         $currentRelation = $model->currentRelation;
         $currentRelation->type = $model->relationTypes::MANYTOMANY;
+        $currentRelation->table2 = $model->getClassTable($relatedClass);
+        $currentRelation->primaryKey = $model->getPK($currentRelation->table2);
         $currentRelation->pivotTable = $pivotTable;
         $currentRelation->pivotKey = $pivotKey;
         $currentRelation->relatedKey = $relatedKey;

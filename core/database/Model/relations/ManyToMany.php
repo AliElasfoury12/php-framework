@@ -6,30 +6,30 @@ use core\App;
 
 class ManyToMany extends Relations{
 
-    public static function run (): string //followers, user_id, follower_id 
+    public static function run (): void //followers, user_id, follower_id 
     {
         $model= App::$app->model;
         $table1 = $model->table;
         $primaryKey1 = $model->primaryKey;
+        $current_relation = $model->currentRelation;
 
-        $pivotTable = $model->currentRelation->pivotTable;
-        $pivotKey = $model->currentRelation->pivotKey;
-        $relatedKey = $model->currentRelation->relatedKey;
+        $table2 = $current_relation->table2;
+        $primaryKey2 = $current_relation->primaryKey;
+        $pivotTable = $current_relation->pivotTable;
+        $pivotKey = $current_relation->pivotKey;
+        $relatedKey = $current_relation->relatedKey;
 
-        if(array_key_exists($model->relationName, $model->relationData[0])) {
-            return "SELECT :select FROM $table1
-            INNER JOIN $pivotTable ON $pivotTable.$relatedKey = $table1.$primaryKey1";
-        }
-
-        $extraQuery = $model->extraQuery($table1);
+        $extraQuery = $model->extraQuery('alias');
         $query = $extraQuery['query'];
         $select = $extraQuery['select'];
         $orderBy = $model->orderBy;
 
         $ids = $model->dataIds;
 
-        $sql = "SELECT $select,$pivotTable.$pivotKey AS pivot FROM $table1
-        INNER JOIN $pivotTable ON $pivotTable.$relatedKey = $table1.$primaryKey1
+        $sql = 
+        "SELECT $select, $table1.$primaryKey1 AS pivot FROM $table1
+        INNER JOIN $pivotTable ON $table1.$primaryKey1 = $pivotTable.$pivotKey
+        INNER JOIN $table2 AS alias ON alias.$primaryKey2 = $pivotTable.$relatedKey
         WHERE $table1.$primaryKey1 IN ($ids) $query $orderBy";
         //echo "$sql <br>"; 
 
@@ -47,8 +47,10 @@ class ManyToMany extends Relations{
         }
 
         $model->query = [];
-        return "SELECT :select FROM $table1
-        INNER JOIN $pivotTable ON $pivotTable.$relatedKey = $table1.$primaryKey1";
+
+        $model->currentRelation->FirstSqlPart = 
+        "INNER JOIN $pivotTable ON $table1.$primaryKey1 = $pivotTable.$pivotKey
+        INNER JOIN $table2 AS alias ON alias.$primaryKey2 = $pivotTable.$relatedKey";
     }
 
     public static function nested (string $firstSql): void

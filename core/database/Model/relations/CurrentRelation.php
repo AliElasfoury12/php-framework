@@ -14,4 +14,5 @@ class CurrentRelation
     public string $relatedKey;
     public string $relation1;
     public string $relation2;
+    public string $FirstSqlPart;
 }

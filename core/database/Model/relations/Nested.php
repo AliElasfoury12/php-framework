@@ -10,23 +10,20 @@ class Nested extends Relations {
 
     public static function run (string $class, string $relation): void 
     {
-        $sql = "SELECT users.id, users.name from posts 
-        INNER JOIN shared_posts ON posts.id = shared_posts.shared_post_id
-        INNER JOIN posts as shared ON shared_posts.shared_post_id = shared.id
-        INNER JOIN users ON shared.user_id = users.id";
-
         //user -> posts.comments
         $firstSql = self::handleFirstRelation($class, $relation); 
         self::handleSecondRelation($class, $firstSql);
     }
 
-    private static function handleFirstRelation (string $class, string $relation): string 
+    private static function handleFirstRelation (string $class, string $relation)
     {
         $dotPositon = strpos($relation,'.');
         self::$relation1 = substr($relation, 0, $dotPositon);
         self::$relation2 = substr($relation, $dotPositon + 1);
 
         $model = App::$app->model;
+        if(array_key_exists($model->relationName, $model->relationData[0])) return;
+
         $model->relationName = self::$relation1; //posts
         $class = new $class;
         call_user_func([$class, self::$relation1]);
