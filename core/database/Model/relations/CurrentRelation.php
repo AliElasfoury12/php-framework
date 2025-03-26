@@ -15,4 +15,6 @@ class CurrentRelation
     public string $relation1;
     public string $relation2;
     public string $FirstSqlPart;
+    public string $lastJoin_PK;
+    public string $lastJoinTable;
 }

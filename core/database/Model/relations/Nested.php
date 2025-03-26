@@ -62,7 +62,6 @@ class Nested extends Relations {
             break;
 
             case $types::MANYTOMANY:
-                $model->currentRelation->table1 = $table1;
                 ManyToMany::nested();
             break;
         }

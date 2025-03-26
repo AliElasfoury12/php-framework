@@ -11,27 +11,26 @@ class ManyToMany extends Relations{
         $model= App::$app->model;
         $table1 = $model->table;
         $primaryKey1 = $model->primaryKey;
-        $current_relation = $model->currentRelation;
+        $orderBy = $model->orderBy;
+        $ids = $model->dataIds;
 
+        $current_relation = $model->currentRelation;
         $table2 = $current_relation->table2;
         $primaryKey2 = $current_relation->primaryKey;
         $pivotTable = $current_relation->pivotTable;
         $pivotKey = $current_relation->pivotKey;
         $relatedKey = $current_relation->relatedKey;
-
+        
         $extraQuery = $model->extraQuery('alias');
         $query = $extraQuery['query'];
         $select = $extraQuery['select'];
-        $orderBy = $model->orderBy;
-
-        $ids = $model->dataIds;
-
+       
         $sql = 
         "SELECT $select, $table1.$primaryKey1 AS pivot FROM $table1
         INNER JOIN $pivotTable ON $table1.$primaryKey1 = $pivotTable.$pivotKey
         INNER JOIN $table2 AS alias ON alias.$primaryKey2 = $pivotTable.$relatedKey
         WHERE $table1.$primaryKey1 IN ($ids) $query $orderBy";
-        //echo "$sql <br>"; 
+       // echo "$sql <br>"; 
 
         $data = $model->fetch($sql);
         $dataLength = count($data);
@@ -48,7 +47,7 @@ class ManyToMany extends Relations{
 
         $model->query = [];
 
-        $model->currentRelation->FirstSqlPart = 
+        $current_relation->FirstSqlPart = 
         "INNER JOIN $pivotTable ON $table1.$primaryKey1 = $pivotTable.$pivotKey
         INNER JOIN $table2 AS alias ON alias.$primaryKey2 = $pivotTable.$relatedKey";
     }
@@ -56,37 +55,57 @@ class ManyToMany extends Relations{
     public static function nested (): void
     {
         $model = App::$app->model;
-        
-        $relation1 = $model->currentRelation->relation1;
-        $relation2 = $model->currentRelation->relation2;
-        $table1 = $model->currentRelation->table1;
-        $pivotTable = $model->currentRelation->pivotTable;
-        $primaryKey = $model->primaryKey;
-        $relatedKey = $model->currentRelation->relatedKey;
-        $pivotKey = $model->currentRelation->pivotKey;
+        $table1 = $model->table;
+        $primaryKey1 = $model->primaryKey;
+        $orderBy = $model->orderBy;
+        $ids = $model->dataIds;
 
-        $extraQuery = $model->extraQuery($table1);
+        $current_relation = $model->currentRelation;
+        $relation1 = $current_relation->relation1;
+        $relation2 = $current_relation->relation2;
+        $table2 = $current_relation->table2;
+        $primaryKey2 = $current_relation->primaryKey;
+        $pivotTable = $current_relation->pivotTable;
+        $relatedKey = $current_relation->relatedKey;
+        $pivotKey = $current_relation->pivotKey;
+        $first_sql_part = $current_relation->FirstSqlPart;
+        $lastTable = $current_relation->lastJoinTable;
+        $lastTable_PK = $current_relation->lastJoin_PK;
+
+
+        $extraQuery = $model->extraQuery('alias');
         $query = $extraQuery['query'];
         $select = $extraQuery['select'];
 
-        $sql = "SELECT $select FROM $table1
-        JOIN $pivotTable ON $pivotTable.$relatedKey = $table1.$primaryKey
-        WHERE $pivotTable.$pivotKey = :id $query";
+        $sql = 
+        "SELECT $select, $table1.$primaryKey1 AS pivot FROM $table1
+        $first_sql_part
+        INNER JOIN $pivotTable ON $lastTable.$lastTable_PK = $pivotTable.$pivotKey
+        INNER JOIN $table2 AS alias ON alias.$primaryKey2 = $pivotTable.$relatedKey
+        WHERE $table1.$primaryKey1 IN ($ids) $query $orderBy";
+        //echo "$sql <br>"; 
 
-        foreach ($model->relationData as &$items) {
-            if(empty($items[$relation1])) continue;
+        $data = $model->fetch($sql);
+        $dataLength = count($data);
 
-            if(array_key_exists($primaryKey, $items)){
-                $id = $items[$relation1][$primaryKey];
-                $sql = str_replace(':id', $id, $sql);
-                //echo "$sql <br>";
-                $items[$relation1][$relation2] = $model->fetch($sql);
+        //App::dump([$data]);
+        $i = 0;
+        foreach ($model->relationData as &$unit) {
+            if(empty($unit[$relation1])) continue;
+
+            if(array_key_exists($primaryKey2, $unit[$relation1])){
+                $unit[$relation1][$relation2] = [];
+                while($i < $dataLength && $unit[$primaryKey1] == $data[$i]['pivot']){
+                    $unit[$relation1][$relation2] = $data[$i];
+                    $i++;
+                }
             }else {
-                foreach ($items as &$item) {
-                    $id = $item[$primaryKey];
-                    $sql = str_replace(':id', $id, $sql); 
-                   // echo "$sql <br>";           
-                    $item[$relation1][$relation2] = $model->fetch($sql);
+                foreach ($unit[$relation1] as &$item) {
+                   $item[$relation2] = [];
+                    while($i < $dataLength  && $item[$primaryKey1] == $data[$i]['pivot']){
+                        $item[$relation2] = $data[$i];
+                        $i++; 
+                    }                   
                 }
             }
         }

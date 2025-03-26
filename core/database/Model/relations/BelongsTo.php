@@ -15,17 +15,17 @@ class BelongsTo extends Relations {
         $orderBy = $model->orderBy;
         $ids = $model->dataIds;
 
-        $table2 = $model->currentRelation->table2;
-        $foreignKey = $model->currentRelation->foreignKey;
-        $primaryKey2 = $model->currentRelation->primaryKey;
+        $current_relation = $model->currentRelation;
+        $table2 = $current_relation->table2;
+        $foreignKey = $current_relation->foreignKey;
+        $primaryKey2 = $current_relation->primaryKey;
 
         $extraQuery = $model->extraQuery($table2);
         $query = $extraQuery['query'];
         $select = $extraQuery['select'];
       
-       
         $sql = "SELECT $select FROM $table1 
-        LEFT JOIN $table2  ON $table2.$primaryKey2 = $table1.$foreignKey
+        INNER JOIN $table2  ON $table2.$primaryKey2 = $table1.$foreignKey
         WHERE $table1.$primaryKey1 IN ($ids) $query $orderBy";
         //echo "$sql <br>"; 
         $data = $model->fetch($sql);
@@ -35,6 +35,10 @@ class BelongsTo extends Relations {
         }
 
         $model->query = [];
+        $current_relation->FirstSqlPart = 
+        "INNER JOIN $table2  ON $table2.$primaryKey2 = $table1.$foreignKey";
+        $current_relation->lastJoin_PK = $primaryKey2;
+        $current_relation->lastJoinTable = $table2;
     }
 
     public static function nested (): void
@@ -68,15 +72,10 @@ class BelongsTo extends Relations {
         $dataLength = count($data);
 
         $i = 0;
-   
         foreach ($model->relationData as &$unit) {
             if(empty($unit[$relation1])) continue;
-
+            
             if(array_key_exists($foreignKey, $unit[$relation1])){
-               /* $id = $unit[$relation1][$foreignKey];
-                $sql = "SELECT $select FROM $table2 WHERE $primaryKey2 = '$id' $query";
-                //echo "$sql <br>";
-                $unit[$relation1][$relation2] = $model->fetch($sql)[0];*/
                 if($i < $dataLength && $unit[$relation1][$foreignKey] == $data[$i][$primaryKey2]){
                     $unit[$relation1][$relation2] = $data[$i];
                     $i++;
@@ -86,13 +85,7 @@ class BelongsTo extends Relations {
                     if($i < $dataLength  && $item[$foreignKey] == $data[$i][$primaryKey2]){
                         $item[$relation2] = $data[$i];
                         $i++; 
-                    }
-                    /*
-                    $id = $item[$foreignKey]; 
-                    $sql = "SELECT $select FROM $table2 WHERE $primaryKey2 = '$id' $query";
-                    //echo "$sql <br>";
-                    $item[$relation2] = $model->fetch($sql)[0];
-                    */
+                    }                   
                 }
             }
         }
