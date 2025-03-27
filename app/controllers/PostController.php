@@ -18,7 +18,7 @@ class PostController extends Controller {
         'user.follows:id',
         'postImg:id,post_id,img',
         'sharedPost.user:id,name',
-        //'sharedPost.postImg:id,post_img,img'
+        'sharedPost.postImg:id,post_id,img'
         //'user.posts',
         //'likes:id',
         ])->latest()->get();

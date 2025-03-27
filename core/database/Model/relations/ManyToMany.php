@@ -50,6 +50,8 @@ class ManyToMany extends Relations{
         $current_relation->FirstSqlPart = 
         "INNER JOIN $pivotTable ON $table1.$primaryKey1 = $pivotTable.$pivotKey
         INNER JOIN $table2 AS alias ON alias.$primaryKey2 = $pivotTable.$relatedKey";
+        $current_relation->lastJoin_PK = $primaryKey2;
+        $current_relation->lastJoinTable = $table2;
     }
 
     public static function nested (): void

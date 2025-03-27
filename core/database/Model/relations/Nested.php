@@ -22,12 +22,15 @@ class Nested extends Relations {
         self::$relation2 = substr($relation, $dotPositon + 1);
 
         $model = App::$app->model;
-        if(array_key_exists($model->relationName, $model->relationData[0])) return;
-
         $model->relationName = self::$relation1; //posts
+        if(array_key_exists($model->relationName, $model->relationData[0])) {
+            $model->query = [];
+            return;
+        }
+
         $class = new $class;
         call_user_func([$class, self::$relation1]);
-        return $model->handleRelation();
+        $model->handleRelation();
     }
 
     private static function handleSecondRelation (string $class): void 

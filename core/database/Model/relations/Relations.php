@@ -59,13 +59,6 @@ class Relations {
         $primaryKey = $primaryKey ?: $this->getPK($table2) ;
         $foreignKey = $foreignKey ?: $this->getFK($model->table,$table2) ;
 
-        /*$model->currentRelation = [
-            'type' => 'BELONGSTO',
-            'table2' => $table2,
-            'foreignKey' => $foreignKey,
-            'primaryKey' => $primaryKey
-        ];*/
-
         $currentRelation = $model->currentRelation;
         $currentRelation->type = $model->relationTypes::BELONGSTO;
         $currentRelation->table2 = $table2;
@@ -105,19 +98,11 @@ class Relations {
         $primaryKey = $primaryKey?: $model->primaryKey;
         $foreignKey = $foreignKey ?: $this->getFK($table2, $model->table) ;
 
-       /* $model->currentRelation = [
-            'type' => $relation,
-            'table2' => $table2,
-            'foreignKey' => $foreignKey,
-            'primaryKey' => $primaryKey
-        ];*/
-
         $currentRelation = $model->currentRelation;
         $currentRelation->type = $relation;
         $currentRelation->table2 = $table2;
         $currentRelation->foreignKey = $foreignKey;
         $currentRelation->primaryKey = $primaryKey;
-
     }
 
     protected static function extraQuery (string $table = ''): array 

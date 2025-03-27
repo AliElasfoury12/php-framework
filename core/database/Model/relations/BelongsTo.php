@@ -63,7 +63,6 @@ class BelongsTo extends Relations {
         $data_length = count($data);
 
         self::inject_data($relation1,$relation2,$data,$data_length);
-      
     }
 
     private static function prepareSQL_nested (): string
