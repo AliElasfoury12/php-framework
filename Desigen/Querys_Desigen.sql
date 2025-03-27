@@ -11,7 +11,7 @@ PK2 = id        | FK1 = user_id
                 | PK1 = id
 
 SELECT {table2.columns} FROM table1
-INNER JOIN table2 ON table2.FK1 = table1.PK2
+INNER JOIN table2 ON table1.FK1 = table2.PK2
 WHERE table1.PK1 IN (Ids) {extra_query} ORDER BY table1.PK1 DESC;
 
 #HASMANY
@@ -45,7 +45,7 @@ WHERE posts.id IN (35,36,37) AND followers.follower_id = 112 ORDER BY posts.id D
 
     #BELONGESTO
     SELECT {table2.columns} FROM table1
-    (INNER JOIN table2 ON table2.FK1 = table1.PK2)
+    (INNER JOIN table2 ON table1.FK1 = table2.PK2)
     WHERE table1.PK1 IN (Ids) {extra_query} ORDER BY table1.PK1 DESC;
 
     #MANYTOMANY
@@ -78,5 +78,5 @@ ORDER BY posts.id DESC;*/
     #BELONGESTO
     SELECT {table2.columns} FROM table1
     (first_relation_part)
-    INNER JOIN table2 ON table2.FK1 = table1.PK2
+    INNER JOIN table2 ON table1.FK1 = table2.PK2
     WHERE table1.PK1 IN (Ids) {extra_query} ORDER BY table1.PK1 DESC;

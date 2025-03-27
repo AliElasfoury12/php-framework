@@ -4,7 +4,7 @@ namespace core\database\Model\relations;
 
 use core\App;
 class HasMany extends Relations {
-    public static function run (): string 
+    public static function run (): void 
     {
         //table1 users hasMany table2 posts
         $model = App::$app->model;
@@ -14,11 +14,6 @@ class HasMany extends Relations {
         $foreignKey = $model->currentRelation->foreignKey;
         $primaryKey = $model->currentRelation->primaryKey;
 
-        if(array_key_exists($model->relationName, $model->relationData[0])) {
-            return "SELECT :select FROM $table1 
-            INNER JOIN $table2 ON $table1.$primaryKey = $table2.$foreignKey";
-        }
-
         $extraQuery = $model->extraQuery($table2);
         $query = $extraQuery['query'];
         $select = $extraQuery['select'];
@@ -26,10 +21,9 @@ class HasMany extends Relations {
 
         $ids = $model->dataIds;
        
-        $sql = "SELECT $select FROM $table1 INNER JOIN $table2 
-        ON $table1.$primaryKey = $table2.$foreignKey
-        WHERE $table1.$primaryKey1 IN ($ids) 
-        $query $orderBy";
+        $sql = "SELECT $select FROM $table1
+        INNER JOIN $table2  ON $table1.$primaryKey = $table2.$foreignKey
+        WHERE $table1.$primaryKey1 IN ($ids) $query $orderBy";
         // echo "$sql <br>"; 
         $data =  $model->fetch($sql);
         $dataLength = count($data);
@@ -45,9 +39,6 @@ class HasMany extends Relations {
         }
 
         $model->query = [];
-
-        return "SELECT :select FROM $table1 
-        INNER JOIN $table2 ON $table1.$primaryKey = $table2.$foreignKey";
     }
 
     public static function nested (): void 
