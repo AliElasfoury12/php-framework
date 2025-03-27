@@ -8,7 +8,17 @@ class ManyToMany extends Relations{
 
     public static function run (): void //followers, user_id, follower_id 
     {
-        $model= App::$app->model;
+        $model = App::$app->model;
+        $sql = self::prepareSQL();
+        // echo "<pre> <h3> $sql \n\n </h3></pre>";
+        $data = $model->fetch($sql);
+        self::inject_data($data);
+        $model->query = [];
+    }
+
+    private static function prepareSQL ()
+    {
+        $model = App::$app->model;
         $table1 = $model->table;
         $primaryKey1 = $model->primaryKey;
         $orderBy = $model->orderBy;
@@ -21,40 +31,50 @@ class ManyToMany extends Relations{
         $pivotKey = $current_relation->pivotKey;
         $relatedKey = $current_relation->relatedKey;
         
-        $extraQuery = $model->extraQuery('alias');
+        $extraQuery = $model->extraQuery('alias1');
         $query = $extraQuery['query'];
         $select = $extraQuery['select'];
-       
-        $sql = 
-        "SELECT $select, $table1.$primaryKey1 AS pivot FROM $table1
-        INNER JOIN $pivotTable ON $table1.$primaryKey1 = $pivotTable.$pivotKey
-        INNER JOIN $table2 AS alias ON alias.$primaryKey2 = $pivotTable.$relatedKey
-        WHERE $table1.$primaryKey1 IN ($ids) $query $orderBy";
-       // echo "$sql <br>"; 
 
-        $data = $model->fetch($sql);
-        $dataLength = count($data);
+        $current_relation->FirstSqlPart = 
+        "INNER JOIN $pivotTable ON $table1.$primaryKey1 = $pivotTable.$pivotKey
+        INNER JOIN $table2 AS alias1 ON alias1.$primaryKey2 = $pivotTable.$relatedKey";
+        $current_relation->lastJoin_PK = $primaryKey2;
+        $current_relation->lastJoinTable = 'alias1';
+       
+        return "SELECT $select, $table1.$primaryKey1 AS pivot FROM $table1
+        $current_relation->FirstSqlPart 
+        WHERE $table1.$primaryKey1 IN ($ids) $query $orderBy";
+    }
+
+    private static function inject_data (array $data)
+    {
+        $model = App::$app->model;
+        $data_length = count($data);
+        $primaryKey1 = $model->primaryKey;
 
         $i = 0;
         foreach ($model->relationData as &$item) {
             $item[$model->relationName] = [];
 
-            while($i < $dataLength && $item[$primaryKey1] == $data[$i]['pivot']){
+            while($i < $data_length && $item[$primaryKey1] == $data[$i]['pivot']){
+                unset($data[$i]['pivot']);
                 $item[$model->relationName][] = $data[$i];
                 $i++;
             }
         }
-
-        $model->query = [];
-
-        $current_relation->FirstSqlPart = 
-        "INNER JOIN $pivotTable ON $table1.$primaryKey1 = $pivotTable.$pivotKey
-        INNER JOIN $table2 AS alias ON alias.$primaryKey2 = $pivotTable.$relatedKey";
-        $current_relation->lastJoin_PK = $primaryKey2;
-        $current_relation->lastJoinTable = $table2;
     }
 
     public static function nested (): void
+    {
+        $model = App::$app->model;
+        $sql = self::prepareSQL_nested(); 
+       // echo "<pre> <h3> $sql \n\n </h3></pre>";
+        $data = $model->fetch($sql);
+        self::inject_data_nested($data);
+        $model->query = [];
+    }
+
+    private static function prepareSQL_nested ()
     {
         $model = App::$app->model;
         $table1 = $model->table;
@@ -63,8 +83,6 @@ class ManyToMany extends Relations{
         $ids = $model->dataIds;
 
         $current_relation = $model->currentRelation;
-        $relation1 = $current_relation->relation1;
-        $relation2 = $current_relation->relation2;
         $table2 = $current_relation->table2;
         $primaryKey2 = $current_relation->primaryKey;
         $pivotTable = $current_relation->pivotTable;
@@ -74,23 +92,28 @@ class ManyToMany extends Relations{
         $lastTable = $current_relation->lastJoinTable;
         $lastTable_PK = $current_relation->lastJoin_PK;
 
-
-        $extraQuery = $model->extraQuery('alias');
+        $extraQuery = $model->extraQuery('alias2');
         $query = $extraQuery['query'];
         $select = $extraQuery['select'];
-
-        $sql = 
-        "SELECT $select, $table1.$primaryKey1 AS pivot FROM $table1
+ 
+        return "SELECT $select, $table1.$primaryKey1 AS pivot FROM $table1
         $first_sql_part
         INNER JOIN $pivotTable ON $lastTable.$lastTable_PK = $pivotTable.$pivotKey
-        INNER JOIN $table2 AS alias ON alias.$primaryKey2 = $pivotTable.$relatedKey
+        INNER JOIN $table2 AS alias2 ON alias2.$primaryKey2 = $pivotTable.$relatedKey
         WHERE $table1.$primaryKey1 IN ($ids) $query $orderBy";
-        //echo "$sql <br>"; 
+    }
 
-        $data = $model->fetch($sql);
+    private static function inject_data_nested (array $data): void
+    {
+        $model = App::$app->model;
         $dataLength = count($data);
 
-        //App::dump([$data]);
+        $primaryKey1 = $model->primaryKey;
+        $current_relation = $model->currentRelation; 
+        $relation1 = $current_relation->relation1;
+        $relation2 = $current_relation->relation2;
+        $primaryKey2 = $current_relation->primaryKey;
+ 
         $i = 0;
         foreach ($model->relationData as &$unit) {
             if(empty($unit[$relation1])) continue;
@@ -98,21 +121,21 @@ class ManyToMany extends Relations{
             if(array_key_exists($primaryKey2, $unit[$relation1])){
                 $unit[$relation1][$relation2] = [];
                 while($i < $dataLength && $unit[$primaryKey1] == $data[$i]['pivot']){
-                    $unit[$relation1][$relation2] = $data[$i];
+                    unset($data[$i] ['pivot']);
+                    $unit[$relation1][$relation2][] = $data[$i];
                     $i++;
                 }
             }else {
                 foreach ($unit[$relation1] as &$item) {
                    $item[$relation2] = [];
-                    while($i < $dataLength  && $item[$primaryKey1] == $data[$i]['pivot']){
-                        $item[$relation2] = $data[$i];
+                    while($i < $dataLength  && $unit[$primaryKey1] == $data[$i]['pivot']){
+                        unset($data[$i] ['pivot']);
+                        $item[$relation2][] = $data[$i];
                         $i++; 
                     }                   
                 }
             }
         }
-
-        $model->query = [];
     }
 }
 

@@ -63,6 +63,7 @@ class BelongsTo extends Relations {
         $data_length = count($data);
 
         self::inject_data($relation1,$relation2,$data,$data_length);
+        $model->query = [];
     }
 
     private static function prepareSQL_nested (): string
@@ -85,7 +86,7 @@ class BelongsTo extends Relations {
 
         return "SELECT $select FROM $table1 
         $first_sql_part
-        INNER JOIN $table2 ON $table2.$primaryKey2 = alias.$foreignKey
+        INNER JOIN $table2 ON $table2.$primaryKey2 = alias1.$foreignKey
         WHERE $table1.$primaryKey1 IN ($ids) $query $orderBy";
     }
 

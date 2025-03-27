@@ -29,6 +29,7 @@ trait WithTrait
             if(str_contains($relation, '.')) //posts.comments
             {
                 Nested::run($class::class, $relation);
+                $model->requestedCoulmns = '';
                 continue;
             }
 

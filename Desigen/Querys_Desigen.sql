@@ -109,3 +109,10 @@ PK2 = id        | PK1 = id       | pivot_key = post_id          | FK3 = post_id
     INNER JOIN table3 ON alias.PK2 = table3.FK3
     WHERE table1.PK1 IN (Ids) ORDER BY table1.PK1 DESC;
 
+#MANYTOMANY.MANYTOMANY
+SELECT posts.id, shared_posts.*, alias.id, likes.*, users.id FROM posts
+INNER JOIN shared_posts ON posts.id = shared_posts.post_id
+INNER JOIN posts AS alias ON shared_posts.shared_post_id = alias.id
+INNER JOIN likes ON alias.id = likes.post_id
+INNER JOIN users on likes.user_id = users.id
+

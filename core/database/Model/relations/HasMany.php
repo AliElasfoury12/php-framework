@@ -35,7 +35,7 @@ class HasMany extends Relations {
        
        
         return "SELECT $select FROM $table1
-        INNER JOIN $table2  ON $table1.$primaryKey = $table2.$foreignKey
+        INNER JOIN $table2 ON $table1.$primaryKey = $table2.$foreignKey
         WHERE $table1.$primaryKey1 IN ($ids) $query $orderBy";
     }
 
@@ -88,7 +88,7 @@ class HasMany extends Relations {
  
         return "SELECT $select, $table1.$primaryKey1 AS pivot FROM $table1
         $first_sql_part
-        INNER JOIN $table2 ON alias.$alias_PK = $table2.$foreignKey
+        INNER JOIN $table2 ON alias1.$alias_PK = $table2.$foreignKey
         WHERE $table1.$primaryKey1 IN ($ids) $query $orderBy";
     }
 
@@ -111,6 +111,7 @@ class HasMany extends Relations {
             if(array_key_exists($alias_PK, $unit[$relation1])){
                 $unit[$relation1][$relation2] = [];
                 while($i < $data_length && $unit[$primaryKey1] == $data[$i]['pivot']){
+                    unset($data[$i] ['pivot']);
                     $unit[$relation1][$relation2][] = $data[$i];
                     $i++;
                 }
@@ -118,6 +119,7 @@ class HasMany extends Relations {
                 foreach ($unit[$relation1] as &$item) {
                    $item[$relation2] = [];
                     while($i < $data_length  && $unit[$primaryKey1] == $data[$i]['pivot']){
+                        unset($data[$i] ['pivot']);
                         $item[$relation2][] = $data[$i];
                         $i++; 
                     }                   
