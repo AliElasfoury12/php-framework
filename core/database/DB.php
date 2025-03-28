@@ -37,25 +37,9 @@ class DB
         return $statment;
     }
 
-     public function fetch (string $sql, string $type = ''): array
-     {
-        switch ($type) {
-            case 'obj':
-                $type = PDO::FETCH_OBJ;
-            break;
-            case 'col':
-                $type = PDO::FETCH_COLUMN;
-            break;
-            case 'num':
-                $type = PDO::FETCH_NUM;
-            break;
-            
-            default:
-               $type = PDO::FETCH_ASSOC;
-        }
-
-        $statment = $this->exec($sql);
-        return $statment->fetchAll($type);
+    public function fetch (string $sql, int $type = PDO::FETCH_ASSOC): array
+    {
+        return $this->exec($sql)->fetchAll($type);
     }
 
     public function insert ($table, $columns, $values)
@@ -99,5 +83,22 @@ class DB
     {
         //echo $sql;
         return $this->pdo->query($sql)->fetchAll($type);
+    }
+
+    public function getPK (string $table): mixed 
+    {
+        $sql = "SHOW KEYS FROM $table WHERE Key_name = 'PRIMARY'";
+        //echo "$sql <br>";
+        $result = App::$app->db->fetch($sql);
+        return $result[0]["Column_name"];
+    }
+
+    public function getFK (string $table1, string $table2): mixed
+    {
+        $table2 = rtrim($table2, 's');
+        $sql = "SHOW KEYS FROM $table1 WHERE Key_name Like '%$table2%'";
+        //echo "$sql <br>";
+        $result = App::$app->db->fetch($sql);
+        return $result[0]["Column_name"];
     }
 }

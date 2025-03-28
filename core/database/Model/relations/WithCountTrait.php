@@ -12,7 +12,7 @@ trait WithCountTrait
         $primaryKey = $model->primaryKey;
 
         foreach ($model->relations->withCount_relations as $relationName) {
-            $forigenKey = $model->relations->getFK($relationName, $model->table);
+            $forigenKey =  App::$app->db->getFK($relationName, $model->table);
 
             foreach ($model->relations->relationData as &$item) {
                 $id = $item[$primaryKey];

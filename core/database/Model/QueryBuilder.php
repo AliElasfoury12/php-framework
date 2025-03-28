@@ -3,7 +3,6 @@
 namespace core\database\Model;
 
 use core\App;
-use PDO;
 
 class QueryBuilder extends QueryExexcution {
     public Query $query;
@@ -32,43 +31,6 @@ class QueryBuilder extends QueryExexcution {
     {
         self::limit(1);
         return self::get();
-    }
-
-    public static function get (): mixed  
-    {
-        $model = App::$app->model;
-        $db = App::$app->db;
-        $tableName = $model->getClassTable(static::class);
-        $model->table = $tableName;
-        $primaryKey = $model->relations->getPK($tableName);
-
-        $query = $model->query->getQuery();
-        $select = $model->query->handleSelect();
-
-        if($model->orderBy) $orderBy = "ORDER BY $tableName".$model->orderBy;
-        else $orderBy = "ORDER BY $tableName.$primaryKey ASC";
-  
-        $sql = "SELECT $select FROM $tableName $query $orderBy";
-        //echo $sql;
-        $model->query->reset();
-        $model->relations->relationData = $db->query($sql);
-        
-        if($model->relations) {
-            $model->table = $tableName;
-            $model->primaryKey = $primaryKey;
-            $model->orderBy = $orderBy;
-
-            $sql = "SELECT $primaryKey FROM $tableName $query $orderBy";
-            //echo $sql;
-            $ids = $db->query($sql, PDO::FETCH_COLUMN);
-            $model->dataIds = implode(',',  $ids);
-
-            $model->relations->handleWith($model->relations->relations, static::class);
-            $model->relations->handleWithCount();
-        }
-
-        if(!array_key_exists(1, $model->relations->relationData)) return (object) $model->relations->relationData[0];
-        return $model->relations->relationData;
     }
 
     public function getClassName (string $relation): string 

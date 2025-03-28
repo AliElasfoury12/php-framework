@@ -30,23 +30,6 @@ class Relations {
         $this->Nested = new Nested;
     }
 
-    public function getPK (string $table): mixed 
-    {
-        $sql = "SHOW KEYS FROM $table WHERE Key_name = 'PRIMARY'";
-        //echo "$sql <br>";
-        $result = App::$app->db->fetch($sql);
-        return $result[0]["Column_name"];
-    }
-
-    public function getFK (string $table, string $keyPart): mixed 
-    {
-        $keyPart = rtrim($keyPart, 's');
-        $sql = "SHOW KEYS FROM $table WHERE Key_name Like '%$keyPart%'";
-        //echo "$sql <br>";
-        $result = App::$app->db->fetch($sql);
-        return $result[0]["Column_name"];
-    }
-
     protected function hasOne (string $class2, string $foreignKey = '', string $primaryKey = ''): static
     {
         $model = App::$app->model;
@@ -58,10 +41,11 @@ class Relations {
     {
         //table1 posts belongsTO table2 users
         $model = App::$app->model;
+        $db = App::$app->db;
         $table2 = $model->getClassTable($class2);//users
 
-        $primaryKey = $primaryKey ?: $this->getPK($table2) ;
-        $foreignKey = $foreignKey ?: $this->getFK($model->table,$table2) ;
+        $primaryKey = $primaryKey ?: $db->getPK($table2) ;
+        $foreignKey = $foreignKey ?: $db->getFK($model->table,$table2) ;
 
         $currentRelation = $model->relations->currentRelation;
         $currentRelation->type = $model->relations->relationTypes::BELONGSTO;
@@ -82,11 +66,12 @@ class Relations {
     public function manyToMany (string $relatedClass, string $pivotTable, string $pivotKey, string $relatedKey): static 
     {
         $model = App::$app->model;
+        $db = App::$app->db;
 
         $currentRelation = $model->relations->currentRelation;
         $currentRelation->type = $model->relations->relationTypes::MANYTOMANY;
         $currentRelation->table2 = $model->getClassTable($relatedClass);
-        $currentRelation->primaryKey = $model->relations->getPK($currentRelation->table2);
+        $currentRelation->primaryKey = $db->getPK($currentRelation->table2);
         $currentRelation->pivotTable = $pivotTable;
         $currentRelation->pivotKey = $pivotKey;
         $currentRelation->relatedKey = $relatedKey;
@@ -97,10 +82,12 @@ class Relations {
     private function tablesAndKeys (string $class2, string $primaryKey, string $foreignKey, string $relation): void
     {
         $model = App::$app->model;
+        $db = App::$app->db;
+
         $table2 = $model->getClassTable($class2);//users
 
         $primaryKey = $primaryKey?: $model->primaryKey;
-        $foreignKey = $foreignKey ?: $this->getFK($table2, $model->table) ;
+        $foreignKey = $foreignKey ?: $db->getFK($table2, $model->table) ;
 
         $currentRelation = $model->relations->currentRelation;
         $currentRelation->type = $relation;
