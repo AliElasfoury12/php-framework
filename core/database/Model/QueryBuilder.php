@@ -5,7 +5,7 @@ namespace core\database\Model;
 use core\App;
 use PDO;
 
-class QueryBuilder {
+class QueryBuilder extends QueryExexcution {
     public Query $query;
     public string $orderBy = '';
     public string $nestedSelect = '*';

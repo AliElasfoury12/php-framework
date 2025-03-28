@@ -6,7 +6,6 @@ use core\App;
 use core\database\Model\relations\Relations;
 
 class MainModel extends QueryBuilder {
-    use SQLTrait, Create, InsertArr ;
     public Relations $relations;
 
     public function __construct() {
