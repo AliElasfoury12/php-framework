@@ -6,5 +6,4 @@ use core\database\Model\MainModel;
 class Model extends MainModel {
 
   
-
 }

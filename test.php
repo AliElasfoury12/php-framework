@@ -9,6 +9,10 @@ class Relations {
 }
 class BelongsTo extends Relations {
 
+    public function __construct() {
+        echo "belongs to start\n";
+        parent::__construct();
+    }
     public function fun1 ()
     {
         echo 'a'."\n";

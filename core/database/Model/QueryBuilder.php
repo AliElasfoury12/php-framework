@@ -11,10 +11,9 @@ class QueryBuilder {
     public string $table = '';
     public string $primaryKey;
     public int $pageNum = 1;
-    public array $relations;
     public string $dataIds;
 
-    private function __construct() {
+    public function __construct() {
         $this->query = new Query;
     }
 
@@ -39,7 +38,7 @@ class QueryBuilder {
         $model = App::$app->model;
         $tableName = $model->getClassTable(static::class);
         $model->table = $tableName;
-        $primaryKey = $model->getPK($tableName);
+        $primaryKey = $model->relations->getPK($tableName);
 
         $query = $model->getQuery();
         $select = $model->handleSelect();
@@ -51,7 +50,7 @@ class QueryBuilder {
         $sql = "SELECT $select FROM $tableName $query $orderBy";
         //echo $sql;
         $model->query->reset();
-        $model->relationData = $model->fetch($sql);
+        $model->relations->relationData = $model->fetch($sql);
         
         if($model->relations) {
             $model->table = $tableName;
@@ -63,12 +62,12 @@ class QueryBuilder {
             $ids = $model->fetch($sql, 'col');
             $model->dataIds = implode(',',  $ids);
 
-            $model->handleWith($model->relations);
-            static::handleWithCount();
+            $model->relations->handleWith($model->relations->relations, static::class);
+            $model->relations->handleWithCount();
         }
 
-        if(!array_key_exists(1, $model->relationData)) return (object) $model->relationData[0];
-        return $model->relationData;
+        if(!array_key_exists(1, $model->relations->relationData)) return (object) $model->relations->relationData[0];
+        return $model->relations->relationData;
     }
 
     public function getClassName (string $relation): string 
@@ -114,7 +113,7 @@ class QueryBuilder {
         */
     }
 
-    public static function select (string $columns): static  
+    public static function select (string $columns): static
     {
         App::$app->model->query->select[] = $columns;
         return new static ;
@@ -157,6 +156,18 @@ class QueryBuilder {
     public static function orderBy(string $column, string $type): static 
     {
         App::$app->model->orderBy = ".$column $type";
+        return new static;
+    }
+
+    public static function withCount (string $columns): static 
+    {
+        App::$app->model->relations->withCount_relations = explode(',',$columns);
+        return new static;
+    }
+
+    public static function with (array $relations)
+    {
+        App::$app->model->relations->relations = $relations;
         return new static;
     }
 }

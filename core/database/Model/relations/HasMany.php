@@ -12,7 +12,7 @@ class HasMany {
         $sql = $this->prpareSQL();
         // echo "$sql <br>"; 
         $data = $model->fetch($sql);
-        
+
         $this->inject_data($data);
         $model->query->reset();
     }

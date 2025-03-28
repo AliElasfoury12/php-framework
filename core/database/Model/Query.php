@@ -8,7 +8,6 @@ class Query {
     public array $extraQuery = [];
 
     public function __construct() {
-        echo "query start <br>";
         $this->where = [];
         $this->select = [];
         $this->extraQuery = [];
