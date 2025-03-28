@@ -3,8 +3,8 @@
 namespace core\database\Model;
 
 use core\App;
-trait ModelMethodsTrait
-{
+
+class QueryBuilder {
     public Query $query;
     public string $orderBy = '';
     public string $nestedSelect = '*';
@@ -99,7 +99,7 @@ trait ModelMethodsTrait
 
     public static function paginate (int $perPage) 
     {
-        $offset = (self::model()->pageNum - 1 ) * $perPage;
+        $offset = (App::$app->model->pageNum - 1 ) * $perPage;
         self::limit($perPage);
         self::offset($offset);
         return  new static;
@@ -138,13 +138,13 @@ trait ModelMethodsTrait
 
     public static function minRepeat (string $column) 
     {
-        $tableName = static::getClassTable();
+        $tableName = App::$app->model->getClassTable(static::class);
 
         $sql = "SELECT $column FROM $tableName
         GROUP BY $column HAVING COUNT(*) > 1
         ORDER BY COUNT(*) ASC LIMIT 1";
 
-        $result = self::model()->fetch($sql);
+        $result = App::$app->model->fetch($sql);
         return $result[0][$column];
     }
 

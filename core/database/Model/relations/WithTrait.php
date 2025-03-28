@@ -9,11 +9,10 @@ trait WithTrait
     public static function with (array $relations): static
     {
         App::$app->model->relations = $relations;
-
         return new static;
     }
 
-    public static function handleWith(array $relations):array
+    public function handleWith(array $relations):array
     {
         $class = new static;
         $model = App::$app->model;

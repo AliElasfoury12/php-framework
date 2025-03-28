@@ -13,7 +13,7 @@ class ManyToMany {
         // echo "<pre> <h3> $sql \n\n </h3></pre>";
         $data = $model->fetch($sql);
         $this->inject_data($data);
-        $model->query = [];
+        $model->query->reset();
     }
 
     private function prepareSQL ()
@@ -71,7 +71,7 @@ class ManyToMany {
        // echo "<pre> <h3> $sql \n\n </h3></pre>";
         $data = $model->fetch($sql);
         $this->inject_data_nested($data);
-        $model->query = [];
+        $model->query->reset();
     }
 
     private function prepareSQL_nested ()

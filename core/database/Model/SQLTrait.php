@@ -12,8 +12,8 @@ trait SQLTrait
         $wheres = '';
         $extraQuery = '';
 
-        if(isset($query['where'])) {
-            $wheres = $query['where'];
+        if(isset($query->where)) {
+            $wheres = $query->where;
             if(!empty($wheres)) {
                 if(count($wheres) > 1) {
                    if($table) $wheres = array_map(fn($w) => "$table.$w", $wheres);
@@ -27,8 +27,8 @@ trait SQLTrait
             }
         }
        
-        if(isset($query['query'])) {
-            $extraQuery = $query['query'];
+        if(isset($query->extraQuery)) {
+            $extraQuery = $query->extraQuery;
             if(!empty($extraQuery)) {
                 $extraQuery = implode(' ', $extraQuery);
             }else {
@@ -39,12 +39,11 @@ trait SQLTrait
        return  "$wheres $extraQuery";
     }
 
-    public function handleSelect ($table = '') 
+    public function handleSelect (string $table = '') 
     {
-        $select = null;
-        if(App::$app->model->query['select']) {
-            if(array_key_exists(0 ,App::$app->model->query['select']))
-            $select = App::$app->model->query['select'][0];
+        $select = App::$app->model->query->select;
+        if(isset($select)) {
+            if(array_key_exists(0 , $select)) $select = $select[0];
         }
 
         if($select){

@@ -19,7 +19,7 @@ class BelongsTo {
             $item[$model->relationName] = $data[$key];
         }
 
-        $model->query = [];
+        $model->query->reset();
     }
 
     private function prepareSQL (): string 
@@ -57,7 +57,7 @@ class BelongsTo {
         
         $data = $model->fetch($sql);
         $this->inject_data($data);
-        $model->query = [];
+        $model->query->reset();
     }
 
     private function prepareSQL_nested (): string
