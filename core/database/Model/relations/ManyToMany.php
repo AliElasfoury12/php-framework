@@ -24,14 +24,14 @@ class ManyToMany {
         $orderBy = $model->orderBy;
         $ids = $model->dataIds;
 
-        $current_relation = $model->currentRelation;
+        $current_relation = $model->relations->currentRelation;
         $table2 = $current_relation->table2;
         $primaryKey2 = $current_relation->primaryKey;
         $pivotTable = $current_relation->pivotTable;
         $pivotKey = $current_relation->pivotKey;
         $relatedKey = $current_relation->relatedKey;
         
-        $extraQuery = $model->extraQuery('alias1');
+        $extraQuery = $model->relations->extraQuery('alias1');
         $query = $extraQuery['query'];
         $select = $extraQuery['select'];
 
@@ -53,12 +53,12 @@ class ManyToMany {
         $primaryKey1 = $model->primaryKey;
 
         $i = 0;
-        foreach ($model->relationData as &$item) {
-            $item[$model->relationName] = [];
+        foreach ($model->relations->relationData as &$item) {
+            $item[$model->relations->relationName] = [];
 
             while($i < $data_length && $item[$primaryKey1] == $data[$i]['pivot']){
                 unset($data[$i]['pivot']);
-                $item[$model->relationName][] = $data[$i];
+                $item[$model->relations->relationName][] = $data[$i];
                 $i++;
             }
         }
@@ -82,7 +82,7 @@ class ManyToMany {
         $orderBy = $model->orderBy;
         $ids = $model->dataIds;
 
-        $current_relation = $model->currentRelation;
+        $current_relation = $model->relations->currentRelation;
         $table2 = $current_relation->table2;
         $primaryKey2 = $current_relation->primaryKey;
         $pivotTable = $current_relation->pivotTable;
@@ -92,7 +92,7 @@ class ManyToMany {
         $lastTable = $current_relation->lastJoinTable;
         $lastTable_PK = $current_relation->lastJoin_PK;
 
-        $extraQuery = $model->extraQuery('alias2');
+        $extraQuery = $model->relations->extraQuery('alias2');
         $query = $extraQuery['query'];
         $select = $extraQuery['select'];
  
@@ -109,13 +109,13 @@ class ManyToMany {
         $dataLength = count($data);
 
         $primaryKey1 = $model->primaryKey;
-        $current_relation = $model->currentRelation; 
+        $current_relation = $model->relations->currentRelation; 
         $relation1 = $current_relation->relation1;
         $relation2 = $current_relation->relation2;
         $primaryKey2 = $current_relation->primaryKey;
  
         $i = 0;
-        foreach ($model->relationData as &$unit) {
+        foreach ($model->relations->relationData as &$unit) {
             if(empty($unit[$relation1])) continue;
 
             if(array_key_exists($primaryKey2, $unit[$relation1])){

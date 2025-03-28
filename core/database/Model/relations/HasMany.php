@@ -25,11 +25,11 @@ class HasMany {
         $orderBy = $model->orderBy;
         $ids = $model->dataIds;
 
-        $table2 = $model->currentRelation->table2;
-        $foreignKey = $model->currentRelation->foreignKey;
-        $primaryKey = $model->currentRelation->primaryKey;
+        $table2 = $model->relations->currentRelation->table2;
+        $foreignKey = $model->relations->currentRelation->foreignKey;
+        $primaryKey = $model->relations->currentRelation->primaryKey;
 
-        $extraQuery = $model->extraQuery($table2);
+        $extraQuery = $model->relations->extraQuery($table2);
         $query = $extraQuery['query'];
         $select = $extraQuery['select'];
        
@@ -42,16 +42,16 @@ class HasMany {
     private function inject_data (array $data): void 
     {
         $model = App::$app->model;
-        $foreignKey = $model->currentRelation->foreignKey;
-        $primaryKey = $model->currentRelation->primaryKey;
+        $foreignKey = $model->relations->currentRelation->foreignKey;
+        $primaryKey = $model->relations->currentRelation->primaryKey;
         $data_length = count($data);
 
         $i = 0;
-        foreach ($model->relationData as &$item) {
-            $item[$model->relationName] = [];
+        foreach ($model->relations->relationData as &$item) {
+            $item[$model->relations->relationName] = [];
 
             while($i < $data_length && $item[$primaryKey] == $data[$i][$foreignKey]){
-                $item[$model->relationName][] = $data[$i];
+                $item[$model->relations->relationName][] = $data[$i];
                 $i++;
             }
         }
@@ -75,13 +75,13 @@ class HasMany {
         $orderBy = $model->orderBy;
         $ids = $model->dataIds;
 
-        $current_relation = $model->currentRelation;
+        $current_relation = $model->relations->currentRelation;
         $foreignKey = $current_relation->foreignKey;
         $first_sql_part = $current_relation->FirstSqlPart;
         $alias_PK = $current_relation->lastJoin_PK;
         $table2 = $current_relation->table2;
         
-        $extraQuery = $model->extraQuery($table2);
+        $extraQuery = $model->relations->extraQuery($table2);
         $query = $extraQuery['query'];
         $select = $extraQuery['select'];
  
@@ -96,7 +96,7 @@ class HasMany {
         $model = App::$app->model;
         $primaryKey1 = $model->primaryKey;
 
-        $current_relation = $model->currentRelation;
+        $current_relation = $model->relations->currentRelation;
         $relation1 = $current_relation->relation1;
         $relation2 = $current_relation->relation2;
         $alias_PK = $current_relation->lastJoin_PK;
@@ -104,7 +104,7 @@ class HasMany {
         $data_length = count($data);
         
         $i = 0;
-        foreach ($model->relationData as &$unit) {
+        foreach ($model->relations->relationData as &$unit) {
             if(empty($unit[$relation1])) continue;
 
             if(array_key_exists($alias_PK, $unit[$relation1])){

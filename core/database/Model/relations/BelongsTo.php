@@ -15,8 +15,8 @@ class BelongsTo {
         //echo "$sql <br>"; 
         $data = $model->fetch($sql);
 
-        foreach ($model->relationData as $key => &$item) {
-            $item[$model->relationName] = $data[$key];
+        foreach ($model->relations->relationData as $key => &$item) {
+            $item[$model->relations->relationName] = $data[$key];
         }
 
         $model->query->reset();
@@ -30,12 +30,12 @@ class BelongsTo {
         $orderBy = $model->orderBy;
         $ids = $model->dataIds;
 
-        $current_relation = $model->currentRelation;
+        $current_relation = $model->relations->currentRelation;
         $table2 = $current_relation->table2;
         $foreignKey = $current_relation->foreignKey;
         $primaryKey2 = $current_relation->primaryKey;
 
-        $extraQuery = $model->extraQuery($table2);
+        $extraQuery = $model->relations->extraQuery($table2);
         $query = $extraQuery['query'];
         $select = $extraQuery['select'];
 
@@ -68,13 +68,13 @@ class BelongsTo {
         $ids = $model->dataIds;
         $orderBy = $model->orderBy;
 
-        $current_relation = $model->currentRelation;
+        $current_relation = $model->relations->currentRelation;
         $table2 = $current_relation->table2;
         $foreignKey = $current_relation->foreignKey;
         $primaryKey2 = $current_relation->primaryKey;
         $first_sql_part = $current_relation->FirstSqlPart;
 
-        $extraQuery = $model->extraQuery($table2);
+        $extraQuery = $model->relations->extraQuery($table2);
         $query = $extraQuery['query'];
         $select = $extraQuery['select'];
 
@@ -88,7 +88,7 @@ class BelongsTo {
     {
         $model = App::$app->model;
         $data_length = count($data);
-        $current_relation = $model->currentRelation;
+        $current_relation = $model->relations->currentRelation;
         
         $foreignKey = $current_relation->foreignKey;
         $primaryKey2 = $current_relation->primaryKey;
@@ -96,7 +96,7 @@ class BelongsTo {
         $relation2 = $current_relation->relation2;
 
         $i = 0;
-        foreach ($model->relationData as &$unit) {
+        foreach ($model->relations->relationData as &$unit) {
             if(empty($unit[$relation1])) continue;
             if(array_key_exists($foreignKey, $unit[$relation1])){
                 if($i < $data_length && $unit[$relation1][$foreignKey] == $data[$i][$primaryKey2]){
