@@ -4,7 +4,7 @@ namespace core\database\Model\relations;
 
 use core\App;
 
-trait WithTrait
+class EagerLoading
 {
     public function handleWith(array $relations, string $class): array
     {
@@ -14,7 +14,7 @@ trait WithTrait
 
             if(str_contains($relation, ':')) //posts:id,post
             {
-                $model->relations->getRequestedColumns($relation);
+               $this->getRequestedColumns($relation);
                 $relation = $model->relations->relationName;
             }
 
@@ -39,25 +39,22 @@ trait WithTrait
         $colonPostion = strpos($relation,':');
         $model->relations->relationName = substr($relation, 0, $colonPostion);
         $model->relations->requestedCoulmns = substr($relation, $colonPostion + 1);
-    }
-
-    /*
-    posts
-    X posts:id,name
-    posts.comments
-    X posts.comments:id
-     */
-
-    public function handleRelation (): void
+    } 
+    
+    public function handleWithCount (): void 
     {
         $model = App::$app->model;
-        $RelationsTypes = $model->relations->relationTypes;
+        $primaryKey = $model->primaryKey;
 
-        match ($model->relations->currentRelation->type) {
-            $RelationsTypes::HASMANY  =>  $model->relations->HasMany->run(),
-            $RelationsTypes::BELONGSTO =>  $model->relations->BelongsTo->run(),
-            $RelationsTypes::HASONE =>  $model->relations->BelongsTo->run(),
-            $RelationsTypes::MANYTOMANY => $model->relations->ManyToMany->run()
-        };
-    }    
+        foreach ($model->relations->withCount_relations as $relationName) {
+            $forigenKey =  App::$app->db->getFK($relationName, $model->table);
+
+            foreach ($model->relations->relationData as &$item) {
+                $id = $item[$primaryKey];
+                $sql = "SELECT COUNT(*) FROM $relationName WHERE $forigenKey = '$id'";
+                $count =  App::$app->db->query($sql)[0]['COUNT(*)'];
+                $item[$relationName.'Count'] = $count ?? 0;
+            }
+        }
+    }
 }

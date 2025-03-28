@@ -36,8 +36,8 @@ class QueryExexcution {
             $ids = $db->query($sql, PDO::FETCH_COLUMN);
             $model->dataIds = implode(',',  $ids);
 
-            $model->relations->handleWith($model->relations->relations, static::class);
-            $model->relations->handleWithCount();
+            $model->relations->eagerLoading->handleWith($model->relations->relations, static::class);
+            $model->relations->eagerLoading->handleWithCount();
         }
 
         if(!array_key_exists(1, $model->relations->relationData)) return (object) $model->relations->relationData[0];

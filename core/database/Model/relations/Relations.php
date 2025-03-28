@@ -6,8 +6,6 @@ use core\App;
 
 class Relations {
 
-    use WithTrait, WithCountTrait;
-
     public array $relations = [];
     public string $relationName = '';
     public array $withCount_relations = [];
@@ -19,6 +17,7 @@ class Relations {
     public ManyToMany $ManyToMany;
     public HasMany $HasMany;
     public Nested $Nested;
+    public EagerLoading $eagerLoading;
 
     public function __construct() 
     {
@@ -28,6 +27,7 @@ class Relations {
         $this->ManyToMany = new ManyToMany;
         $this->HasMany = new HasMany;
         $this->Nested = new Nested;
+        $this->eagerLoading = new EagerLoading;
     }
 
     protected function hasOne (string $class2, string $foreignKey = '', string $primaryKey = ''): static
@@ -114,4 +114,17 @@ class Relations {
 
         return compact('select', 'query');
     }
+
+    public function handleRelation (): void
+    {
+        $model = App::$app->model;
+        $RelationsTypes = $model->relations->relationTypes;
+
+        match ($model->relations->currentRelation->type) {
+            $RelationsTypes::HASMANY  =>  $model->relations->HasMany->run(),
+            $RelationsTypes::BELONGSTO =>  $model->relations->BelongsTo->run(),
+            $RelationsTypes::HASONE =>  $model->relations->BelongsTo->run(),
+            $RelationsTypes::MANYTOMANY => $model->relations->ManyToMany->run()
+        };
+    } 
 }
