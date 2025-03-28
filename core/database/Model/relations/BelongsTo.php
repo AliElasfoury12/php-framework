@@ -13,7 +13,7 @@ class BelongsTo {
 
         $sql = $this->prepareSQL();
         //echo "$sql <br>"; 
-        $data = $model->fetch($sql);
+        $data = App::$app->db->query($sql);
 
         foreach ($model->relations->relationData as $key => &$item) {
             $item[$model->relations->relationName] = $data[$key];
@@ -55,7 +55,7 @@ class BelongsTo {
         $sql = $this->prepareSQL_nested();
         //echo "$sql <br>";
         
-        $data = $model->fetch($sql);
+        $data = App::$app->db->query($sql);;
         $this->inject_data($data);
         $model->query->reset();
     }

@@ -11,7 +11,7 @@ class HasMany {
 
         $sql = $this->prpareSQL();
         // echo "$sql <br>"; 
-        $data = $model->fetch($sql);
+        $data =App::$app->db->query($sql);($sql);
 
         $this->inject_data($data);
         $model->query->reset();
@@ -62,7 +62,7 @@ class HasMany {
         $model = App::$app->model;
         $sql = $this->prpareSQL_nested();
         //echo "$sql <br>"; 
-        $data = $model->fetch($sql);
+        $data = App::$app->db->query($sql);($sql);
         $this->inject_data_nested($data);
         $model->query->reset();
     }

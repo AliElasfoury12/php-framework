@@ -6,7 +6,8 @@ use core\App;
 
 trait Create
 {
-    public static function create ($inputs) {
+    public static function create ($inputs) 
+    {
         if (is_string($inputs)) {
             return $inputs;
         }

@@ -3,6 +3,7 @@
 namespace core\database\Model;
 
 use core\App;
+use PDO;
 
 class QueryBuilder {
     public Query $query;
@@ -36,21 +37,21 @@ class QueryBuilder {
     public static function get (): mixed  
     {
         $model = App::$app->model;
+        $db = App::$app->db;
         $tableName = $model->getClassTable(static::class);
         $model->table = $tableName;
         $primaryKey = $model->relations->getPK($tableName);
 
-        $query = $model->getQuery();
-        $select = $model->handleSelect();
+        $query = $model->query->getQuery();
+        $select = $model->query->handleSelect();
 
-        if($model->orderBy){
-            $orderBy = "ORDER BY $tableName".$model->orderBy;
-        }else $orderBy = "ORDER BY $tableName.$primaryKey ASC";
+        if($model->orderBy) $orderBy = "ORDER BY $tableName".$model->orderBy;
+        else $orderBy = "ORDER BY $tableName.$primaryKey ASC";
   
         $sql = "SELECT $select FROM $tableName $query $orderBy";
         //echo $sql;
         $model->query->reset();
-        $model->relations->relationData = $model->fetch($sql);
+        $model->relations->relationData = $db->query($sql);
         
         if($model->relations) {
             $model->table = $tableName;
@@ -59,7 +60,7 @@ class QueryBuilder {
 
             $sql = "SELECT $primaryKey FROM $tableName $query $orderBy";
             //echo $sql;
-            $ids = $model->fetch($sql, 'col');
+            $ids = $db->query($sql, PDO::FETCH_COLUMN);
             $model->dataIds = implode(',',  $ids);
 
             $model->relations->handleWith($model->relations->relations, static::class);
@@ -143,7 +144,7 @@ class QueryBuilder {
         GROUP BY $column HAVING COUNT(*) > 1
         ORDER BY COUNT(*) ASC LIMIT 1";
 
-        $result = App::$app->model->fetch($sql);
+        $result = App::$app->db->query($sql);
         return $result[0][$column];
     }
 

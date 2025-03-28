@@ -7,7 +7,7 @@ use PDO;
 
 class DB 
 {
-    public static PDO $pdo;
+    public PDO $pdo;
 
     public function __construct () 
     {
@@ -19,15 +19,15 @@ class DB
         $user = $_ENV['DB_USERNAME'];
         $password = $_ENV['DB_PASSWORD'];
      
-        self::$pdo = new PDO($dsn, $user, $password);
-        self::$pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+        $this->pdo = new PDO($dsn, $user, $password);
+        $this->pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
     }
 
    
     public function exec (string $sql): bool|\PDOStatement
     {
         //echo "$sql <br>";
-        $statment = self::$pdo->prepare($sql);
+        $statment = $this->pdo->prepare($sql);
         try {
             $statment->execute();
         } catch (\Throwable $th) {
@@ -93,5 +93,11 @@ class DB
             else if($this->tableIsExsists($classSnakeCase)) $table = $classSnakeCase;
         } 
         return $table;
+    }
+
+    public function query (string $sql, int $type = PDO::FETCH_ASSOC): array
+    {
+        //echo $sql;
+        return $this->pdo->query($sql)->fetchAll($type);
     }
 }

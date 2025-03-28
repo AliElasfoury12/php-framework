@@ -14,11 +14,6 @@ class MainModel extends QueryBuilder {
         parent::__construct();
     }
 
-    public function fetch(string $sql, string $type = ''): array 
-    {
-        return App::$app->db->fetch($sql, $type);
-    }
-
     public function belongsTo (string $class2, string $foreignKey = '', string $primaryKey = '')
     {
         App::$app->model->relations->belongsTo($class2,$foreignKey,$primaryKey);

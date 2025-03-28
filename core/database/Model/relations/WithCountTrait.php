@@ -17,7 +17,7 @@ trait WithCountTrait
             foreach ($model->relations->relationData as &$item) {
                 $id = $item[$primaryKey];
                 $sql = "SELECT COUNT(*) FROM $relationName WHERE $forigenKey = '$id'";
-                $count =  $model->fetch($sql)[0]['COUNT(*)'];
+                $count =  App::$app->db->query($sql)[0]['COUNT(*)'];
                 $item[$relationName.'Count'] = $count ?? 0;
             }
         }

@@ -11,7 +11,7 @@ class ManyToMany {
         $model = App::$app->model;
         $sql = $this->prepareSQL();
         // echo "<pre> <h3> $sql \n\n </h3></pre>";
-        $data = $model->fetch($sql);
+        $data = App::$app->db->query($sql);($sql);
         $this->inject_data($data);
         $model->query->reset();
     }
@@ -69,7 +69,7 @@ class ManyToMany {
         $model = App::$app->model;
         $sql = $this->prepareSQL_nested(); 
        // echo "<pre> <h3> $sql \n\n </h3></pre>";
-        $data = $model->fetch($sql);
+        $data = App::$app->db->query($sql);($sql);
         $this->inject_data_nested($data);
         $model->query->reset();
     }

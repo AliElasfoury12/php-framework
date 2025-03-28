@@ -115,13 +115,13 @@ class Relations {
         $query = '';
         $select = $table ? "$table.*": '*';
         if($model->query) {
-            $query = $model->getQuery();
+            $query = $model->query->getQuery();
             if(isset($model->query->where)){
                 $query = str_replace('WHERE', 'AND', $query);
             }
 
             if(isset($model->query->select)){
-                $select = $model->handleSelect($table);
+                $select = $model->query->handleSelect($table);
             }
         }
 
