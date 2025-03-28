@@ -13,17 +13,19 @@ class Relations {
     public string $requestedCoulmns = '*';
     public ?CurrentRelation $currentRelation = null;
     public ?RELATIONSTYPE $relationTypes = null;
+    public BelongsTo $BelongsTo;
+    public ManyToMany $ManyToMany;
+    public HasMany $HasMany;
+    public Nested $Nested;
 
     public function __construct() 
     {
         $this->currentRelation = new CurrentRelation;
         $this->relationTypes = new RELATIONSTYPE;
-    }
-
-    public function implodeColumns (string $table, array $coulmns): string 
-    {
-        $coulmns = array_map(fn($column) => "$table.$column" ,$coulmns);
-        return implode(',', $coulmns);
+        $this->BelongsTo = new BelongsTo;
+        $this->ManyToMany = new ManyToMany;
+        $this->HasMany = new HasMany;
+        $this->Nested = new Nested;
     }
 
     public function getPK (string $table): mixed 
@@ -105,7 +107,7 @@ class Relations {
         $currentRelation->primaryKey = $primaryKey;
     }
 
-    protected static function extraQuery (string $table = ''): array 
+    public static function extraQuery (string $table = ''): array 
     {
         $model = App::$app->model;
         $query = '';

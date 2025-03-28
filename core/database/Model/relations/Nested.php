@@ -4,68 +4,62 @@ namespace core\database\Model\relations;
 
 use core\App;
 
-class Nested extends Relations {
-    private static $relation1; 
-    private static $relation2; 
+class Nested  {
+    private $relation1; 
+    private $relation2; 
 
-    public static function run (string $class, string $relation): void 
+    public function run (string $class, string $relation): void 
     {
-        //user -> posts.comments
-        self::handleFirstRelation($class, $relation); 
-        self::handleSecondRelation($class);
+        $this->handleFirstRelation($class, $relation); 
+        $this->handleSecondRelation($class);
     }
 
-    private static function handleFirstRelation (string $class, string $relation)
+    private function handleFirstRelation (string $class, string $relation)
     {
         $dotPositon = strpos($relation,'.');
-        self::$relation1 = substr($relation, 0, $dotPositon);
-        self::$relation2 = substr($relation, $dotPositon + 1);
+        $this->relation1 = substr($relation, 0, $dotPositon);
+        $this->relation2 = substr($relation, $dotPositon + 1);
 
         $model = App::$app->model;
-        $model->relationName = self::$relation1; //posts
+        $model->relationName = $this->relation1;
         if(array_key_exists($model->relationName, $model->relationData[0])) {
             $model->query = [];
             return;
         }
 
         $class = new $class;
-        call_user_func([$class, self::$relation1]);
+        call_user_func([$class, $this->relation1]);
         $model->handleRelation();
     }
 
-    private static function handleSecondRelation (string $class): void 
+    private function handleSecondRelation (string $class): void 
     {
         $model = App::$app->model;
-        $class1 = $model->getClassName(self::$relation1);
+        $class1 = $model->getClassName($this->relation1);
         if(!class_exists($class1)){
             $class1 = $class;
         }
-        $table1 = $model->getClassTable($class1);
-        $class1 = new $class1();// new Post()
+        $class1 = new $class1();
 
-        if(!method_exists($class1, self::$relation2) ) {
-            $table1 = $model->table;
-        }
+        call_user_func([$class1, $this->relation2]); //posts::comments
 
-        call_user_func([$class1, self::$relation2]); //posts::comments
-
-        $model->currentRelation->relation1 = self::$relation1;
-        $model->currentRelation->relation2 = self::$relation2;
+        $model->currentRelation->relation1 = $this->relation1;
+        $model->currentRelation->relation2 = $this->relation2;
 
         if($model->requestedCoulmns) $model->select($model->requestedCoulmns);
         $types = $model->relationTypes;
 
         switch ($model->currentRelation->type) {
             case $types::HASMANY:
-                HasMany::nested();
+                $model->HasMany->nested();
             break;
 
             case $types::BELONGSTO:
-                BelongsTo::nested();
+                $model->BelongsTo->nested();
             break;
 
             case $types::MANYTOMANY:
-                ManyToMany::nested();
+                $model->ManyToMany->nested();
             break;
         }
     }

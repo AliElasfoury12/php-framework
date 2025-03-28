@@ -3,21 +3,21 @@
 namespace core\database\Model\relations;
 
 use core\App;
-class HasMany extends Relations {
-    public static function run (): void 
+class HasMany {
+    public function run (): void 
     {
         //table1 users hasMany table2 posts
         $model = App::$app->model;
 
-        $sql = self::prpareSQL();
+        $sql = $this->prpareSQL();
         // echo "$sql <br>"; 
         $data = $model->fetch($sql);
         
-        self::inject_data($data);
+        $this->inject_data($data);
         $model->query = [];
     }
 
-    private static function prpareSQL (): string 
+    private function prpareSQL (): string 
     {
         $model = App::$app->model;
         $table1 = $model->table;
@@ -39,7 +39,7 @@ class HasMany extends Relations {
         WHERE $table1.$primaryKey1 IN ($ids) $query $orderBy";
     }
 
-    private static function inject_data (array $data): void 
+    private function inject_data (array $data): void 
     {
         $model = App::$app->model;
         $foreignKey = $model->currentRelation->foreignKey;
@@ -55,20 +55,19 @@ class HasMany extends Relations {
                 $i++;
             }
         }
-
     }
 
-    public static function nested (): void 
+    public function nested (): void 
     {
         $model = App::$app->model;
-        $sql = self::prpareSQL_nested();
+        $sql = $this->prpareSQL_nested();
         //echo "$sql <br>"; 
         $data = $model->fetch($sql);
-        self::inject_data_nested($data);
+        $this->inject_data_nested($data);
         $model->query = [];
     }
 
-    private static function prpareSQL_nested (): string 
+    private function prpareSQL_nested (): string 
     {
         $model = App::$app->model;
         $table1 = $model->table;
@@ -92,7 +91,7 @@ class HasMany extends Relations {
         WHERE $table1.$primaryKey1 IN ($ids) $query $orderBy";
     }
 
-    private static function inject_data_nested (array $data): void 
+    private function inject_data_nested (array $data): void 
     {
         $model = App::$app->model;
         $primaryKey1 = $model->primaryKey;
@@ -127,7 +126,4 @@ class HasMany extends Relations {
             }
         }
     }
-
-
-        
 }

@@ -4,19 +4,19 @@ namespace Core\Database\Model\Relations;
 
 use core\App;
 
-class ManyToMany extends Relations{
+class ManyToMany {
 
-    public static function run (): void //followers, user_id, follower_id 
+    public function run (): void //followers, user_id, follower_id 
     {
         $model = App::$app->model;
-        $sql = self::prepareSQL();
+        $sql = $this->prepareSQL();
         // echo "<pre> <h3> $sql \n\n </h3></pre>";
         $data = $model->fetch($sql);
-        self::inject_data($data);
+        $this->inject_data($data);
         $model->query = [];
     }
 
-    private static function prepareSQL ()
+    private function prepareSQL ()
     {
         $model = App::$app->model;
         $table1 = $model->table;
@@ -46,7 +46,7 @@ class ManyToMany extends Relations{
         WHERE $table1.$primaryKey1 IN ($ids) $query $orderBy";
     }
 
-    private static function inject_data (array $data)
+    private function inject_data (array $data)
     {
         $model = App::$app->model;
         $data_length = count($data);
@@ -64,17 +64,17 @@ class ManyToMany extends Relations{
         }
     }
 
-    public static function nested (): void
+    public function nested (): void
     {
         $model = App::$app->model;
-        $sql = self::prepareSQL_nested(); 
+        $sql = $this->prepareSQL_nested(); 
        // echo "<pre> <h3> $sql \n\n </h3></pre>";
         $data = $model->fetch($sql);
-        self::inject_data_nested($data);
+        $this->inject_data_nested($data);
         $model->query = [];
     }
 
-    private static function prepareSQL_nested ()
+    private function prepareSQL_nested ()
     {
         $model = App::$app->model;
         $table1 = $model->table;
@@ -103,7 +103,7 @@ class ManyToMany extends Relations{
         WHERE $table1.$primaryKey1 IN ($ids) $query $orderBy";
     }
 
-    private static function inject_data_nested (array $data): void
+    private function inject_data_nested (array $data): void
     {
         $model = App::$app->model;
         $dataLength = count($data);
@@ -121,15 +121,15 @@ class ManyToMany extends Relations{
             if(array_key_exists($primaryKey2, $unit[$relation1])){
                 $unit[$relation1][$relation2] = [];
                 while($i < $dataLength && $unit[$primaryKey1] == $data[$i]['pivot']){
-                    unset($data[$i] ['pivot']);
+                    unset($data[$i]['pivot']);
                     $unit[$relation1][$relation2][] = $data[$i];
                     $i++;
                 }
             }else {
                 foreach ($unit[$relation1] as &$item) {
                    $item[$relation2] = [];
-                    while($i < $dataLength  && $unit[$primaryKey1] == $data[$i]['pivot']){
-                        unset($data[$i] ['pivot']);
+                    while($i < $dataLength && $unit[$primaryKey1] == $data[$i]['pivot']){
+                        unset($data[$i]['pivot']);
                         $item[$relation2][] = $data[$i];
                         $i++; 
                     }                   

@@ -4,14 +4,14 @@ namespace core\database\Model\relations;
 
 use core\App;
 
-class BelongsTo extends Relations {
+class BelongsTo {
     
-    public static function run (): void
+    public function run (): void
     {
         //table1 posts belongsTO table2 users
         $model = App::$app->model;
 
-        $sql = self::prepareSQL();
+        $sql = $this->prepareSQL();
         //echo "$sql <br>"; 
         $data = $model->fetch($sql);
 
@@ -22,7 +22,7 @@ class BelongsTo extends Relations {
         $model->query = [];
     }
 
-    private static function prepareSQL (): string 
+    private function prepareSQL (): string 
     {
         $model = App::$app->model;
         $table1 = $model->table;
@@ -49,24 +49,18 @@ class BelongsTo extends Relations {
         WHERE $table1.$primaryKey1 IN ($ids) $query $orderBy";
     }
 
-    public static function nested (): void
+    public function nested (): void
     {
         $model = App::$app->model;
-        $current_relation = $model->currentRelation;
-        $relation1 = $current_relation->relation1;
-        $relation2 = $current_relation->relation2;
-
-        $sql = self::prepareSQL_nested();
+        $sql = $this->prepareSQL_nested();
         //echo "$sql <br>";
         
         $data = $model->fetch($sql);
-        $data_length = count($data);
-
-        self::inject_data($relation1,$relation2,$data,$data_length);
+        $this->inject_data($data);
         $model->query = [];
     }
 
-    private static function prepareSQL_nested (): string
+    private function prepareSQL_nested (): string
     {
         $model = App::$app->model;
         $table1 = $model->table;
@@ -90,12 +84,16 @@ class BelongsTo extends Relations {
         WHERE $table1.$primaryKey1 IN ($ids) $query $orderBy";
     }
 
-    private static function inject_data (string $relation1, string $relation2, array $data, int $data_length): void
+    private function inject_data (array $data): void
     {
         $model = App::$app->model;
+        $data_length = count($data);
         $current_relation = $model->currentRelation;
+        
         $foreignKey = $current_relation->foreignKey;
         $primaryKey2 = $current_relation->primaryKey;
+        $relation1 = $current_relation->relation1;
+        $relation2 = $current_relation->relation2;
 
         $i = 0;
         foreach ($model->relationData as &$unit) {

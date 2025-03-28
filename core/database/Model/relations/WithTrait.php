@@ -28,7 +28,7 @@ trait WithTrait
 
             if(str_contains($relation, '.')) //posts.comments
             {
-                Nested::run($class::class, $relation);
+                $model->Nested->run($class::class, $relation);
                 $model->requestedCoulmns = '';
                 continue;
             }
@@ -40,18 +40,7 @@ trait WithTrait
 
         return $model->relationData;
     }
-    /*
-    $relations = [
-        'belongsto' => [],
-        'manyTomany' => [],
-        'hasmany' => [],
-        'nested' => [
-            'belongsto' => [],
-            'manyTomany' => [],
-            'hasmany' => [],
-        ]
-    ]
-    */
+
     private function getRequestedColumns (string $relation): void 
     {
         $model = App::$app->model;
@@ -67,30 +56,16 @@ trait WithTrait
     X posts.comments:id
      */
 
-    protected function handleRelation (): void
+    public function handleRelation (): void
     {
         $model = App::$app->model;
-        $type = $model->currentRelation->type;
         $RelationsTypes = $model->relationTypes;
 
-        switch ($type) {
-            case $RelationsTypes::HASMANY:
-                HasMany::run();
-            break;
-
-            case $RelationsTypes::BELONGSTO:
-                BelongsTo::run();
-            break;
-
-            case $RelationsTypes::HASONE:
-                BelongsTo::run();
-            break;
-
-            case $RelationsTypes::MANYTOMANY:
-                ManyToMany::run();
-            break;
-        }
+        match ($model->currentRelation->type) {
+            $RelationsTypes::HASMANY  =>  $model->HasMany->run(),
+            $RelationsTypes::BELONGSTO =>  $model->BelongsTo->run(),
+            $RelationsTypes::HASONE =>  $model->BelongsTo->run(),
+            $RelationsTypes::MANYTOMANY => $model->ManyToMany->run()
+        };
     }    
 }
-
-
