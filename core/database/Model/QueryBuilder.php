@@ -7,7 +7,6 @@ use core\App;
 class QueryBuilder extends QueryExexcution {
     public Query $query;
     public string $orderBy = '';
-    public string $nestedSelect = '*';
     public string $table = '';
     public string $primaryKey;
     public int $pageNum = 1;

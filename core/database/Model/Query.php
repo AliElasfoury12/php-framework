@@ -10,7 +10,7 @@ class FinalQuery {
 
     public function reset (): void
     {
-        $this->select = '';
+        $this->select = '*';
         $this->extraQuery = '';
     }
 }
@@ -36,10 +36,10 @@ class Query {
         $this->finalQuery->reset();
     }
 
-    public function getQuery (string $table = ''): FinalQuery
+    public function getQuery (string $table = ''): string
     {
         if($this->where) {
-            $this->finalQuery->extraQuery = 'WHERE ';
+            $this->finalQuery->extraQuery = 'AND ';
             if($table) $this->where = array_map(fn($w) => "$table.$w", $this->where);
             if(count($this->where) > 1) {
                 $this->finalQuery->extraQuery .= implode(' AND ', $this->where);
@@ -47,29 +47,20 @@ class Query {
                 $this->finalQuery->extraQuery .= $this->where[0];
             }
         }
-       
+
         if($this->extraQuery) $this->finalQuery->extraQuery .= implode(' ', $this->extraQuery);
-        return $this->finalQuery;
+        return $this->finalQuery->extraQuery;
     }
 
-    public function handleSelect (string $table = '') 
+    public function getSelect (string $table = ''): string
     {
-        $select = App::$app->model->query->select;
-        if(isset($select)) {
-            if(array_key_exists(0 , $select)) $select = $select[0];
+        if($this->select){
+            $select = explode(',', $this->select[0]);
+            if($table) $select = array_map(fn($field) => "$table.$field", $select);
+            $this->finalQuery->select = implode(',', $select);
         }
 
-        if($select){
-            if($table && $select) {
-                $select = explode(',', $select);
-                $select = array_map(fn($field) => "$table.$field", $select);
-                $select = implode(',', $select);
-            }
-            return $select;
-        }
-
-        if($table) return "$table.*";
-
-        return '*';
+        if($table && $this->select === ['*']) $this->finalQuery->select = "$table.*";
+        return $this->finalQuery->select;
     }
 }

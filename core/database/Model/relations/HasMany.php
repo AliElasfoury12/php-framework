@@ -29,10 +29,8 @@ class HasMany {
         $foreignKey = $model->relations->currentRelation->foreignKey;
         $primaryKey = $model->relations->currentRelation->primaryKey;
 
-        $extraQuery = $model->relations->extraQuery($table2);
-        $query = $extraQuery['query'];
-        $select = $extraQuery['select'];
-       
+        $select = $model->query->getSelect($table2);
+        $query = $model->query->getQuery($table2);
        
         return "SELECT $select FROM $table1
         INNER JOIN $table2 ON $table1.$primaryKey = $table2.$foreignKey
@@ -81,9 +79,8 @@ class HasMany {
         $alias_PK = $current_relation->lastJoin_PK;
         $table2 = $current_relation->table2;
         
-        $extraQuery = $model->relations->extraQuery($table2);
-        $query = $extraQuery['query'];
-        $select = $extraQuery['select'];
+        $select = $model->query->getSelect($table2);
+        $query = $model->query->getQuery($table2);
  
         return "SELECT $select, $table1.$primaryKey1 AS pivot FROM $table1
         $first_sql_part

@@ -31,9 +31,8 @@ class ManyToMany {
         $pivotKey = $current_relation->pivotKey;
         $relatedKey = $current_relation->relatedKey;
         
-        $extraQuery = $model->relations->extraQuery('alias1');
-        $query = $extraQuery['query'];
-        $select = $extraQuery['select'];
+        $select = $model->query->getSelect('alias1');
+        $query = $model->query->getQuery('alias1');
 
         $current_relation->FirstSqlPart = 
         "INNER JOIN $pivotTable ON $table1.$primaryKey1 = $pivotTable.$pivotKey
@@ -92,9 +91,8 @@ class ManyToMany {
         $lastTable = $current_relation->lastJoinTable;
         $lastTable_PK = $current_relation->lastJoin_PK;
 
-        $extraQuery = $model->relations->extraQuery('alias2');
-        $query = $extraQuery['query'];
-        $select = $extraQuery['select'];
+        $select = $model->query->getSelect('alias2');
+        $query = $model->query->getQuery();
  
         return "SELECT $select, $table1.$primaryKey1 AS pivot FROM $table1
         $first_sql_part

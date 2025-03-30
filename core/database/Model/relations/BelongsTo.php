@@ -35,9 +35,8 @@ class BelongsTo {
         $foreignKey = $current_relation->foreignKey;
         $primaryKey2 = $current_relation->primaryKey;
 
-        $extraQuery = $model->relations->extraQuery($table2);
-        $query = $extraQuery['query'];
-        $select = $extraQuery['select'];
+        $select = $model->query->getSelect($table2);
+        $query = $model->query->getQuery($table2);
 
         $current_relation->FirstSqlPart = 
         "INNER JOIN $table2  ON $table2.$primaryKey2 = $table1.$foreignKey";
@@ -74,9 +73,8 @@ class BelongsTo {
         $primaryKey2 = $current_relation->primaryKey;
         $first_sql_part = $current_relation->FirstSqlPart;
 
-        $extraQuery = $model->relations->extraQuery($table2);
-        $query = $extraQuery['query'];
-        $select = $extraQuery['select'];
+        $select = $model->query->getSelect($table2);
+        $query = $model->query->getQuery($table2);
 
         return "SELECT $select FROM $table1 
         $first_sql_part

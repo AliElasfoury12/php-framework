@@ -96,27 +96,6 @@ class Relations {
         $currentRelation->primaryKey = $primaryKey;
     }
 
-    public function extraQuery (string $table = ''): array 
-    {
-        $model = App::$app->model;
-        $query = '';
-        $select = $table ? "$table.*": '*';
-       
-        if($model->query) {
-            $query = $model->query->getQuery()->extraQuery;
-
-            if(isset($model->query->where)){
-                $query = str_replace('WHERE', 'AND', $query);
-            }
-
-            if(isset($model->query->select)){
-                $select = $model->query->handleSelect($table);
-            }
-        }
-
-        return compact('select', 'query');
-    }
-
     public function handleRelation (): void
     {
         $model = App::$app->model;
