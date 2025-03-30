@@ -88,13 +88,13 @@ class QueryBuilder extends QueryExexcution {
         return new static;
     }
 
-    public static function where (string $column ,string  $state, string $value = ''): static 
+    public static function where (string $column ,string  $opretor, string $value = ''): static 
     {
         if(!$value) {
-            $value = $state;
-            $state = '=';
+            $value = $opretor;
+            $opretor = '=';
         }
-        App::$app->model->query->where[] = "$column $state '$value'";
+        App::$app->model->query->where[] = "$column $opretor '$value'";
         return  new static;
     }
 

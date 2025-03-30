@@ -96,13 +96,15 @@ class Relations {
         $currentRelation->primaryKey = $primaryKey;
     }
 
-    public static function extraQuery (string $table = ''): array 
+    public function extraQuery (string $table = ''): array 
     {
         $model = App::$app->model;
         $query = '';
         $select = $table ? "$table.*": '*';
+       
         if($model->query) {
-            $query = $model->query->getQuery();
+            $query = $model->query->getQuery()->extraQuery;
+
             if(isset($model->query->where)){
                 $query = str_replace('WHERE', 'AND', $query);
             }

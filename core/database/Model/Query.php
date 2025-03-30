@@ -4,15 +4,28 @@ namespace core\database\Model;
 
 use core\App;
 
+class FinalQuery {
+    public string $select = '';
+    public string $extraQuery = '';
+
+    public function reset (): void
+    {
+        $this->select = '';
+        $this->extraQuery = '';
+    }
+}
+
 class Query {
     public array $where = [];
     public array $select = [];
     public array $extraQuery = [];
-
+    public FinalQuery $finalQuery;
+   
     public function __construct() {
         $this->where = [];
         $this->select = [];
         $this->extraQuery = [];
+        $this->finalQuery = new FinalQuery;
     }
 
     public function reset (): void
@@ -20,38 +33,23 @@ class Query {
         $this->where = [];
         $this->select = [];
         $this->extraQuery = [];
+        $this->finalQuery->reset();
     }
 
-    public function getQuery (string $table = ''): string 
+    public function getQuery (string $table = ''): FinalQuery
     {
-        $query = App::$app->model->query;
-        $wheres = '';
-        $extraQuery = '';
-
-        if(isset($query->where)) {
-            $wheres = $query->where;
-            if(!empty($wheres)) {
-                if(count($wheres) > 1) {
-                   if($table) $wheres = array_map(fn($w) => "$table.$w", $wheres);
-                    $wheres = implode(' AND ', $wheres);
-                }
-                $wheres = $wheres[0];
-                $wheres = "WHERE $wheres";
+        if($this->where) {
+            $this->finalQuery->extraQuery = 'WHERE ';
+            if($table) $this->where = array_map(fn($w) => "$table.$w", $this->where);
+            if(count($this->where) > 1) {
+                $this->finalQuery->extraQuery .= implode(' AND ', $this->where);
             }else {
-                $wheres = '';
+                $this->finalQuery->extraQuery .= $this->where[0];
             }
         }
        
-        if(isset($query->extraQuery)) {
-            $extraQuery = $query->extraQuery;
-            if(!empty($extraQuery)) {
-                $extraQuery = implode(' ', $extraQuery);
-            }else {
-                $extraQuery = '';
-            }
-        }
-
-       return "$wheres $extraQuery";
+        if($this->extraQuery) $this->finalQuery->extraQuery .= implode(' ', $this->extraQuery);
+        return $this->finalQuery;
     }
 
     public function handleSelect (string $table = '') 

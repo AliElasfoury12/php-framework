@@ -44,16 +44,32 @@ class EagerLoading
     public function handleWithCount (): void 
     {
         $model = App::$app->model;
+        $table1 = $model->table;
         $primaryKey = $model->primaryKey;
+        $orderBy = $model->orderBy;
+        $ids = $model->dataIds;
 
         foreach ($model->relations->withCount_relations as $relationName) {
-            $forigenKey =  App::$app->db->getFK($relationName, $model->table);
+            $forigenKey = App::$app->db->getFK($relationName, $table1);
 
+            $sql = "SELECT COUNT(*) AS count, $table1.$primaryKey AS pivot FROM $table1 
+            INNER JOIN $relationName ON $table1.$primaryKey = $relationName.$forigenKey
+            WHERE $table1.$primaryKey IN ($ids)
+            GROUP BY $table1.$primaryKey $orderBy";
+
+            //echo "$sql <br> <br>";
+
+            $data = App::$app->db->query($sql);
+            $data_length = count($data);
+
+            $i = 0;
             foreach ($model->relations->relationData as &$item) {
-                $id = $item[$primaryKey];
-                $sql = "SELECT COUNT(*) FROM $relationName WHERE $forigenKey = '$id'";
-                $count =  App::$app->db->query($sql)[0]['COUNT(*)'];
-                $item[$relationName.'Count'] = $count ?? 0;
+                $item[$relationName.'Count'] = 0;
+
+                if($i < $data_length && $item[$primaryKey] === $data[$i]['pivot'] ){
+                    $item[$relationName.'Count'] = $data[$i]['count'];
+                    $i++;
+                }               
             }
         }
     }

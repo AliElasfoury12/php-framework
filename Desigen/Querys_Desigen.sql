@@ -116,3 +116,9 @@ INNER JOIN posts AS alias ON shared_posts.shared_post_id = alias.id
 INNER JOIN likes ON alias.id = likes.post_id
 INNER JOIN users on likes.user_id = users.id
 
+#COUNT
+SELECT posts.id, COUNT(*) from posts 
+INNER JOIN likes ON posts.id = likes.post_id
+WHERE posts.id IN (66,62)
+GROUP BY posts.id ORDER by posts.id DESC
+

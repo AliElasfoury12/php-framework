@@ -15,7 +15,7 @@ class QueryExexcution {
         $model->table = $tableName;
         $primaryKey = $db->getPK($tableName);
 
-        $query = $model->query->getQuery();
+        $query = $model->query->getQuery()->extraQuery;
         $select = $model->query->handleSelect();
 
         if($model->orderBy) $orderBy = "ORDER BY $tableName".$model->orderBy;

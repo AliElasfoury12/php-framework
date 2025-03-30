@@ -81,7 +81,7 @@ class DB
 
     public function query (string $sql, int $type = PDO::FETCH_ASSOC): array
     {
-        //echo $sql;
+       // echo "$sql <br><br>";
         return $this->pdo->query($sql)->fetchAll($type);
     }
 
