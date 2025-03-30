@@ -20,7 +20,7 @@ class Middleware {
         $token = str_replace('Bearer ', '', $token);
 
         $sql = "SELECT token FROM accessTokens WHERE token = '$token'";
-        $result = App::$app->db->fetch($sql);
+        $result = App::$app->db->query($sql);
 
         if(!$result) {
             echo '403 | Unauthrized';

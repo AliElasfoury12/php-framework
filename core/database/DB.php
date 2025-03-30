@@ -61,7 +61,7 @@ class DB
     public function tableIsExsists (string $class): mixed 
     {   
         $sql = "show TABLES LIKE '$class'";
-        return $this->fetch($sql);
+        return $this->query($sql);
     }
 
     public function getTable (string $class) 
@@ -81,7 +81,7 @@ class DB
 
     public function query (string $sql, int $type = PDO::FETCH_ASSOC): array
     {
-        echo "$sql <br><br>";
+       // echo "$sql <br><br>";
         return $this->pdo->query($sql)->fetchAll($type);
     }
 
@@ -89,7 +89,7 @@ class DB
     {
         $sql = "SHOW KEYS FROM $table WHERE Key_name = 'PRIMARY'";
         //echo "$sql <br>";
-        $result = App::$app->db->fetch($sql);
+        $result = App::$app->db->query($sql);
         return $result[0]["Column_name"];
     }
 
@@ -98,7 +98,7 @@ class DB
         $table2 = rtrim($table2, 's');
         $sql = "SHOW KEYS FROM $table1 WHERE Key_name Like '%$table2%'";
         //echo "$sql <br>";
-        $result = App::$app->db->fetch($sql);
+        $result = App::$app->db->query($sql);
         return $result[0]["Column_name"];
     }
 }
