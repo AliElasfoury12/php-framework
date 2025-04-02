@@ -2,35 +2,37 @@
 
 namespace core\database\migrations;
 
+use Closure;
 use core\App;
-use core\database\DB;
+use core\Command;
 use core\database\migrations\table\Table;
 
 class Schema  {
-
-    public static $tableName ;
-    public static function create ($tableName, $callback) 
+  
+    public static function create (string $tableName, Closure $callback): void 
     {
-        self::$tableName = $tableName;
         $table = new Table();
+        $table->name = $tableName;
         $callback($table);
-        $columns = $table->query['add'];
+
+        $columns = $table->query->create;
         if (is_array($columns)) {
             $columns = implode(' , ', $columns);
         }
-        $sql = " CREATE TABLE IF NOT EXISTS $tableName ( $columns ) ";
+        $sql = "CREATE TABLE IF NOT EXISTS $tableName ( $columns )";
         //echo $sql;
-        App::$app->db->exec($sql);
+        Command::$do->db->exec($sql);
     }
 
-    public static function table ($tableName, $callback) {
+    public static function table ($tableName, $callback)
+    {
         $table = new Table();
         $callback($table);
 
-        $dropColumns = $table->query['drop'];
-        $addColumns = $table->query['add'];
+        $dropColumns = $table->query->drop;
+        $addColumns = $table->query->create;
 
-        if( $addColumns) {
+        if($addColumns) {
             if(is_string($addColumns)){
                 $sql ="ALTER TABLE $tableName ADD COLUMN  $addColumns ;";
             }

@@ -2,12 +2,16 @@
 
 namespace core\database\migrations;
 
-use core\App;
 use PDO;
 use core\database\DB;
 
-class Migrations extends DB
+class Migrations
 {
+    public DB $db;
+    public function __construct()
+    {
+        $this->db = new DB();
+    }
    
     public function applyMigrations (): void
     {
@@ -44,7 +48,7 @@ class Migrations extends DB
     public function getAppliedMigrations (): array
     {
        try {
-            $statment = App::$app->db->exec("SELECT  migration FROM migrations");
+            $statment = $this->db->exec("SELECT  migration FROM migrations");
             return $statment->fetchAll(PDO::FETCH_COLUMN) ;
         } catch (\Throwable $th) {
             return [];
@@ -55,7 +59,7 @@ class Migrations extends DB
     {
         $migrations = array_map(fn ($m) => "('$m')",$migrations);
         $str = implode(',', $migrations);
-        App::$app->db->exec("INSERT INTO migrations ( migration ) VALUES $str");
+        $this->db->exec("INSERT INTO migrations ( migration ) VALUES $str");
     }
 
     public function log (string $message): void

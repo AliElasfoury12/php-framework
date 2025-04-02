@@ -2,8 +2,15 @@
 
 namespace core\database\migrations\table;
 
-use core\database\migrations\Schema;
+class Table extends Columns {
+   
+    public string $name = '';
+    public Query $query;
+    public static Table $table;
 
-class Table  extends Schema {
-    use Columns, Modifiers;
+    public function __construct() 
+    {
+        $this->query = new Query;
+        self::$table = $this;
+    }
 }

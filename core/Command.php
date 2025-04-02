@@ -2,6 +2,7 @@
 
 namespace core;
 
+use core\database\DB;
 use core\MainController as Controller;
 use core\database\migrations\Migrations;
 
@@ -9,10 +10,14 @@ class Command
 {
     public Migrations $migrations;
     public Controller $controller;
+    public DB $db;
+    public static Command $do;
 
     public function __construct() {
-        $this->migrations = new Migrations();
-        $this->controller = new Controller();
+        $this->migrations = new Migrations;
+        $this->controller = new Controller;
+        $this->db = new DB;
+        self::$do = $this;
     }
 
     public function handleCommand ($argv) 
