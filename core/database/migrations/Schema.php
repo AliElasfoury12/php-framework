@@ -20,11 +20,11 @@ class Schema  {
             $columns = implode(' , ', $columns);
         }
         $sql = "CREATE TABLE IF NOT EXISTS $tableName ( $columns )";
-        //echo $sql;
+        echo "\n $sql \n\n";
         Command::$do->db->exec($sql);
     }
 
-    public static function table ($tableName, $callback)
+    public static function table ($tableName, $callback): void
     {
         $table = new Table();
         $callback($table);
@@ -33,34 +33,30 @@ class Schema  {
         $addColumns = $table->query->create;
 
         if($addColumns) {
-            if(is_string($addColumns)){
-                $sql ="ALTER TABLE $tableName ADD COLUMN  $addColumns ;";
-            }
-
-            if (is_array($addColumns)) {
-                $addColumns = implode(' , ', $addColumns);
-                $sql ="ALTER TABLE $tableName ADD COLUMN  $addColumns ;";
-            }
+            $addColumns = array_map(fn ($column) => " ADD COLUMN $column", $addColumns);
+            $addColumns = implode(' , ', $addColumns);
         }
 
         if($dropColumns) {
-            if(is_string($dropColumns)){
-                $sql ="ALTER TABLE $tableName DROP COLUMN $dropColumns ;";
-            }
+            $dropColumns = array_map(fn ($column) => "DROP COLUMN $column", $dropColumns);
+            $dropColumns = implode(' , ', $dropColumns);
+        }
 
-            if (is_array($dropColumns)) {
-                $dropColumns = implode(' , ', $dropColumns);
-                $sql ="ALTER TABLE $tableName $dropColumns;";
-            }
-        }
         if($dropColumns && $addColumns ){
-            $sql ="ALTER TABLE $tableName ADD COLUMN  $addColumns, $dropColumns ;";
+            $sql ="ALTER TABLE $tableName $addColumns, $dropColumns ";
+        }else if ($addColumns){
+            $sql ="ALTER TABLE $tableName $addColumns";
+        }else{
+            $sql ="ALTER TABLE $tableName $dropColumns ";
         }
-        App::$app->db->exec($sql);
+        
+        echo "\n $sql \n\n";
+        Command::$do->db->exec($sql);
     }
 
     public static function dropTable ($tableName) {
         $sql ="DROP TABLE IF EXISTS $tableName";
-        App::$app->db->exec($sql);
+        echo "\n $sql \n\n";
+        Command::$do->db->exec($sql);
     }
 }

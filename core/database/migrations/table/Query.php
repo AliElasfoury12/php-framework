@@ -16,7 +16,6 @@ class Query {
     public function drop (string $field): void 
     {
         $this->drop[] = $field;
-        $this->size++;
     }
 
     public function pop (): void
@@ -33,5 +32,10 @@ class Query {
     public function setLast (string $value): void 
     {
         $this->create[$this->size - 1] = $value;
+    }
+
+    public function concateLast (string $value): void 
+    {
+        $this->create[$this->size - 1] .= " $value";
     }
 }

@@ -5,7 +5,8 @@ use core\database\migrations\table\Table;
 
 class className
 {
-    public function up () {
+    public function up (): void 
+    {
         Schema::table('tableName', function (Table $table) {            
           
 
@@ -13,7 +14,8 @@ class className
         });
     } 
 
-    public function down () {
+    public function down (): void 
+    {
         Schema::table('tableName', function (Table $table) {            
           
         });

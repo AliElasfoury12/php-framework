@@ -22,46 +22,47 @@ class Command
 
     public function handleCommand ($argv) 
     {
-
         if($argv[0] != 'bmbo' || empty($argv[1])) {
             $this->notFound();
         }
 
-        if($argv[1] == 'start'){
-            $port = 8000;
-            while (is_resource(@fsockopen('localhost',$port))) {
-               $port++;
-            }
-            exec("php -S localhost:$port -t public/");
-            exit;
+        switch ($argv[1]) {
+            case 'start':
+                $port = 8000;
+                while (is_resource(@fsockopen('localhost',$port))) {
+                   $port++;
+                }
+                exec("php -S localhost:$port -t public/");
+            break;
+
+            case 'migrate':
+                $this->migrations->applyMigrations();
+            break;
+
+            case 'migration':
+                if(str_contains($argv[2], 'create')) 
+                    $this->migrations->createTable($argv[2]);
+                elseif(str_contains($argv[2], 'alter'))
+                    $this->migrations->alterTable($argv[2]);
+            break;
+
+            case 'seed':
+                $this->seedCommand();
+            break;
+
+            case 'model':
+                $this->createModel($argv[2]);
+            break;
+
+            case  'controller':
+                $this->controller->createController($argv[2]);
+            break;
+            
+            default:
+                $this->notFound();
+            break;
         }
     
-        if($argv[1] == 'migrate'){
-            $this->migrations->applyMigrations();
-            exit;
-        }
-        
-        if(
-            $argv[1] == 'migration' &&
-            str_contains($argv[2], 'create') &&
-            str_contains($argv[2], 'table')
-        ){
-            $this->migrations->createTable($argv[2]);
-        }
-        
-        if($argv[1] == 'seed'){
-            $this->seedCommand();
-        }
-        
-        if($argv[1] == 'model'){
-           $this->createModel($argv[2]);
-        }
-        
-        if($argv[1] == 'controller'){
-           $this->controller->createController($argv[2]);
-        }
-        
-       $this->notFound();
     }
 
     public function notFound () {

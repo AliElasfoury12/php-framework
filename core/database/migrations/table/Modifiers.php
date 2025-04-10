@@ -2,8 +2,6 @@
 
 namespace core\database\migrations\table;
 
-use core\database\migrations\Schema;
-
 class Modifiers
 {
     private function table (): Table
@@ -15,14 +13,14 @@ class Modifiers
     {
         return $this->table()->query;
     }
-    public function after (string $column) 
+
+    public function after (string $column): Table 
     {
-        $lastItem = $this->query()->last();
-        $this->query()->setLast("$lastItem AFTER $column");      
+        $this->query()->concateLast("AFTER $column");      
         return $this->table();
     }
 
-    public function cascadeOnDelete ( ) 
+    public function cascadeOnDelete (): Table 
     {
         $lastItem = $this->query()->last();
         $this->query()->setLast("$lastItem ON DELETE CASCADE");
@@ -45,12 +43,15 @@ class Modifiers
         return $this->table();
     }
 
-    public function default (bool $default): Table 
+    public function default (mixed $default): Table 
     {
         match ($default) {
             false => $default = 0 ,
-            true => $default = 1 ,
+            true => $default = 1,
+            default => $default 
         };
+
+        if(is_string($default)) $default = "'$default'";
 
         $item = $this->query()->last();
         $item = str_replace('NOT NULL', ' ', $item);

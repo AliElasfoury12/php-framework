@@ -8,6 +8,11 @@ class M1743340668_create_test_table  {
         Schema::create('test', function (Table $table) 
         {            
             $table->id();
+            $table->foreignId('user_id')->constrained()->cascadeOnDelete();
+            $table->string('string')->default('user');
+            $table->bool('boolen')->default(false);
+            $table->bigInt('big_int')->default(5);
+            $table->int('_int_');
             $table->timesStamp();
         });
     } 
