@@ -22,8 +22,7 @@ class Modifiers
 
     public function cascadeOnDelete (): Table 
     {
-        $lastItem = $this->query()->last();
-        $this->query()->setLast("$lastItem ON DELETE CASCADE");
+        $this->query()->concateLast("ON DELETE CASCADE");      
         return $this->table();
     }
 
@@ -36,7 +35,7 @@ class Modifiers
 
         if(!$table){
             $table = str_replace('_id ','',$name);
-            $table = "$table"."s";
+            $table .= 's';
         }
 
         $this->query()->add("CONSTRAINT $index FOREIGN KEY ($name) REFERENCES $table ($key)");
@@ -78,7 +77,7 @@ class Modifiers
   
     public function nullable (): Table 
     {
-        $lastItem =$this->query()->last();
+        $lastItem = $this->query()->last();
         $lastItem = str_replace('NOT', '',  $lastItem);
         $this->query()->setLast($lastItem);
         return $this->table();
@@ -94,12 +93,11 @@ class Modifiers
 
     public function primary (): Table 
     {
-        $lastItem = $this->query()->last();
-        $this->query()->setLast("$lastItem PRIMARY KEY");
+        $this->query()->concateLast('PRIMARY KEY');
         return $this->table();
     }
 
-    public function references ($column = 'id') 
+    public function references (string $column = 'id'): Table 
     {
         $lastItem = $this->query()->last();
         $this->query()->pop();
@@ -108,7 +106,8 @@ class Modifiers
         return $this->table();
     }
 
-    public function unique ( ) {
+    public function unique (): Table 
+    {
         $lastItem = $this->query()->last();
         $this->query()->setLast("$lastItem UNIQUE");
         return $this->table();

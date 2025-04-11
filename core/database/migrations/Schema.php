@@ -37,19 +37,14 @@ class Schema  {
             $addColumns = implode(' , ', $addColumns);
         }
 
-        if($dropColumns) {
-            $dropColumns = array_map(fn ($column) => "DROP COLUMN $column", $dropColumns);
-            $dropColumns = implode(' , ', $dropColumns);
-        }
+        if($dropColumns) $dropColumns = implode(' , ', $dropColumns);
 
-        if($dropColumns && $addColumns ){
-            $sql ="ALTER TABLE $tableName $addColumns, $dropColumns ";
-        }else if ($addColumns){
-            $sql ="ALTER TABLE $tableName $addColumns";
-        }else{
-            $sql ="ALTER TABLE $tableName $dropColumns ";
-        }
-        
+        if($dropColumns && $addColumns ) $columns = "$addColumns, $dropColumns";
+        elseif ($addColumns) $columns = $addColumns;
+        else $columns = $dropColumns;
+
+        $sql ="ALTER TABLE $tableName $columns";
+
         echo "\n $sql \n\n";
         Command::$do->db->exec($sql);
     }
