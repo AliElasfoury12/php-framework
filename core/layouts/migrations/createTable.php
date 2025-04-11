@@ -9,7 +9,7 @@ class className
     {
         Schema::create('tableName', function (Table $table) {            
             $table->id();
-            $table->timesStamp();
+            $table->timeStamp();
         });
     } 
 

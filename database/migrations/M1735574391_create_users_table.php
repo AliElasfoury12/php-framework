@@ -10,7 +10,7 @@ class M1735574391_create_users_table  {
             $table->string('name');
             $table->string('email')->unique();
             $table->string('password');
-            $table->timesStamp();
+            $table->timeStamp();
         });
     } 
 

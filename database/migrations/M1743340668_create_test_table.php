@@ -12,7 +12,7 @@ class M1743340668_create_test_table  {
             $table->bool('boolen')->default(false);
             $table->json('_json');
             $table->int('_int_')->nullable();
-            $table->timesStamp();
+            $table->timeStamp();
         });
     } 
 

@@ -9,7 +9,7 @@ class M0001_migrations
         Schema::create('migrations', function (Table $table) {            
             $table->id();
             $table->string('migration');
-            $table->timesStamp();
+            $table->timeStamp();
         });
     } 
 

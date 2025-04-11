@@ -10,7 +10,7 @@ class M0002_accessTokens
             $table->id();
             $table->bigInt('tokenable_id');
             $table->string('token');
-            $table->timesStamp();
+            $table->timeStamp();
         });
     } 
 

@@ -56,7 +56,7 @@ class Columns extends Modifiers
         return $this->table();
     }
 
-    public function timesStamp (): static 
+    public function timeStamp (): Table 
     {
         $this->query()->add(
             "updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ,

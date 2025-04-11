@@ -11,7 +11,7 @@ class M1744403070_create_test2_table  {
             $table->id();
             $table->string('string_forigen');
             $table->foreign('string_forigen')->references('string')->on('test');
-            $table->timesStamp();
+            $table->timeStamp();
         });
     } 
 

@@ -15,10 +15,7 @@ class Schema  {
         $table->name = $tableName;
         $callback($table);
 
-        $columns = $table->query->create;
-        if (is_array($columns)) {
-            $columns = implode(' , ', $columns);
-        }
+        $columns = $table->query->create->implode(',');
         $sql = "CREATE TABLE IF NOT EXISTS $tableName ( $columns )";
         echo "\n $sql \n\n";
         Command::$do->db->exec($sql);
@@ -33,11 +30,11 @@ class Schema  {
         $addColumns = $table->query->create;
 
         if($addColumns) {
-            $addColumns = array_map(fn ($column) => " ADD COLUMN $column", $addColumns);
-            $addColumns = implode(' , ', $addColumns);
+            $addColumns->map(fn ($column) => " ADD COLUMN $column");
+            $addColumns = $addColumns->implode(',');
         }
 
-        if($dropColumns) $dropColumns = implode(' , ', $dropColumns);
+        if($dropColumns) $dropColumns = $dropColumns->implode(',');
 
         if($dropColumns && $addColumns ) $columns = "$addColumns, $dropColumns";
         elseif ($addColumns) $columns = $addColumns;
