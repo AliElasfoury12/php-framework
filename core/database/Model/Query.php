@@ -3,6 +3,7 @@
 namespace core\database\Model;
 
 use core\App;
+use core\base\_Array;
 
 class FinalQuery {
     public string $select = '';
@@ -16,21 +17,19 @@ class FinalQuery {
 }
 
 class Query {
-    public array $where = [];
+    public _Array $where;
     public array $select = [];
     public array $extraQuery = [];
     public FinalQuery $finalQuery;
    
     public function __construct() {
-        $this->where = [];
-        $this->select = [];
-        $this->extraQuery = [];
+        $this->where = new _Array();
         $this->finalQuery = new FinalQuery;
     }
 
     public function reset (): void
     {
-        $this->where = [];
+        $this->where->reset();
         $this->select = [];
         $this->extraQuery = [];
         $this->finalQuery->reset();
@@ -38,11 +37,11 @@ class Query {
 
     public function getQuery (string $table = ''): string
     {
-        if($this->where) {
+        if(!$this->where->empty()) {
             $this->finalQuery->extraQuery = 'AND ';
-            if($table) $this->where = array_map(fn($w) => "$table.$w", $this->where);
-            if(count($this->where) > 1) {
-                $this->finalQuery->extraQuery .= implode(' AND ', $this->where);
+            if($table) $this->where->map(fn($w) => "$table.$w");
+            if($this->where->size > 1) {
+                $this->finalQuery->extraQuery .= $this->where->implode('AND');
             }else {
                 $this->finalQuery->extraQuery .= $this->where[0];
             }

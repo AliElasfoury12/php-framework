@@ -14,14 +14,14 @@ class EagerLoading
 
             if(str_contains($relation, ':')) //posts:id,post
             {
-               $this->getRequestedColumns($relation);
+                $this->getRequestedColumns($relation);
                 $relation = $model->relations->relationName;
             }
 
             if(str_contains($relation, '.')) //posts.comments
             {
                 $model->relations->Nested->run($class::class, $relation);
-                $model->requestedCoulmns = '';
+                $model->relations->requestedCoulmns = '';
                 continue;
             }
 

@@ -11,13 +11,13 @@ class Command
     public Migrations $migrations;
     public Controller $controller;
     public DB $db;
-    public static Command $do;
+    public static Command $command;
 
     public function __construct() {
         $this->migrations = new Migrations;
         $this->controller = new Controller;
         $this->db = new DB;
-        self::$do = $this;
+        self::$command = $this;
     }
 
     public function handleCommand ($argv) 
@@ -54,7 +54,7 @@ class Command
                 $this->createModel($argv[2]);
             break;
 
-            case  'controller':
+            case 'controller':
                 $this->controller->createController($argv[2]);
             break;
             

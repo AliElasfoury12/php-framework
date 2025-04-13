@@ -5,7 +5,8 @@ namespace core\database\Model;
 use core\App;
 use core\database\Model\relations\Relations;
 
-class MainModel extends QueryBuilder {
+class MainModel extends QueryBuilder 
+{
     public Relations $relations;
 
     public function __construct() {

@@ -18,7 +18,7 @@ class Schema  {
         $columns = $table->query->create->implode(',');
         $sql = "CREATE TABLE IF NOT EXISTS $tableName ( $columns )";
         echo "\n $sql \n\n";
-        Command::$do->db->exec($sql);
+        Command::$command->db->exec($sql);
     }
 
     public static function table ($tableName, $callback): void
@@ -43,12 +43,12 @@ class Schema  {
         $sql ="ALTER TABLE $tableName $columns";
 
         echo "\n $sql \n\n";
-        Command::$do->db->exec($sql);
+        Command::$command->db->exec($sql);
     }
 
     public static function dropTable ($tableName) {
         $sql ="DROP TABLE IF EXISTS $tableName";
         echo "\n $sql \n\n";
-        Command::$do->db->exec($sql);
+        Command::$command->db->exec($sql);
     }
 }

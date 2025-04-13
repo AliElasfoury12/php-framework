@@ -31,7 +31,7 @@ class Post extends Model {
     public function sharedPost ()
     {
       return $this->manyToMany(Post::class, 'shared_posts', 'post_id', 'shared_post_id')
-      ->select('id,user_id,post');
+      ->select('id,user_id,content');
     }
     /*
     post        user    shared_post

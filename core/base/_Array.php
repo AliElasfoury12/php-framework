@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace core\base;
 
 use ArrayAccess;
+use ArrayObject;
 use Closure;
 class _Array implements ArrayAccess
 {
@@ -45,6 +46,12 @@ class _Array implements ArrayAccess
         unset($this->array[$offset]);
     }
 
+
+    public function empty (): bool 
+    {
+        return $this->array === [];
+    }
+
     public function implode (string $seprator): string 
     {
         return implode($seprator,$this->array);
@@ -62,12 +69,19 @@ class _Array implements ArrayAccess
         array_pop($this->array);
         $this->size--;
     }
+
+    public function reset (): void 
+    {
+        $this->array = [];
+        $this->size = 0;
+    }
 }
 /*
 $array = new _Array();
-
+var_dump($array->empty());
 $array[] = 1;
 $array[] = 2;
+var_dump($array->empty());
 
  $array->map(fn($num) => $num * 2);
 print_r($array);

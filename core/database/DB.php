@@ -60,16 +60,16 @@ class DB
 
     public function tableIsExsists (string $class): mixed 
     {   
-        $sql = "show TABLES LIKE '$class'";
+        $sql = "SHOW TABLES LIKE '$class'";
         return $this->query($sql);
     }
 
-    public function getTable (string $class) 
+    public function getTable (string $class): string 
     {
         $table = '';
         $classLowerCase = strtolower($class); 
         if($this->tableIsExsists($classLowerCase.'s')) $table = $classLowerCase.'s';
-        else if($this->tableIsExsists($classLowerCase))  $table = $classLowerCase;
+        else if($this->tableIsExsists($classLowerCase)) $table = $classLowerCase;
         else{
             $classSnakeCase = strtolower(preg_replace('/(?<!^)[A-Z]/', '_$0', $class));
 

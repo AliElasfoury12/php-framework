@@ -11,7 +11,7 @@ class PostController extends Controller {
 
     public function index () 
     {
-       $res = Post::select('id,user_id,post,created_at')
+       $res = Post::select('id,user_id,content,created_at')
       // ->paginate(10)
        ->withCount('likes,comments')
        ->with([

@@ -2,6 +2,7 @@
 
 namespace core\database\migrations;
 
+use core\base\_Array;
 use PDO;
 use core\database\DB;
 
@@ -17,7 +18,7 @@ class Migrations
     {
         $appliedMigrations = $this->getAppliedMigrations();
 
-        $newMigrations = [];
+        $newMigrations = new _Array();
 
         $files = scandir( __DIR__."/../../../database/migrations");
         $toApplyMigrtions = array_diff($files, $appliedMigrations);
@@ -29,7 +30,7 @@ class Migrations
 
             require_once __DIR__."/../../../database/migrations/$migration";
 
-           $className = pathinfo($migration, PATHINFO_FILENAME);
+            $className = pathinfo($migration, PATHINFO_FILENAME);
 
             $instance = new $className();
             $this->log("Applying migration $migration");
@@ -38,7 +39,7 @@ class Migrations
             $newMigrations[] = $migration;
         }
 
-        if (count($newMigrations)) {
+        if ($newMigrations->size) {
             $this->saveMigrations($newMigrations);
         }else {
            $this->log('All Migrations Are Applied');
@@ -47,18 +48,17 @@ class Migrations
 
     public function getAppliedMigrations (): array
     {
-       try {
-            $statment = $this->db->exec("SELECT  migration FROM migrations");
-            return $statment->fetchAll(PDO::FETCH_COLUMN) ;
-        } catch (\Throwable $th) {
-            return [];
-        }
+        if($this->db->tableIsExsists('migrations')){
+            return $this->db->query("SELECT migration FROM migrations", PDO::FETCH_COLUMN);
+        };
+
+        return [];
     }
 
-    public function saveMigrations (array $migrations): void
+    private function saveMigrations (_Array $migrations): void
     {
-        $migrations = array_map(fn ($m) => "('$m')",$migrations);
-        $str = implode(',', $migrations);
+        $migrations->map(fn ($m) => "('$m')");
+        $str = $migrations->implode(',');
         $this->db->exec("INSERT INTO migrations ( migration ) VALUES $str");
     }
 
