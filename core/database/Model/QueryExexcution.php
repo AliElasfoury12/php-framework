@@ -33,14 +33,12 @@ class QueryExexcution {
 
             $sql = "SELECT $primaryKey FROM $tableName $query $orderBy";
             //echo $sql;
-            $ids = $db->query($sql, PDO::FETCH_COLUMN);
-            $model->dataIds = implode(',',  $ids);
+            $model->dataIds = $db->query($sql, PDO::FETCH_COLUMN)->implode(',');
 
             $model->relations->eagerLoading->handleWith($model->relations->relations, static::class);
             $model->relations->eagerLoading->handleWithCount();
         }
 
-        if(!array_key_exists(1, $model->relations->relationData)) return (object) $model->relations->relationData[0];
         return $model->relations->relationData;
     }
 

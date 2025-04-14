@@ -5,9 +5,11 @@ declare(strict_types=1);
 namespace core\base;
 
 use ArrayAccess;
-use ArrayObject;
 use Closure;
-class _Array implements ArrayAccess
+use IteratorAggregate;
+use Traversable;
+
+class _Array implements ArrayAccess, IteratorAggregate
 {
     private array $array ;
     public int $size = 0;
@@ -15,6 +17,7 @@ class _Array implements ArrayAccess
     public function __construct(array $array = [])
     {
         $this->array = $array;
+        if($array) $this->size = count($array);
     }
 
     public function offsetExists(mixed $offset): bool
@@ -46,10 +49,27 @@ class _Array implements ArrayAccess
         unset($this->array[$offset]);
     }
 
+    public function getIterator():Traversable
+    {
+        return $this->iteratorByRefernce();
+    }
+
+    public function &iteratorByRefernce()
+    {
+        foreach ($this->array as $key => &$value) {
+            yield $key => $value;
+        }
+    }
+
 
     public function empty (): bool 
     {
         return $this->array === [];
+    }
+
+    public function hasKey (string $key): bool 
+    {
+        return array_key_exists($key, $this->array);
     }
 
     public function implode (string $seprator): string 
@@ -59,8 +79,8 @@ class _Array implements ArrayAccess
 
     public function map (Closure $callback): void 
     {
-        foreach ($this->array as &$value) {
-            $value = $callback($value);
+        for ($i=0; $i < $this->size; $i++) { 
+           $this[$i] = $callback($this[$i], $i);
         }
     }
 
@@ -75,6 +95,12 @@ class _Array implements ArrayAccess
         $this->array = [];
         $this->size = 0;
     }
+
+    public function set (array $array): void 
+    {
+        $this->array = $array;
+        $this->size = count($array);
+    }
 }
 /*
 $array = new _Array();
@@ -83,6 +109,9 @@ $array[] = 1;
 $array[] = 2;
 var_dump($array->empty());
 
- $array->map(fn($num) => $num * 2);
+ //$array->map(fn($num) => $num * 2);
+ foreach ($array as $key => &$value) {
+   $value *=2 ;
+ }
 print_r($array);
 */

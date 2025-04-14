@@ -3,6 +3,7 @@
 namespace core\database;
 
 use core\App;
+use core\base\_Array;
 use PDO;
 
 class DB 
@@ -58,16 +59,17 @@ class DB
         return $this->exec($sql); 
     }
 
-    public function tableIsExsists (string $class): mixed 
+    public function tableIsExsists (string $class): bool 
     {   
         $sql = "SHOW TABLES LIKE '$class'";
-        return $this->query($sql);
+        return !$this->query($sql)->empty();
     }
 
     public function getTable (string $class): string 
     {
         $table = '';
         $classLowerCase = strtolower($class); 
+
         if($this->tableIsExsists($classLowerCase.'s')) $table = $classLowerCase.'s';
         else if($this->tableIsExsists($classLowerCase)) $table = $classLowerCase;
         else{
@@ -75,14 +77,14 @@ class DB
 
             if($this->tableIsExsists($classSnakeCase.'s')) $table = $classSnakeCase.'s';
             else if($this->tableIsExsists($classSnakeCase)) $table = $classSnakeCase;
-        } 
+        }
         return $table;
     }
 
-    public function query (string $sql, int $type = PDO::FETCH_ASSOC): array
+    public function query (string $sql, int $type = PDO::FETCH_ASSOC): _Array
     {
        // echo "$sql <br><br>";
-        return $this->pdo->query($sql)->fetchAll($type);
+        return new _Array($this->pdo->query($sql)->fetchAll($type));
     }
 
     public function getPK (string $table): mixed 

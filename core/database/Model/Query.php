@@ -18,20 +18,21 @@ class FinalQuery {
 
 class Query {
     public _Array $where;
-    public array $select = [];
-    public array $extraQuery = [];
+    public string $select = '';
+    public _Array $extraQuery;
     public FinalQuery $finalQuery;
    
     public function __construct() {
         $this->where = new _Array();
+        $this->extraQuery = new _Array();
         $this->finalQuery = new FinalQuery;
     }
 
     public function reset (): void
     {
         $this->where->reset();
-        $this->select = [];
-        $this->extraQuery = [];
+        $this->select = '';
+        $this->extraQuery->reset();
         $this->finalQuery->reset();
     }
 
@@ -47,19 +48,20 @@ class Query {
             }
         }
 
-        if($this->extraQuery) $this->finalQuery->extraQuery .= implode(' ', $this->extraQuery);
+        if(!$this->extraQuery->empty()) $this->finalQuery->extraQuery .= $this->extraQuery->implode(' ');
+        
         return $this->finalQuery->extraQuery;
     }
 
     public function getSelect (string $table = ''): string
     {
         if($this->select){
-            $select = explode(',', $this->select[0]);
+            $select = explode(',', $this->select);
             if($table) $select = array_map(fn($field) => "$table.$field", $select);
             $this->finalQuery->select = implode(',', $select);
         }
 
-        if($table && $this->select === ['*']) $this->finalQuery->select = "$table.*";
+        if($table && $this->select === '*') $this->finalQuery->select = "$table.*";
         return $this->finalQuery->select;
     }
 }

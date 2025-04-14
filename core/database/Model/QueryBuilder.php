@@ -77,7 +77,7 @@ class QueryBuilder extends QueryExexcution {
 
     public static function select (string $columns): static
     {
-        App::$app->model->query->select[] = $columns;
+        App::$app->model->query->select = $columns;
         return new static ;
     }
 

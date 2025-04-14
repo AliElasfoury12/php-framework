@@ -1,8 +1,6 @@
-<?php
+<?php 
 
-declare(strict_types=1);
+$array = new ArrayObject();
 
-$a = new ArrayObject();
-
-
-if($a) echo 'y';
+$array['a'] = [1,2];
+echo $array['a']->count();

@@ -3,6 +3,7 @@
 namespace core\database\Model\relations;
 
 use core\App;
+use core\base\_Array;
 class HasMany {
     public function run (): void 
     {
@@ -37,18 +38,17 @@ class HasMany {
         WHERE $table1.$primaryKey1 IN ($ids) $query $orderBy";
     }
 
-    private function inject_data (array $data): void 
+    private function inject_data (_Array $data): void 
     {
         $model = App::$app->model;
         $foreignKey = $model->relations->currentRelation->foreignKey;
         $primaryKey = $model->relations->currentRelation->primaryKey;
-        $data_length = count($data);
 
         $i = 0;
         foreach ($model->relations->relationData as &$item) {
             $item[$model->relations->relationName] = [];
 
-            while($i < $data_length && $item[$primaryKey] == $data[$i][$foreignKey]){
+            while($i < $data->size && $item[$primaryKey] == $data[$i][$foreignKey]){
                 $item[$model->relations->relationName][] = $data[$i];
                 $i++;
             }
@@ -88,7 +88,7 @@ class HasMany {
         WHERE $table1.$primaryKey1 IN ($ids) $query $orderBy";
     }
 
-    private function inject_data_nested (array $data): void 
+    private function inject_data_nested (_Array $data): void 
     {
         $model = App::$app->model;
         $primaryKey1 = $model->primaryKey;
@@ -97,8 +97,6 @@ class HasMany {
         $relation1 = $current_relation->relation1;
         $relation2 = $current_relation->relation2;
         $alias_PK = $current_relation->lastJoin_PK;
-
-        $data_length = count($data);
         
         $i = 0;
         foreach ($model->relations->relationData as &$unit) {
@@ -106,7 +104,7 @@ class HasMany {
 
             if(array_key_exists($alias_PK, $unit[$relation1])){
                 $unit[$relation1][$relation2] = [];
-                while($i < $data_length && $unit[$primaryKey1] == $data[$i]['pivot']){
+                while($i < $data->size && $unit[$primaryKey1] == $data[$i]['pivot']){
                     unset($data[$i] ['pivot']);
                     $unit[$relation1][$relation2][] = $data[$i];
                     $i++;
@@ -114,7 +112,7 @@ class HasMany {
             }else {
                 foreach ($unit[$relation1] as &$item) {
                    $item[$relation2] = [];
-                    while($i < $data_length  && $unit[$primaryKey1] == $data[$i]['pivot']){
+                    while($i < $data->size  && $unit[$primaryKey1] == $data[$i]['pivot']){
                         unset($data[$i] ['pivot']);
                         $item[$relation2][] = $data[$i];
                         $i++; 

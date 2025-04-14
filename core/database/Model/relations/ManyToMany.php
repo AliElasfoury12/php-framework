@@ -3,6 +3,7 @@
 namespace Core\Database\Model\Relations;
 
 use core\App;
+use core\base\_Array;
 
 class ManyToMany {
 
@@ -45,17 +46,16 @@ class ManyToMany {
         WHERE $table1.$primaryKey1 IN ($ids) $query $orderBy";
     }
 
-    private function inject_data (array $data)
+    private function inject_data (_Array $data)
     {
         $model = App::$app->model;
-        $data_length = count($data);
         $primaryKey1 = $model->primaryKey;
 
         $i = 0;
         foreach ($model->relations->relationData as &$item) {
             $item[$model->relations->relationName] = [];
 
-            while($i < $data_length && $item[$primaryKey1] == $data[$i]['pivot']){
+            while($i < $data->size && $item[$primaryKey1] == $data[$i]['pivot']){
                 unset($data[$i]['pivot']);
                 $item[$model->relations->relationName][] = $data[$i];
                 $i++;
@@ -101,10 +101,9 @@ class ManyToMany {
         WHERE $table1.$primaryKey1 IN ($ids) $query $orderBy";
     }
 
-    private function inject_data_nested (array $data): void
+    private function inject_data_nested (_Array $data): void
     {
         $model = App::$app->model;
-        $dataLength = count($data);
 
         $primaryKey1 = $model->primaryKey;
         $current_relation = $model->relations->currentRelation; 
@@ -118,7 +117,7 @@ class ManyToMany {
 
             if(array_key_exists($primaryKey2, $unit[$relation1])){
                 $unit[$relation1][$relation2] = [];
-                while($i < $dataLength && $unit[$primaryKey1] == $data[$i]['pivot']){
+                while($i < $data->size && $unit[$primaryKey1] == $data[$i]['pivot']){
                     unset($data[$i]['pivot']);
                     $unit[$relation1][$relation2][] = $data[$i];
                     $i++;
@@ -126,7 +125,7 @@ class ManyToMany {
             }else {
                 foreach ($unit[$relation1] as &$item) {
                    $item[$relation2] = [];
-                    while($i < $dataLength && $unit[$primaryKey1] == $data[$i]['pivot']){
+                    while($i < $data->size && $unit[$primaryKey1] == $data[$i]['pivot']){
                         unset($data[$i]['pivot']);
                         $item[$relation2][] = $data[$i];
                         $i++; 

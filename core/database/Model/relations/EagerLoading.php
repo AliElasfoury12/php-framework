@@ -3,10 +3,11 @@
 namespace core\database\Model\relations;
 
 use core\App;
+use core\base\_Array;
 
 class EagerLoading
 {
-    public function handleWith(array $relations, string $class): array
+    public function handleWith(array $relations, string $class): _Array
     {
         $class = new $class();
         $model = App::$app->model;
@@ -60,13 +61,12 @@ class EagerLoading
             //echo "$sql <br> <br>";
 
             $data = App::$app->db->query($sql);
-            $data_length = count($data);
 
             $i = 0;
             foreach ($model->relations->relationData as &$item) {
                 $item[$relationName.'Count'] = 0;
 
-                if($i < $data_length && $item[$primaryKey] === $data[$i]['pivot'] ){
+                if($i < $data->size && $item[$primaryKey] === $data[$i]['pivot'] ){
                     $item[$relationName.'Count'] = $data[$i]['count'];
                     $i++;
                 }               

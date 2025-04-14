@@ -3,13 +3,14 @@
 namespace core\database\Model\relations;
 
 use core\App;
+use core\base\_Array;
 
 class Relations {
 
     public array $relations = [];
     public string $relationName = '';
     public array $withCount_relations = [];
-    public array $relationData = [];
+    public _Array $relationData;
     public string $requestedCoulmns = '*';
     public ?CurrentRelation $currentRelation = null;
     public ?RELATIONSTYPE $relationTypes = null;
@@ -21,6 +22,7 @@ class Relations {
 
     public function __construct() 
     {
+        $this->relationData = new _Array;
         $this->currentRelation = new CurrentRelation;
         $this->relationTypes = new RELATIONSTYPE;
         $this->BelongsTo = new BelongsTo;
