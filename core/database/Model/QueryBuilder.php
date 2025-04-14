@@ -123,7 +123,7 @@ class QueryBuilder extends QueryExexcution {
 
     public static function withCount (string $columns): static 
     {
-        App::$app->model->relations->withCount_relations = explode(',',$columns);
+        App::$app->model->relations->withCount_relations->set(explode(',', $columns));
         return new static;
     }
 

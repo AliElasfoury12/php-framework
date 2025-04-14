@@ -9,7 +9,7 @@ class Relations {
 
     public _Array $relations;
     public string $relationName = '';
-    public array $withCount_relations = [];
+    public _Array $withCount_relations;
     public _Array $RelationsData;
     public string $requestedCoulmns = '*';
     public ?CurrentRelation $currentRelation = null;
@@ -24,6 +24,7 @@ class Relations {
     {
         $this->RelationsData = new _Array;
         $this->relations = new _Array;
+        $this->withCount_relations = new _Array;
         $this->currentRelation = new CurrentRelation;
         $this->relationTypes = new RELATIONSTYPE;
         $this->BelongsTo = new BelongsTo;
