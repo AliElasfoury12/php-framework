@@ -7,11 +7,12 @@ use core\base\_Array;
 
 class EagerLoading
 {
-    public function handleWith(array $relations, string $class): _Array
+    public function handleWith(string $class): _Array
     {
         $class = new $class();
         $model = App::$app->model;
-        foreach ($relations as $relation) { 
+       
+        foreach ( $model->relations->relations as $relation) { 
 
             if(str_contains($relation, ':')) //posts:id,post
             {
@@ -31,7 +32,7 @@ class EagerLoading
             $model->relations->handleRelation();
         }
 
-        return $model->relations->relationData;
+        return $model->relations->RelationsData;
     }
 
     private function getRequestedColumns (string $relation): void 
@@ -63,7 +64,7 @@ class EagerLoading
             $data = App::$app->db->query($sql);
 
             $i = 0;
-            foreach ($model->relations->relationData as &$item) {
+            foreach ($model->relations->RelationsData as &$item) {
                 $item[$relationName.'Count'] = 0;
 
                 if($i < $data->size && $item[$primaryKey] === $data[$i]['pivot'] ){

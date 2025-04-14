@@ -52,7 +52,7 @@ class ManyToMany {
         $primaryKey1 = $model->primaryKey;
 
         $i = 0;
-        foreach ($model->relations->relationData as &$item) {
+        foreach ($model->relations->RelationsData as &$item) {
             $item[$model->relations->relationName] = [];
 
             while($i < $data->size && $item[$primaryKey1] == $data[$i]['pivot']){
@@ -112,7 +112,7 @@ class ManyToMany {
         $primaryKey2 = $current_relation->primaryKey;
  
         $i = 0;
-        foreach ($model->relations->relationData as &$unit) {
+        foreach ($model->relations->RelationsData as &$unit) {
             if(empty($unit[$relation1])) continue;
 
             if(array_key_exists($primaryKey2, $unit[$relation1])){

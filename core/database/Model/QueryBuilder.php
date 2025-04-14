@@ -127,9 +127,9 @@ class QueryBuilder extends QueryExexcution {
         return new static;
     }
 
-    public static function with (array $relations)
+    public static function with (array $relations): static
     {
-        App::$app->model->relations->relations = $relations;
+        App::$app->model->relations->relations->set($relations);
         return new static;
     }
 }

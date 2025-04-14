@@ -24,7 +24,7 @@ class QueryExexcution {
         $sql = "SELECT $select FROM $tableName $query $orderBy";
         //echo $sql;
         $model->query->reset();
-        $model->relations->relationData = $db->query($sql);
+        $model->relations->RelationsData = $db->query($sql);
         
         if($model->relations) {
             $model->table = $tableName;
@@ -35,11 +35,11 @@ class QueryExexcution {
             //echo $sql;
             $model->dataIds = $db->query($sql, PDO::FETCH_COLUMN)->implode(',');
 
-            $model->relations->eagerLoading->handleWith($model->relations->relations, static::class);
+            $model->relations->eagerLoading->handleWith( static::class);
             $model->relations->eagerLoading->handleWithCount();
         }
 
-        return $model->relations->relationData;
+        return $model->relations->RelationsData;
     }
 
     public static function create ($inputs) 
