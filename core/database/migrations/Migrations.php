@@ -21,7 +21,7 @@ class Migrations
         $newMigrations = new _Array();
 
         $files = scandir( __DIR__."/../../../database/migrations");
-        $toApplyMigrtions = array_diff($files, $appliedMigrations);
+        $toApplyMigrtions = $appliedMigrations->diff($files);
 
         foreach ($toApplyMigrtions as $migration) {
             if ($migration === '.' || $migration === '..') {
@@ -46,13 +46,13 @@ class Migrations
         }
     }
 
-    public function getAppliedMigrations (): array
+    public function getAppliedMigrations (): _Array
     {
         if($this->db->tableIsExsists('migrations')){
-            return $this->db->query("SELECT migration FROM migrations", PDO::FETCH_COLUMN);
+            return $this->db->fetch("SELECT migration FROM migrations", PDO::FETCH_COLUMN);
         };
 
-        return [];
+        return new _Array();
     }
 
     private function saveMigrations (_Array $migrations): void

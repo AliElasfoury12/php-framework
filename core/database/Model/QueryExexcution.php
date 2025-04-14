@@ -11,6 +11,7 @@ class QueryExexcution {
     {
         $model = App::$app->model;
         $db = App::$app->db;
+
         $tableName = $model->getClassTable(static::class);
         $model->table = $tableName;
         $primaryKey = $db->getPK($tableName);
@@ -24,7 +25,7 @@ class QueryExexcution {
         $sql = "SELECT $select FROM $tableName $query $orderBy";
         //echo $sql;
         $model->query->reset();
-        $model->relations->RelationsData = $db->query($sql);
+        $model->relations->RelationsData = $db->fetch($sql);
         
         if($model->relations) {
             $model->table = $tableName;
@@ -33,7 +34,7 @@ class QueryExexcution {
 
             $sql = "SELECT $primaryKey FROM $tableName $query $orderBy";
             //echo $sql;
-            $model->dataIds = $db->query($sql, PDO::FETCH_COLUMN)->implode(',');
+            $model->dataIds = $db->fetch($sql, PDO::FETCH_COLUMN)->implode(',');
 
             $model->relations->eagerLoading->handleWith( static::class);
             $model->relations->eagerLoading->handleWithCount();

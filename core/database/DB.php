@@ -38,11 +38,6 @@ class DB
         return $statment;
     }
 
-    public function fetch (string $sql, int $type = PDO::FETCH_ASSOC): array
-    {
-        return $this->exec($sql)->fetchAll($type);
-    }
-
     public function insert ($table, $columns, $values)
     {
         if(is_array($columns)){
@@ -62,7 +57,7 @@ class DB
     public function tableIsExsists (string $class): bool 
     {   
         $sql = "SHOW TABLES LIKE '$class'";
-        return !$this->query($sql)->empty();
+        return !$this->fetch($sql)->empty();
     }
 
     public function getTable (string $class): string 
@@ -81,7 +76,7 @@ class DB
         return $table;
     }
 
-    public function query (string $sql, int $type = PDO::FETCH_ASSOC): _Array
+    public function fetch (string $sql, int $type = PDO::FETCH_ASSOC): _Array
     {
        // echo "$sql <br><br>";
         return new _Array($this->pdo->query($sql)->fetchAll($type));
@@ -91,7 +86,7 @@ class DB
     {
         $sql = "SHOW KEYS FROM $table WHERE Key_name = 'PRIMARY'";
         //echo "$sql <br>";
-        $result = App::$app->db->query($sql);
+        $result = App::$app->db->fetch($sql);
         return $result[0]["Column_name"];
     }
 
@@ -100,7 +95,7 @@ class DB
         $table2 = rtrim($table2, 's');
         $sql = "SHOW KEYS FROM $table1 WHERE Key_name Like '%$table2%'";
         //echo "$sql <br>";
-        $result = App::$app->db->query($sql);
+        $result = App::$app->db->fetch($sql);
         return $result[0]["Column_name"];
     }
 }

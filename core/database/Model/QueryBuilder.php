@@ -105,7 +105,7 @@ class QueryBuilder extends QueryExexcution {
         GROUP BY $column HAVING COUNT(*) > 1
         ORDER BY COUNT(*) ASC LIMIT 1";
 
-        $result = App::$app->db->query($sql);
+        $result = App::$app->db->fetch($sql);
         return $result[0][$column];
     }
 

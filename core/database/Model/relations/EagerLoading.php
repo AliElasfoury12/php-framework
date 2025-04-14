@@ -61,7 +61,7 @@ class EagerLoading
 
             //echo "$sql <br> <br>";
 
-            $data = App::$app->db->query($sql);
+            $data = App::$app->db->fetch($sql);
 
             $i = 0;
             foreach ($model->relations->RelationsData as &$item) {

@@ -61,6 +61,10 @@ class _Array implements ArrayAccess, IteratorAggregate
         }
     }
 
+    public function diff (array $array): array
+    {
+        return array_diff($array, $this->array);
+    }
 
     public function empty (): bool 
     {
