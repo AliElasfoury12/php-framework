@@ -38,6 +38,11 @@ class DB
         return $statment;
     }
 
+    public function query (string $sql): bool 
+    {
+       return $this->pdo->query($sql);
+    }
+
     public function insert ($table, $columns, $values)
     {
         if(is_array($columns)){
@@ -51,7 +56,7 @@ class DB
         
         $sql = "INSERT INTO $table ( $columns ) VALUES ( $values ) ";
         //echo $sql;
-        return $this->exec($sql); 
+        return $this->query($sql); 
     }
 
     public function tableIsExsists (string $class): bool 

@@ -68,7 +68,7 @@ class QueryExexcution {
 
         $sql = "INSERT INTO $tableName ( $columns ) VALUES ( $values )";
         //echo $sql;
-        App::$app->db->exec($sql);
+        App::$app->db->query($sql);
 
         return $inputs;
     }
@@ -105,7 +105,7 @@ class QueryExexcution {
 
         $sql = "INSERT INTO $tableName ( $columns ) VALUES  $result";
         //echo $sql;
-        App::$app->db->exec($sql);
+        App::$app->db->query($sql);
         return $inputs;
     }
 }

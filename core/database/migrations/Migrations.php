@@ -59,7 +59,7 @@ class Migrations
     {
         $migrations->map(fn ($m) => "('$m')");
         $str = $migrations->implode(',');
-        $this->db->exec("INSERT INTO migrations ( migration ) VALUES $str");
+        $this->db->query("INSERT INTO migrations ( migration ) VALUES $str");
     }
 
     public function log (string $message): void
