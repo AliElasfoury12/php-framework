@@ -1,6 +1,19 @@
 <?php 
 
-$array = new ArrayObject();
+class Test {
+    public $string ='';
 
-$array['a'] = [1,2];
-echo $array['a']->count();
+    public function __construct($string = '') 
+    {
+        echo "Construct \n";
+        $this->string = $string;
+    }
+
+    public function replace (string $search, string $replace): Test
+    {
+        $result = str_replace($search, $replace, $this->string);
+        return new self($result);
+    }
+}
+
+$string = new Test('ali ');

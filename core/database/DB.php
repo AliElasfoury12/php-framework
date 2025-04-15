@@ -4,6 +4,7 @@ namespace core\database;
 
 use core\App;
 use core\base\_Array;
+use core\database\Model\MainModel;
 use PDO;
 
 class DB 
@@ -57,6 +58,13 @@ class DB
         $sql = "INSERT INTO $table ( $columns ) VALUES ( $values ) ";
         //echo $sql;
         return $this->query($sql); 
+    }
+
+    public static function table (string $table): MainModel
+    {
+        $model = App::$app->model;
+        $model->table = $table;
+        return $model;
     }
 
     public function tableIsExsists (string $class): bool 

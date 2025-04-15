@@ -4,7 +4,8 @@ namespace core\database\Model;
 
 use core\App;
 
-class QueryBuilder extends QueryExexcution {
+class QueryBuilder extends QueryExexcution 
+{
     public Query $query;
     public string $orderBy = '';
     public string $table = '';
@@ -58,7 +59,7 @@ class QueryBuilder extends QueryExexcution {
         return  new static;
     }
 
-    public static function paginate (int $perPage) 
+    public static function paginate (int $perPage): static 
     {
         $offset = (App::$app->model->pageNum - 1 ) * $perPage;
         self::limit($perPage);
@@ -79,12 +80,6 @@ class QueryBuilder extends QueryExexcution {
     {
         App::$app->model->query->select = $columns;
         return new static ;
-    }
-
-    public static function table (string $table): static 
-    {
-        App::$app->model->$table = $table;
-        return new static;
     }
 
     public static function where (string $column ,string  $opretor, string $value = ''): static 

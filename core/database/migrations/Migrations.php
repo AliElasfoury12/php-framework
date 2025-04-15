@@ -67,40 +67,4 @@ class Migrations
         echo '['.date('Y-m-d H:i:s').'] - '.$message.PHP_EOL;
     }
 
-    public function createTable (string $fileName): void
-    {
-        $migrationFile = file_get_contents(__DIR__.'/../../layouts/migrations/createTable.php');
-        $tableName = '';
-
-        if(str_contains($fileName, 'table')) {
-            $tableName = str_replace('create_','',$fileName);
-            $tableName = str_replace('_table','',$tableName);
-        }
-
-        $migrationFile = str_replace('tableName',$tableName, $migrationFile);
-        $fileName = 'M'.floor(microtime(true))."_$fileName";
-        $migrationFile = preg_replace('/class\s*(.*?)\s*{/', "class $fileName  {",  $migrationFile);
-        
-        file_put_contents(__DIR__."/../../../database/migrations/$fileName.php",$migrationFile);
-        echo "[ database/migrations/$fileName ] - Created Successfully \n";
-    }
-
-    public function alterTable (string $fileName): void
-    {
-        $migrationFile = file_get_contents(__DIR__.'/../../layouts/migrations/alterTable.php');
-        $tableName = '';
-
-        if(str_contains($fileName, 'table')) {
-            $tableName = str_replace('alter_','',$fileName);
-            $tableName = str_replace('_table','',$tableName);
-        }
-
-        $migrationFile = str_replace('tableName',$tableName, $migrationFile);
-        $fileName = 'M'.floor(microtime(true))."_$fileName";
-        $migrationFile = preg_replace('/class\s*(.*?)\s*{/', "class $fileName  {",  $migrationFile);
-        
-        file_put_contents(__DIR__."/../../../database/migrations/$fileName.php",$migrationFile);
-        echo "[ database/migrations/$fileName ] - Created Successfully \n";
-    }
-
 }
