@@ -6,6 +6,7 @@ use core\base\_Srting;
 
 class Files
 {
+    private const LAYOUT_PATH = __DIR__.'/layouts';
     public function createTable (_Srting $fileName): void
     {
         $tableName = '';
@@ -17,7 +18,7 @@ class Files
 
         $fileName = 'M'.floor(microtime(true))."_$fileName";
 
-        $migrationFile = file_get_contents(__DIR__.'/layouts/migrations/createTable.php');
+        $migrationFile = file_get_contents(self::LAYOUT_PATH.'/migrations/createTable.php');
         $migrationFile = new _Srting($migrationFile);
         $migrationFile = $migrationFile->replace('tableName',$tableName);
         $migrationFile = $migrationFile->replace("className", $fileName);
@@ -37,7 +38,7 @@ class Files
 
         $fileName = 'M'.floor(microtime(true))."_$fileName";
 
-        $migrationFile = file_get_contents(__DIR__.'/layouts/migrations/alterTable.php');
+        $migrationFile = file_get_contents(self::LAYOUT_PATH.'/migrations/alterTable.php');
         $migrationFile = new _Srting($migrationFile);
         $migrationFile = $migrationFile->replace('tableName',$tableName);
         $migrationFile = $migrationFile->replace("className", $fileName);
@@ -48,31 +49,33 @@ class Files
 
     public function createModel (string $fileName): void 
     {
-        $exists = file_exists(__DIR__."/../../app/models/$fileName.php");
+        $path = __DIR__."/../../app/models/$fileName.php";
+        $exists = file_exists($path);
         if($exists){
             echo "[ models/$fileName ] - file already exsists \n";
             exit;
         }
 
-        $modelFile = file_get_contents(__DIR__.'/layouts/createModel.php');
+        $modelFile = file_get_contents(self::LAYOUT_PATH.'/createModel.php');
         $modelFile = str_replace('NewModel', $fileName,  $modelFile);
        
-        file_put_contents(__DIR__."/../../app/models/$fileName.php", $modelFile);
+        file_put_contents($path, $modelFile);
         echo "[ models/$fileName ] - Created Successfully \n";
     }
 
     public function createController (string $fileName): void 
     {
-        $exists = file_exists(__DIR__."/../../app/controllers/$fileName.php");
+        $path = __DIR__."/../../app/controllers/$fileName.php";
+        $exists = file_exists($path);
         if($exists){
             echo "[ controllers/$fileName ] - file already exsists \n";
             return;
         }
 
-        $controllerFile = file_get_contents(__DIR__.'/layouts/controller.php');
-        $controllerFile = str_replace('newController', $fileName,   $controllerFile);
+        $controllerFile = file_get_contents(self::LAYOUT_PATH.'/controller.php');
+        $controllerFile = str_replace('newController',$fileName,$controllerFile);
        
-        file_put_contents(__DIR__."/../../app/controllers/$fileName.php",  $controllerFile);
+        file_put_contents( $path,  $controllerFile);
         echo "[ controllers/$fileName ] - Created Successfully \n";
     }
 }
