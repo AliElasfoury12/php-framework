@@ -28,7 +28,7 @@ class BelongsTo
         //echo "$sql <br>"; 
         $data = App::$app->db->fetch($sql);
 
-        foreach ($model->relations->RelationsData as $key => &$item) {
+        foreach ($model->data as $key => &$item) {
             $item[$model->relations->currentRelation->name] = $data[$key];
         }
 
@@ -106,7 +106,7 @@ class BelongsTo
         $relation2 = $current_relation->relation2;
 
         $i = 0;
-        foreach ($model->relations->RelationsData as &$unit) {
+        foreach ($model->data as &$unit) {
             if(!$unit[$relation1]) continue;
             if(@$unit[$relation1][$foreignKey]){
                 if($i < $data->size && $unit[$relation1][$foreignKey] == $data[$i][$primaryKey2]){

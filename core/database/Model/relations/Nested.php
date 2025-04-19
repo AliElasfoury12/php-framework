@@ -22,7 +22,7 @@ class Nested  {
 
         $model = App::$app->model;
         $model->relations->currentRelation->name = $this->relation1;
-        if($model->relations->RelationsData && array_key_exists($model->relations->currentRelation->name, $model->relations->RelationsData[0])) {
+        if($model->data && array_key_exists($model->relations->currentRelation->name, $model->data[0])) {
             $model->query->reset();
             return;
         }

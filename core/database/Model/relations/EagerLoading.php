@@ -32,7 +32,7 @@ class EagerLoading
             $model->relations->handleRelation();
         }
 
-        return $model->relations->RelationsData;
+        return $model->data;
     }
 
     private function getRequestedColumns (string $relation): void 
@@ -64,7 +64,7 @@ class EagerLoading
             $data = App::$app->db->fetch($sql);
 
             $i = 0;
-            foreach ($model->relations->RelationsData as &$item) {
+            foreach ($model->data as &$item) {
                 $item[$relationName.'Count'] = 0;
 
                 if($i < $data->size && $item[$primaryKey] === $data[$i]['pivot'] ){

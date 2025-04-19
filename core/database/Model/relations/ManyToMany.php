@@ -53,7 +53,7 @@ class ManyToMany extends QueryBuilder {
         $primaryKey1 = $model->PrimaryKey;
 
         $i = 0;
-        foreach ($model->relations->RelationsData as &$item) {
+        foreach ($model->data as &$item) {
             $item[$model->relations->currentRelation->name] = [];
 
             while($i < $data->size && $item[$primaryKey1] == $data[$i]['pivot']){
@@ -113,7 +113,7 @@ class ManyToMany extends QueryBuilder {
         $primaryKey2 = $current_relation->primaryKey;
  
         $i = 0;
-        foreach ($model->relations->RelationsData as &$unit) {
+        foreach ($model->data as &$unit) {
             if(empty($unit[$relation1])) continue;
 
             if(array_key_exists($primaryKey2, $unit[$relation1])){

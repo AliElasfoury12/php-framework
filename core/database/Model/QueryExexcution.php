@@ -25,7 +25,7 @@ class QueryExexcution {
         $sql = "SELECT $select FROM $tableName $query $orderBy";
         //echo $sql;
         $model->query->reset();
-        $model->relations->RelationsData = $db->fetch($sql);
+        $model->data = $db->fetch($sql);
         
         if($model->relations) {
             $model->table = $tableName;
@@ -40,7 +40,7 @@ class QueryExexcution {
             $model->relations->eagerLoading->handleWithCount();
         }
 
-        return $model->relations->RelationsData;
+        return $model->data;
     }
 
     public static function create ($inputs) 

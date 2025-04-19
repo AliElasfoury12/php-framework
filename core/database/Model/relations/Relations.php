@@ -9,7 +9,6 @@ class Relations {
 
     public _Array $relations;
     public _Array $withCount_relations;
-    public _Array $RelationsData;
     public string $requestedCoulmns = '*';
     public ?CurrentRelation $currentRelation = null;
     public ?RELATIONSTYPE $relationTypes = null;
@@ -21,7 +20,6 @@ class Relations {
 
     public function __construct() 
     {
-        $this->RelationsData = new _Array;
         $this->relations = new _Array;
         $this->withCount_relations = new _Array;
         $this->currentRelation = new CurrentRelation;

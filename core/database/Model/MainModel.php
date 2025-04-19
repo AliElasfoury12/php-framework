@@ -3,6 +3,7 @@
 namespace core\database\Model;
 
 use core\App;
+use core\base\_Array;
 use core\database\Model\relations\BelongsTo;
 use core\database\Model\relations\HasMany;
 use Core\Database\Model\Relations\ManyToMany;
@@ -14,7 +15,7 @@ class MainModel extends QueryBuilder
     public string $ids;
     public string $PrimaryKey;
     public string $table = '';
-
+    public _Array $data;
 
     public function __construct() {
         $this->relations = new Relations;
