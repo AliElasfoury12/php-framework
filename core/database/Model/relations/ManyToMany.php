@@ -4,50 +4,63 @@ namespace Core\Database\Model\Relations;
 
 use core\App;
 use core\base\_Array;
-use core\database\Model\QueryBuilder;
 
-class ManyToMany extends QueryBuilder {
+class ManyToMany extends RelationQueryBuilder 
+{
 
-    public function run (): void //followers, user_id, follower_id 
+    public function run (): void 
     {
         $model = App::$app->model;
         $sql = $this->prepareSQL();
-        // echo "<pre> <h3> $sql \n\n </h3></pre>";
+        // echo "$sql <br>";
         $data = App::$app->db->fetch($sql);
         $this->inject_data($data);
-        $model->query->reset();
+        $this->query->reset();
+        $model->relations->currentRelation->columns = '';
     }
 
-    private function prepareSQL ()
+    public function nested (): void
+    {
+        $model = App::$app->model;
+        $sql = $this->prepareSQL_nested(); 
+        // echo "$sql <br>";
+        $data = App::$app->db->fetch($sql);
+        $this->inject_data_nested($data);
+        $this->query->reset();
+        $model->relations->currentRelation->columns = '';
+    }
+
+    private function prepareSQL (): string
     {
         $model = App::$app->model;
         $table1 = $model->table;
         $primaryKey1 = $model->PrimaryKey;
         $orderBy = $model->orderBy;
         $ids = $model->ids;
+        $currentRelation = $model->relations->currentRelation;
 
-        $current_relation = $model->relations->currentRelation;
-        $table2 = $current_relation->table2;
-        $primaryKey2 = $current_relation->primaryKey;
-        $pivotTable = $current_relation->pivotTable;
-        $pivotKey = $current_relation->pivotKey;
-        $relatedKey = $current_relation->relatedKey;
+        $table2 = $currentRelation->table2;
+        $primaryKey2 = $currentRelation->primaryKey;
+        $pivotTable = $currentRelation->pivotTable;
+        $pivotKey = $currentRelation->pivotKey;
+        $relatedKey = $currentRelation->relatedKey;
         
-        $select = $model->query->getSelect('alias1');
-        $query = $model->query->getQuery('alias1');
+        if($currentRelation->columns) $this->select($currentRelation->columns);
+        $select = $this->query->getSelect('alias1');
+        $query = $this->query->getQuery('alias1');
 
-        $current_relation->FirstSqlPart = 
+        $currentRelation->FirstSqlPart = 
         "INNER JOIN $pivotTable ON $table1.$primaryKey1 = $pivotTable.$pivotKey
         INNER JOIN $table2 AS alias1 ON alias1.$primaryKey2 = $pivotTable.$relatedKey";
-        $current_relation->lastJoin_PK = $primaryKey2;
-        $current_relation->lastJoinTable = 'alias1';
+        $currentRelation->lastJoin_PK = $primaryKey2;
+        $currentRelation->lastJoinTable = 'alias1';
        
         return "SELECT $select, $table1.$primaryKey1 AS pivot FROM $table1
-        $current_relation->FirstSqlPart 
+        $currentRelation->FirstSqlPart 
         WHERE $table1.$primaryKey1 IN ($ids) $query $orderBy";
     }
 
-    private function inject_data (_Array $data)
+    private function inject_data (_Array $data): void
     {
         $model = App::$app->model;
         $primaryKey1 = $model->PrimaryKey;
@@ -64,16 +77,6 @@ class ManyToMany extends QueryBuilder {
         }
     }
 
-    public function nested (): void
-    {
-        $model = App::$app->model;
-        $sql = $this->prepareSQL_nested(); 
-        //echo "<pre> <h3> $sql \n\n </h3></pre>";
-        $data = App::$app->db->fetch($sql);
-        $this->inject_data_nested($data);
-        $model->query->reset();
-    }
-
     private function prepareSQL_nested ()
     {
         $model = App::$app->model;
@@ -81,19 +84,20 @@ class ManyToMany extends QueryBuilder {
         $primaryKey1 = $model->PrimaryKey;
         $orderBy = $model->orderBy;
         $ids = $model->ids;
+        $currentRelation = $model->relations->currentRelation;
 
-        $current_relation = $model->relations->currentRelation;
-        $table2 = $current_relation->table2;
-        $primaryKey2 = $current_relation->primaryKey;
-        $pivotTable = $current_relation->pivotTable;
-        $relatedKey = $current_relation->relatedKey;
-        $pivotKey = $current_relation->pivotKey;
-        $first_sql_part = $current_relation->FirstSqlPart;
-        $lastTable = $current_relation->lastJoinTable;
-        $lastTable_PK = $current_relation->lastJoin_PK;
+        $table2 = $currentRelation->table2;
+        $primaryKey2 = $currentRelation->primaryKey;
+        $pivotTable = $currentRelation->pivotTable;
+        $relatedKey = $currentRelation->relatedKey;
+        $pivotKey = $currentRelation->pivotKey;
+        $first_sql_part = $currentRelation->FirstSqlPart;
+        $lastTable = $currentRelation->lastJoinTable;
+        $lastTable_PK = $currentRelation->lastJoin_PK;
 
-        $select = $model->query->getSelect('alias2');
-        $query = $model->query->getQuery();
+        if($currentRelation->columns) $this->select($currentRelation->columns);
+        $select = $this->query->getSelect('alias2');
+        $query = $this->query->getQuery();
  
         return "SELECT $select, $table1.$primaryKey1 AS pivot FROM $table1
         $first_sql_part
@@ -136,23 +140,3 @@ class ManyToMany extends QueryBuilder {
         }
     }
 }
-
-
-//get followers of user_id = 99
-
-/*
-SELECT users.*
-FROM users
-JOIN followers  
-ON followers.follower_id = users.id
-WHERE followers.user_id = 99
-*/
-
-// the users who user_id = 99 is following
-
-/*SELECT users.*
-FROM users
-JOIN followers  
-ON followers.user_id = users.id
-WHERE followers.follower_id = 99
-*/

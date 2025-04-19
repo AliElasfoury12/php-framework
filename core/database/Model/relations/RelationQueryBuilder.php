@@ -17,4 +17,14 @@ class RelationQueryBuilder
         $this->query->select = $columns;
         return new static;
     }
+
+    public function where (string $column ,string $opretor, string $value = ''): static 
+    {
+        if(!$value) {
+            $value = $opretor;
+            $opretor = '=';
+        }
+        $this->query->where[] = "$column $opretor '$value'";
+        return  new static;
+    }
 }

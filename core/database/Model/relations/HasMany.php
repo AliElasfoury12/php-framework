@@ -7,53 +7,13 @@ use core\base\_Array;
 class HasMany extends RelationQueryBuilder {
     public function run (): void 
     {
-        //table1 users hasMany table2 posts
         $model = App::$app->model;
-
         $sql = $this->prpareSQL();
-         echo "$sql <br>"; 
+        //echo "$sql <br>"; 
         $data = App::$app->db->fetch($sql);
-
         $this->inject_data($data);
-        $model->query->reset();
-    }
-
-    private function prpareSQL (): string 
-    {
-        $model = App::$app->model;
-        $table1 = $model->table;
-        $primaryKey1 = $model->PrimaryKey;
-        $orderBy = $model->orderBy;
-        $ids = $model->ids;
-
-        $table2 = $model->relations->currentRelation->table2;
-        $foreignKey = $model->relations->currentRelation->foreignKey;
-        $primaryKey = $model->relations->currentRelation->primaryKey;
-
-        if($model->relations->currentRelation->columns) $this->select($model->relations->currentRelation->columns);
-        $select = $this->query->getSelect($table2);
-        $query = $model->query->getQuery($table2);
-       
-        return "SELECT $select FROM $table1
-        INNER JOIN $table2 ON $table1.$primaryKey = $table2.$foreignKey
-        WHERE $table1.$primaryKey1 IN ($ids) $query $orderBy";
-    }
-
-    private function inject_data (_Array $data): void 
-    {
-        $model = App::$app->model;
-        $foreignKey = $model->relations->currentRelation->foreignKey;
-        $primaryKey = $model->relations->currentRelation->primaryKey;
-
-        $i = 0;
-        foreach ($model->data as &$item) {
-            $item[$model->relations->currentRelation->name] = [];
-
-            while($i < $data->size && $item[$primaryKey] == $data[$i][$foreignKey]){
-                $item[$model->relations->currentRelation->name][] = $data[$i];
-                $i++;
-            }
-        }
+        $this->query->reset();
+        $model->relations->currentRelation->columns = '';
     }
 
     public function nested (): void 
@@ -63,7 +23,49 @@ class HasMany extends RelationQueryBuilder {
         //echo "$sql <br>"; 
         $data = App::$app->db->fetch($sql);($sql);
         $this->inject_data_nested($data);
-        $model->query->reset();
+        $this->query->reset();
+        $model->relations->currentRelation->columns = '';
+    }
+
+    private function prpareSQL (): string 
+    {
+        $model = App::$app->model;
+        $table1 = $model->table;
+        $primaryKey1 = $model->PrimaryKey;
+        $orderBy = $model->orderBy;
+        $ids = $model->ids;
+        $currentRelation = $model->relations->currentRelation;
+
+        $table2 = $currentRelation->table2;
+        $foreignKey = $currentRelation->foreignKey;
+        $primaryKey = $currentRelation->primaryKey;
+
+        if($currentRelation->columns) $this->select($currentRelation->columns);
+        $select = $this->query->getSelect($table2);
+        $query = $this->query->getQuery($table2);
+       
+        return "SELECT $select FROM $table1
+        INNER JOIN $table2 ON $table1.$primaryKey = $table2.$foreignKey
+        WHERE $table1.$primaryKey1 IN ($ids) $query $orderBy";
+    }
+
+    private function inject_data (_Array $data): void 
+    {
+        $model = App::$app->model;
+        $currentRelation = $model->relations->currentRelation;
+
+        $foreignKey = $currentRelation->foreignKey;
+        $primaryKey = $currentRelation->primaryKey;
+
+        $i = 0;
+        foreach ($model->data as &$item) {
+            $item[$currentRelation->name] = [];
+
+            while($i < $data->size && $item[$primaryKey] == $data[$i][$foreignKey]){
+                $item[$currentRelation->name][] = $data[$i];
+                $i++;
+            }
+        }
     }
 
     private function prpareSQL_nested (): string 
@@ -73,15 +75,16 @@ class HasMany extends RelationQueryBuilder {
         $primaryKey1 = $model->PrimaryKey;
         $orderBy = $model->orderBy;
         $ids = $model->ids;
+        $currentRelation = $model->relations->currentRelation;
 
-        $current_relation = $model->relations->currentRelation;
-        $foreignKey = $current_relation->foreignKey;
-        $first_sql_part = $current_relation->FirstSqlPart;
-        $alias_PK = $current_relation->lastJoin_PK;
-        $table2 = $current_relation->table2;
+        $foreignKey = $currentRelation->foreignKey;
+        $first_sql_part = $currentRelation->FirstSqlPart;
+        $alias_PK = $currentRelation->lastJoin_PK;
+        $table2 = $currentRelation->table2;
         
+        if($currentRelation->columns) $this->select($currentRelation->columns);
         $select = $model->query->getSelect($table2);
-        $query = $model->query->getQuery($table2);
+        $query = $this->query->getQuery($table2);
  
         return "SELECT $select, $table1.$primaryKey1 AS pivot FROM $table1
         $first_sql_part
@@ -94,10 +97,10 @@ class HasMany extends RelationQueryBuilder {
         $model = App::$app->model;
         $primaryKey1 = $model->PrimaryKey;
 
-        $current_relation = $model->relations->currentRelation;
-        $relation1 = $current_relation->relation1;
-        $relation2 = $current_relation->relation2;
-        $alias_PK = $current_relation->lastJoin_PK;
+        $currentRelation = $model->relations->currentRelation;
+        $relation1 = $currentRelation->relation1;
+        $relation2 = $currentRelation->relation2;
+        $alias_PK = $currentRelation->lastJoin_PK;
         
         $i = 0;
         foreach ($model->data as &$unit) {

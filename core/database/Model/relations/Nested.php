@@ -5,8 +5,9 @@ namespace core\database\Model\relations;
 use core\App;
 
 class Nested  {
-    private $relation1; 
-    private $relation2; 
+    private string $relation1; 
+    private string $relation2; 
+    private string $columns;
 
     public function run (string $class, string $relation): void 
     {
@@ -14,27 +15,31 @@ class Nested  {
         $this->handleSecondRelation($class);
     }
 
-    private function handleFirstRelation (string $class, string $relation)
+    private function handleFirstRelation (string $class, string $relation): void
     {
         $dotPositon = strpos($relation,'.');
         $this->relation1 = substr($relation, 0, $dotPositon);
         $this->relation2 = substr($relation, $dotPositon + 1);
 
         $model = App::$app->model;
-        $model->relations->currentRelation->name = $this->relation1;
-        if($model->data && array_key_exists($model->relations->currentRelation->name, $model->data[0])) {
+        $currentRelation = $model->relations->currentRelation;
+        $currentRelation->name = $this->relation1;
+        if($model->data && array_key_exists($currentRelation->name, $model->data[0])) {
             $model->query->reset();
             return;
         }
 
         $class = new $class;
         call_user_func([$class, $this->relation1]);
+        $this->columns = $currentRelation->columns;
+        $currentRelation->columns = '';
         $model->relations->handleRelation();
     }
 
     private function handleSecondRelation (string $class): void 
     {
         $model = App::$app->model;
+        $currentRelation = $model->relations->currentRelation;
         $class1 = $model->getClassName($this->relation1);
         if(!class_exists($class1)){
             $class1 = $class;
@@ -43,13 +48,13 @@ class Nested  {
 
         call_user_func([$class1, $this->relation2]); 
 
-        $model->relations->currentRelation->relation1 = $this->relation1;
-        $model->relations->currentRelation->relation2 = $this->relation2;
+        $currentRelation->relation1 = $this->relation1;
+        $currentRelation->relation2 = $this->relation2;
 
-        if($model->relations->currentRelation->columns) $model->select($model->relations->currentRelation->columns);
         $types = $model->relations->relationTypes;
-
-        match ($model->relations->currentRelation->type) {
+        $currentRelation->columns = $this->columns;
+        
+        match ($currentRelation->type) {
             $types::HASMANY => $model->relations->HasMany->nested(),
             $types::BELONGSTO => $model->relations->BelongsTo->nested(),
             $types::MANYTOMANY => $model->relations->ManyToMany->nested()

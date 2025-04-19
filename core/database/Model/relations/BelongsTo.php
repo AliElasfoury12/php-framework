@@ -11,16 +11,15 @@ class BelongsTo extends RelationQueryBuilder
     public function run (): void
     {
         $model = App::$app->model;
-
         $sql = $this->prepareSQL();
         //echo "$sql <br>"; 
         $data = App::$app->db->fetch($sql);
-
         foreach ($model->data as $key => &$item) {
             $item[$model->relations->currentRelation->name] = $data[$key];
         }
 
-        $model->query->reset();
+        $this->query->reset();
+        $model->relations->currentRelation->columns = '';
     }
 
     public function nested (): void
@@ -28,10 +27,10 @@ class BelongsTo extends RelationQueryBuilder
         $model = App::$app->model;
         $sql = $this->prepareSQL_nested();
         //echo "$sql <br>";
-        
         $data = App::$app->db->fetch($sql);
         $this->inject_data($data);
-        $model->query->reset();
+        $this->query->reset();
+        $model->relations->currentRelation->columns = '';
     }
 
     private function prepareSQL (): string 
@@ -41,19 +40,20 @@ class BelongsTo extends RelationQueryBuilder
         $primaryKey1 = $model->PrimaryKey;
         $orderBy = $model->orderBy;
         $ids = $model->ids;
+        $currentRelation = $model->relations->currentRelation;
 
-        $current_relation = $model->relations->currentRelation;
-        $table2 = $current_relation->table2;
-        $foreignKey = $current_relation->foreignKey;
-        $primaryKey2 = $current_relation->primaryKey;
+        $table2 = $currentRelation->table2;
+        $foreignKey = $currentRelation->foreignKey;
+        $primaryKey2 = $currentRelation->primaryKey;
 
+        if($currentRelation->columns) $this->select($currentRelation->columns);
         $select = $this->query->getSelect($table2);
-        $query = $model->query->getQuery($table2);
+        $query = $this->query->getQuery($table2);
 
-        $current_relation->FirstSqlPart = 
+        $currentRelation->FirstSqlPart = 
         "INNER JOIN $table2  ON $table2.$primaryKey2 = $table1.$foreignKey";
-        $current_relation->lastJoin_PK = $primaryKey2;
-        $current_relation->lastJoinTable = $table2;
+        $currentRelation->lastJoin_PK = $primaryKey2;
+        $currentRelation->lastJoinTable = $table2;
       
         return "SELECT $select FROM $table1 
         INNER JOIN $table2 ON $table2.$primaryKey2 = $table1.$foreignKey
@@ -67,15 +67,16 @@ class BelongsTo extends RelationQueryBuilder
         $primaryKey1 = $model->PrimaryKey;
         $ids = $model->ids;
         $orderBy = $model->orderBy;
+        $currentRelation = $model->relations->currentRelation;
 
-        $current_relation = $model->relations->currentRelation;
-        $table2 = $current_relation->table2;
-        $foreignKey = $current_relation->foreignKey;
-        $primaryKey2 = $current_relation->primaryKey;
-        $first_sql_part = $current_relation->FirstSqlPart;
+        $table2 = $currentRelation->table2;
+        $foreignKey = $currentRelation->foreignKey;
+        $primaryKey2 = $currentRelation->primaryKey;
+        $first_sql_part = $currentRelation->FirstSqlPart;
 
+        if($currentRelation->columns) $this->select($currentRelation->columns);
         $select = $this->query->getSelect($table2);
-        $query = $model->query->getQuery($table2);
+        $query = $this->query->getQuery($table2);
 
         return "SELECT $select FROM $table1 
         $first_sql_part
@@ -86,12 +87,12 @@ class BelongsTo extends RelationQueryBuilder
     private function inject_data (_Array $data): void
     {
         $model = App::$app->model;
-        $current_relation = $model->relations->currentRelation;
+        $currentRelation = $model->relations->currentRelation;
         
-        $foreignKey = $current_relation->foreignKey;
-        $primaryKey2 = $current_relation->primaryKey;
-        $relation1 = $current_relation->relation1;
-        $relation2 = $current_relation->relation2;
+        $foreignKey = $currentRelation->foreignKey;
+        $primaryKey2 = $currentRelation->primaryKey;
+        $relation1 = $currentRelation->relation1;
+        $relation2 = $currentRelation->relation2;
 
         $i = 0;
         foreach ($model->data as &$unit) {
