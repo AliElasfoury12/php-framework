@@ -11,11 +11,11 @@ use core\database\Model\relations\Relations;
 
 class MainModel extends QueryBuilder 
 {
-    public Relations $relations;
+    public _Array $data;
     public string $ids;
     public string $PrimaryKey;
+    public Relations $relations;
     public string $table = '';
-    public _Array $data;
 
     public function __construct() {
         $this->relations = new Relations;

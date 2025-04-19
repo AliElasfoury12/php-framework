@@ -4,15 +4,15 @@ namespace core\database\Model\relations;
 
 use core\App;
 use core\base\_Array;
-class HasMany {
+class HasMany extends RelationQueryBuilder {
     public function run (): void 
     {
         //table1 users hasMany table2 posts
         $model = App::$app->model;
 
         $sql = $this->prpareSQL();
-        // echo "$sql <br>"; 
-        $data =App::$app->db->fetch($sql);($sql);
+         echo "$sql <br>"; 
+        $data = App::$app->db->fetch($sql);
 
         $this->inject_data($data);
         $model->query->reset();
@@ -30,7 +30,8 @@ class HasMany {
         $foreignKey = $model->relations->currentRelation->foreignKey;
         $primaryKey = $model->relations->currentRelation->primaryKey;
 
-        $select = $model->query->getSelect($table2);
+        if($model->relations->currentRelation->columns) $this->select($model->relations->currentRelation->columns);
+        $select = $this->query->getSelect($table2);
         $query = $model->query->getQuery($table2);
        
         return "SELECT $select FROM $table1

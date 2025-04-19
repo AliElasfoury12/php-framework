@@ -4,22 +4,10 @@ namespace core\database\Model\relations;
 
 use core\App;
 use core\base\_Array;
-use core\database\Model\Query;
-use core\database\Model\QueryBuilder;
 
-class BelongsTo 
+class BelongsTo extends RelationQueryBuilder
 {
-    public Query $query;
-    public function __construct()
-    {
-        $this->query = new Query;
-    }
 
-    public function select (string $columns)
-    {
-        $this->query->select = $columns;
-    }
-    
     public function run (): void
     {
         $model = App::$app->model;
@@ -32,6 +20,17 @@ class BelongsTo
             $item[$model->relations->currentRelation->name] = $data[$key];
         }
 
+        $model->query->reset();
+    }
+
+    public function nested (): void
+    {
+        $model = App::$app->model;
+        $sql = $this->prepareSQL_nested();
+        //echo "$sql <br>";
+        
+        $data = App::$app->db->fetch($sql);
+        $this->inject_data($data);
         $model->query->reset();
     }
 
@@ -61,17 +60,6 @@ class BelongsTo
         WHERE $table1.$primaryKey1 IN ($ids) $query $orderBy";
     }
 
-    public function nested (): void
-    {
-        $model = App::$app->model;
-        $sql = $this->prepareSQL_nested();
-        //echo "$sql <br>";
-        
-        $data = App::$app->db->fetch($sql);
-        $this->inject_data($data);
-        $model->query->reset();
-    }
-
     private function prepareSQL_nested (): string
     {
         $model = App::$app->model;
@@ -86,7 +74,7 @@ class BelongsTo
         $primaryKey2 = $current_relation->primaryKey;
         $first_sql_part = $current_relation->FirstSqlPart;
 
-        $select = $model->query->getSelect($table2);
+        $select = $this->query->getSelect($table2);
         $query = $model->query->getQuery($table2);
 
         return "SELECT $select FROM $table1 

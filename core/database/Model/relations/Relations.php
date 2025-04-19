@@ -9,7 +9,6 @@ class Relations {
 
     public _Array $relations;
     public _Array $withCount_relations;
-    public string $requestedCoulmns = '*';
     public ?CurrentRelation $currentRelation = null;
     public ?RELATIONSTYPE $relationTypes = null;
     public BelongsTo $BelongsTo;

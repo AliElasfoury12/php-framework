@@ -46,7 +46,7 @@ class Nested  {
         $model->relations->currentRelation->relation1 = $this->relation1;
         $model->relations->currentRelation->relation2 = $this->relation2;
 
-        if($model->relations->requestedCoulmns) $model->select($model->relations->requestedCoulmns);
+        if($model->relations->currentRelation->columns) $model->select($model->relations->currentRelation->columns);
         $types = $model->relations->relationTypes;
 
         match ($model->relations->currentRelation->type) {

@@ -23,11 +23,11 @@ class EagerLoading
             if(str_contains($relation, '.')) //posts.comments
             {
                 $model->relations->Nested->run($class::class, $relation);
-                $model->relations->requestedCoulmns = '';
+                $model->relations->currentRelation->columns = '';
                 continue;
             }
 
-            $model->select($model->relations->requestedCoulmns);
+            $model->select($model->relations->currentRelation->columns);
             call_user_func([$class, $model->relations->currentRelation->name]);
             $model->relations->handleRelation();
         }
@@ -40,7 +40,7 @@ class EagerLoading
         $model = App::$app->model;
         $colonPostion = strpos($relation,':');
         $model->relations->currentRelation->name = substr($relation, 0, $colonPostion);
-        $model->relations->requestedCoulmns = substr($relation, $colonPostion + 1);
+        $model->relations->currentRelation->columns = substr($relation, $colonPostion + 1);
     } 
     
     public function handleWithCount (): void 

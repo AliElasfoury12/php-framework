@@ -61,7 +61,7 @@ class Query {
             $this->finalQuery->select = implode(',', $select);
         }
 
-        if($table && $this->select === '*') $this->finalQuery->select = "$table.*";
+        if($table && !$this->select ) $this->finalQuery->select = "$table.*";
         return $this->finalQuery->select;
     }
 }

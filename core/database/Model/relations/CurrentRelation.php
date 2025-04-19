@@ -2,6 +2,8 @@
 
 namespace core\database\Model\relations;
 
+use core\database\Model\Query;
+
 class CurrentRelation 
 {
     public string $type;
@@ -18,4 +20,5 @@ class CurrentRelation
     public string $lastJoin_PK;
     public string $lastJoinTable;
     public string $name;
+    public string $columns;
 }
