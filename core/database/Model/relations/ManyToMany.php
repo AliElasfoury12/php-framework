@@ -4,8 +4,9 @@ namespace Core\Database\Model\Relations;
 
 use core\App;
 use core\base\_Array;
+use core\database\Model\QueryBuilder;
 
-class ManyToMany {
+class ManyToMany extends QueryBuilder {
 
     public function run (): void //followers, user_id, follower_id 
     {
@@ -21,9 +22,9 @@ class ManyToMany {
     {
         $model = App::$app->model;
         $table1 = $model->table;
-        $primaryKey1 = $model->primaryKey;
+        $primaryKey1 = $model->PrimaryKey;
         $orderBy = $model->orderBy;
-        $ids = $model->dataIds;
+        $ids = $model->ids;
 
         $current_relation = $model->relations->currentRelation;
         $table2 = $current_relation->table2;
@@ -49,15 +50,15 @@ class ManyToMany {
     private function inject_data (_Array $data)
     {
         $model = App::$app->model;
-        $primaryKey1 = $model->primaryKey;
+        $primaryKey1 = $model->PrimaryKey;
 
         $i = 0;
         foreach ($model->relations->RelationsData as &$item) {
-            $item[$model->relations->relationName] = [];
+            $item[$model->relations->currentRelation->name] = [];
 
             while($i < $data->size && $item[$primaryKey1] == $data[$i]['pivot']){
                 unset($data[$i]['pivot']);
-                $item[$model->relations->relationName][] = $data[$i];
+                $item[$model->relations->currentRelation->name][] = $data[$i];
                 $i++;
             }
         }
@@ -77,9 +78,9 @@ class ManyToMany {
     {
         $model = App::$app->model;
         $table1 = $model->table;
-        $primaryKey1 = $model->primaryKey;
+        $primaryKey1 = $model->PrimaryKey;
         $orderBy = $model->orderBy;
-        $ids = $model->dataIds;
+        $ids = $model->ids;
 
         $current_relation = $model->relations->currentRelation;
         $table2 = $current_relation->table2;
@@ -105,7 +106,7 @@ class ManyToMany {
     {
         $model = App::$app->model;
 
-        $primaryKey1 = $model->primaryKey;
+        $primaryKey1 = $model->PrimaryKey;
         $current_relation = $model->relations->currentRelation; 
         $relation1 = $current_relation->relation1;
         $relation2 = $current_relation->relation2;

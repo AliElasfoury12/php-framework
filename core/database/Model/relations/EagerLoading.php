@@ -12,12 +12,12 @@ class EagerLoading
         $class = new $class();
         $model = App::$app->model;
        
-        foreach ( $model->relations->relations as $relation) { 
+        foreach ($model->relations->relations as $relation) { 
 
             if(str_contains($relation, ':')) //posts:id,post
             {
                 $this->getRequestedColumns($relation);
-                $relation = $model->relations->relationName;
+                $relation = $model->relations->currentRelation->name;
             }
 
             if(str_contains($relation, '.')) //posts.comments
@@ -28,7 +28,7 @@ class EagerLoading
             }
 
             $model->select($model->relations->requestedCoulmns);
-            call_user_func([$class, $model->relations->relationName]);
+            call_user_func([$class, $model->relations->currentRelation->name]);
             $model->relations->handleRelation();
         }
 
@@ -39,7 +39,7 @@ class EagerLoading
     {
         $model = App::$app->model;
         $colonPostion = strpos($relation,':');
-        $model->relations->relationName = substr($relation, 0, $colonPostion);
+        $model->relations->currentRelation->name = substr($relation, 0, $colonPostion);
         $model->relations->requestedCoulmns = substr($relation, $colonPostion + 1);
     } 
     
@@ -47,9 +47,9 @@ class EagerLoading
     {
         $model = App::$app->model;
         $table1 = $model->table;
-        $primaryKey = $model->primaryKey;
+        $primaryKey = $model->PrimaryKey;
         $orderBy = $model->orderBy;
-        $ids = $model->dataIds;
+        $ids = $model->ids;
 
         foreach ($model->relations->withCount_relations as $relationName) {
             $forigenKey = App::$app->db->getFK($relationName, $table1);

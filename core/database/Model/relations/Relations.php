@@ -8,7 +8,6 @@ use core\base\_Array;
 class Relations {
 
     public _Array $relations;
-    public string $relationName = '';
     public _Array $withCount_relations;
     public _Array $RelationsData;
     public string $requestedCoulmns = '*';
@@ -90,7 +89,7 @@ class Relations {
 
         $table2 = $model->getClassTable($class2);//users
 
-        $primaryKey = $primaryKey?: $model->primaryKey;
+        $primaryKey = $primaryKey?: $model->PrimaryKey;
         $foreignKey = $foreignKey ?: $db->getFK($table2, $model->table) ;
 
         $currentRelation = $model->relations->currentRelation;

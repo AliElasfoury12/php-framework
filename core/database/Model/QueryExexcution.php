@@ -29,12 +29,12 @@ class QueryExexcution {
         
         if($model->relations) {
             $model->table = $tableName;
-            $model->primaryKey = $primaryKey;
+            $model->PrimaryKey = $primaryKey;
             $model->orderBy = $orderBy;
 
             $sql = "SELECT $primaryKey FROM $tableName $query $orderBy";
             //echo $sql;
-            $model->dataIds = $db->fetch($sql, PDO::FETCH_COLUMN)->implode(',');
+            $model->ids = $db->fetch($sql, PDO::FETCH_COLUMN)->implode(',');
 
             $model->relations->eagerLoading->handleWith( static::class);
             $model->relations->eagerLoading->handleWithCount();

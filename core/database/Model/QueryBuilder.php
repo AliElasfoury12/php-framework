@@ -8,11 +8,8 @@ class QueryBuilder extends QueryExexcution
 {
     public Query $query;
     public string $orderBy = '';
-    public string $table = '';
-    public string $primaryKey;
     public int $pageNum = 1;
-    public string $dataIds;
-
+   
     public function __construct() {
         $this->query = new Query;
     }
@@ -20,6 +17,11 @@ class QueryBuilder extends QueryExexcution
     public static function all (string $columns = '*'): mixed
     {
         return static::select($columns)->get();
+    }
+
+    public static function cursorPaginate (int $perPage) 
+    {
+      
     }
 
     public static function find ($value, $column = 'id'): mixed 
@@ -48,47 +50,13 @@ class QueryBuilder extends QueryExexcution
 
     public static function latest (): static 
     {
-        $model = App::$app->model;
-        $model->orderBy = '.created_at DESC';
+        App::$app->model->orderBy = '.created_at DESC';
         return new static;
     }
 
-    public static function limit ($limit) //app\models\User
+    public static function limit (int $limit): static //app\models\User
     {
         App::$app->model->query->extraQuery[] = "LIMIT $limit";
-        return  new static;
-    }
-
-    public static function paginate (int $perPage): static 
-    {
-        $offset = (App::$app->model->pageNum - 1 ) * $perPage;
-        self::limit($perPage);
-        self::offset($offset);
-        return  new static;
-    }
-
-    public static function cursorPaginate (int $perPage) 
-    {
-       /* $pageNumber = 1;
-        $offset = ($pageNumber - 1 ) * $perPage;
-        App::$app->db->query['query'][] = "LIMIT $perPage OFFSET $offset";
-        $sql = "SELECT * FROM `users` ";
-        */
-    }
-
-    public static function select (string $columns): static
-    {
-        App::$app->model->query->select = $columns;
-        return new static ;
-    }
-
-    public static function where (string $column ,string  $opretor, string $value = ''): static 
-    {
-        if(!$value) {
-            $value = $opretor;
-            $opretor = '=';
-        }
-        App::$app->model->query->where[] = "$column $opretor '$value'";
         return  new static;
     }
 
@@ -116,10 +84,28 @@ class QueryBuilder extends QueryExexcution
         return new static;
     }
 
-    public static function withCount (string $columns): static 
+    public static function paginate (int $perPage): static 
     {
-        App::$app->model->relations->withCount_relations->set(explode(',', $columns));
-        return new static;
+        $offset = (App::$app->model->pageNum - 1 ) * $perPage;
+        self::limit($perPage);
+        self::offset($offset);
+        return  new static;
+    }
+
+    public static function select (string $columns): static
+    {
+        App::$app->model->query->select = $columns;
+        return new static ;
+    }
+
+    public static function where (string $column ,string $opretor, string $value = ''): static 
+    {
+        if(!$value) {
+            $value = $opretor;
+            $opretor = '=';
+        }
+        App::$app->model->query->where[] = "$column $opretor '$value'";
+        return  new static;
     }
 
     public static function with (array $relations): static
@@ -127,4 +113,11 @@ class QueryBuilder extends QueryExexcution
         App::$app->model->relations->relations->set($relations);
         return new static;
     }
+
+    public static function withCount (string $columns): static 
+    {
+        App::$app->model->relations->withCount_relations->set(explode(',', $columns));
+        return new static;
+    }
+
 }

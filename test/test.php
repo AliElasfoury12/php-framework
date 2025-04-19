@@ -1,19 +1,4 @@
 <?php 
 
-class Test {
-    public $string ='';
+//echo "\n \033[36;44m INFO \033[0m\n\n";
 
-    public function __construct($string = '') 
-    {
-        echo "Construct \n";
-        $this->string = $string;
-    }
-
-    public function replace (string $search, string $replace): Test
-    {
-        $result = str_replace($search, $replace, $this->string);
-        return new self($result);
-    }
-}
-
-$string = new Test('ali ');

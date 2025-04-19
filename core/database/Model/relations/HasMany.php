@@ -22,9 +22,9 @@ class HasMany {
     {
         $model = App::$app->model;
         $table1 = $model->table;
-        $primaryKey1 = $model->primaryKey;
+        $primaryKey1 = $model->PrimaryKey;
         $orderBy = $model->orderBy;
-        $ids = $model->dataIds;
+        $ids = $model->ids;
 
         $table2 = $model->relations->currentRelation->table2;
         $foreignKey = $model->relations->currentRelation->foreignKey;
@@ -46,10 +46,10 @@ class HasMany {
 
         $i = 0;
         foreach ($model->relations->RelationsData as &$item) {
-            $item[$model->relations->relationName] = [];
+            $item[$model->relations->currentRelation->name] = [];
 
             while($i < $data->size && $item[$primaryKey] == $data[$i][$foreignKey]){
-                $item[$model->relations->relationName][] = $data[$i];
+                $item[$model->relations->currentRelation->name][] = $data[$i];
                 $i++;
             }
         }
@@ -69,9 +69,9 @@ class HasMany {
     {
         $model = App::$app->model;
         $table1 = $model->table;
-        $primaryKey1 = $model->primaryKey;
+        $primaryKey1 = $model->PrimaryKey;
         $orderBy = $model->orderBy;
-        $ids = $model->dataIds;
+        $ids = $model->ids;
 
         $current_relation = $model->relations->currentRelation;
         $foreignKey = $current_relation->foreignKey;
@@ -91,7 +91,7 @@ class HasMany {
     private function inject_data_nested (_Array $data): void 
     {
         $model = App::$app->model;
-        $primaryKey1 = $model->primaryKey;
+        $primaryKey1 = $model->PrimaryKey;
 
         $current_relation = $model->relations->currentRelation;
         $relation1 = $current_relation->relation1;

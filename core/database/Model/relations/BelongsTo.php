@@ -4,12 +4,24 @@ namespace core\database\Model\relations;
 
 use core\App;
 use core\base\_Array;
+use core\database\Model\Query;
+use core\database\Model\QueryBuilder;
 
-class BelongsTo {
+class BelongsTo 
+{
+    public Query $query;
+    public function __construct()
+    {
+        $this->query = new Query;
+    }
+
+    public function select (string $columns)
+    {
+        $this->query->select = $columns;
+    }
     
     public function run (): void
     {
-        //table1 posts belongsTO table2 users
         $model = App::$app->model;
 
         $sql = $this->prepareSQL();
@@ -17,7 +29,7 @@ class BelongsTo {
         $data = App::$app->db->fetch($sql);
 
         foreach ($model->relations->RelationsData as $key => &$item) {
-            $item[$model->relations->relationName] = $data[$key];
+            $item[$model->relations->currentRelation->name] = $data[$key];
         }
 
         $model->query->reset();
@@ -27,16 +39,16 @@ class BelongsTo {
     {
         $model = App::$app->model;
         $table1 = $model->table;
-        $primaryKey1 = $model->primaryKey;
+        $primaryKey1 = $model->PrimaryKey;
         $orderBy = $model->orderBy;
-        $ids = $model->dataIds;
+        $ids = $model->ids;
 
         $current_relation = $model->relations->currentRelation;
         $table2 = $current_relation->table2;
         $foreignKey = $current_relation->foreignKey;
         $primaryKey2 = $current_relation->primaryKey;
 
-        $select = $model->query->getSelect($table2);
+        $select = $this->query->getSelect($table2);
         $query = $model->query->getQuery($table2);
 
         $current_relation->FirstSqlPart = 
@@ -64,8 +76,8 @@ class BelongsTo {
     {
         $model = App::$app->model;
         $table1 = $model->table;
-        $primaryKey1 = $model->primaryKey;
-        $ids = $model->dataIds;
+        $primaryKey1 = $model->PrimaryKey;
+        $ids = $model->ids;
         $orderBy = $model->orderBy;
 
         $current_relation = $model->relations->currentRelation;
