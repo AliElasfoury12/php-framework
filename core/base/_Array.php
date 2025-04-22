@@ -27,7 +27,8 @@ class _Array implements ArrayAccess, IteratorAggregate
 
     public function &offsetGet(mixed $offset): mixed 
     {
-        if(!@$this->array[$offset]) return '';
+        $a = '';
+        if(!@$this->array[$offset]) return $a;
         $this->array[$offset] = is_callable($this->array[$offset]) ? $this->array[$offset]($this) : $this->array[$offset];
         return $this->array[$offset];
     }

@@ -4,6 +4,7 @@ namespace core\database\Model\relations;
 
 use core\App;
 use core\base\_Array;
+use core\base\_Srting;
 
 class EagerLoading
 {
@@ -13,14 +14,14 @@ class EagerLoading
         $model = App::$app->model;
        
         foreach ($model->relations->relations as $relation) { 
-
-            if(str_contains($relation, ':')) //posts:id,post
+            $relation = new _Srting($relation);
+            if($relation->contains(':'))
             {
                 $this->getRequestedColumns($relation);
-                $relation = $model->relations->currentRelation->name;
+                $relation->set($model->relations->currentRelation->name);
             }
 
-            if(str_contains($relation, '.')) //posts.comments
+            if($relation->contains('.'))
             {
                 $model->relations->Nested->run($class::class, $relation);
                 $model->relations->currentRelation->columns = '';
@@ -28,19 +29,19 @@ class EagerLoading
             }
 
             $model->select($model->relations->currentRelation->columns);
-            call_user_func([$class, $model->relations->currentRelation->name]);
+            call_user_func([$class,  $model->relations->currentRelation->name]);
             $model->relations->handleRelation();
         }
 
         return $model->data;
     }
 
-    private function getRequestedColumns (string $relation): void 
+    private function getRequestedColumns (_Srting $relation): void 
     {
         $model = App::$app->model;
-        $colonPostion = strpos($relation,':');
-        $model->relations->currentRelation->name = substr($relation, 0, $colonPostion);
-        $model->relations->currentRelation->columns = substr($relation, $colonPostion + 1);
+        $colonPostion = $relation->position(':');
+        $model->relations->currentRelation->name = $relation->subString(0, $colonPostion);
+        $model->relations->currentRelation->columns = $relation->subString($colonPostion + 1);
     } 
     
     public function handleWithCount (): void 

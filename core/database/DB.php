@@ -100,6 +100,7 @@ class DB
         $sql = "SHOW KEYS FROM $table WHERE Key_name = 'PRIMARY'";
         //echo "$sql <br>";
         $result = App::$app->db->fetch($sql);
+        if($result->empty()) return '';
         return $result[0]["Column_name"];
     }
 
@@ -109,6 +110,7 @@ class DB
         $sql = "SHOW KEYS FROM $table1 WHERE Key_name Like '%$table2%'";
         //echo "$sql <br>";
         $result = App::$app->db->fetch($sql);
-        return $result[0]["Column_name"];
+        if($result->empty()) return '';
+        return  $result[0]["Column_name"];
     }
 }

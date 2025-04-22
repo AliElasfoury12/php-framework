@@ -10,7 +10,7 @@ class Relations {
     public _Array $relations;
     public _Array $withCount_relations;
     public ?CurrentRelation $currentRelation = null;
-    public ?RELATIONSTYPE $relationTypes = null;
+    public ?RELATIONSTYPE $Types = null;
     public BelongsTo $BelongsTo;
     public ManyToMany $ManyToMany;
     public HasMany $HasMany;
@@ -22,7 +22,7 @@ class Relations {
         $this->relations = new _Array;
         $this->withCount_relations = new _Array;
         $this->currentRelation = new CurrentRelation;
-        $this->relationTypes = new RELATIONSTYPE;
+        $this->Types = new RELATIONSTYPE;
         $this->BelongsTo = new BelongsTo;
         $this->ManyToMany = new ManyToMany;
         $this->HasMany = new HasMany;
@@ -30,76 +30,100 @@ class Relations {
         $this->eagerLoading = new EagerLoading;
     }
 
-    protected function hasOne (string $class2, string $foreignKey = '', string $primaryKey = ''): static
+    protected function hasOne (string $class1, string $class2, string $foreignKey = '', string $primaryKey = ''): static
     {
         $model = App::$app->model;
-        $this->tablesAndKeys($class2, $foreignKey, $primaryKey,$model->relations->relationTypes::HASONE);
+        $this->tablesAndKeys($class1,$class2, $foreignKey, $primaryKey,$model->relations->Types::HASONE);
         return new static;
     }
 
-    public function belongsTo (string $class2, string $foreignKey = '', string $primaryKey = ''): static 
+    public function belongsTo (string $class1, string $class2, string $foreignKey, string $primaryKey): void
     {
-        //table1 posts belongsTO table2 users
         $model = App::$app->model;
         $db = App::$app->db;
-        $table2 = $model->getClassTable($class2);//users
 
-        $primaryKey = $primaryKey ?: $db->getPK($table2) ;
-        $foreignKey = $foreignKey ?: $db->getFK($model->table,$table2) ;
+        $table1 = $model->getClassTable($class1);
+        $table2 = $model->getClassTable($class2);
 
+        $primaryKey = $primaryKey?: $db->getPK($table1);
+        $foreignKey = $foreignKey ?: $db->getFK($table1, $table2);
+       
         $currentRelation = $model->relations->currentRelation;
-        $currentRelation->type = $model->relations->relationTypes::BELONGSTO;
+        $currentRelation->type = $model->relations->Types::BELONGSTO;
+        $currentRelation->table1 = $table1;
         $currentRelation->table2 = $table2;
-        $currentRelation->foreignKey = $foreignKey;
-        $currentRelation->primaryKey = $primaryKey;
-
-        return new static;
+        $currentRelation->FK1 = $foreignKey;
+        $currentRelation->PK2 = $primaryKey;
+        $currentRelation->model1 = $class1;
+        $currentRelation->model2 = $class2;
     }
 
-    public function hasMany (string $class2, string $foreignKey = '', string $primaryKey = ''): static 
+    public function hasMany (string $class1, string $class2, string $foreignKey = '', string $primaryKey = ''): static 
     {
         $model = App::$app->model;
-        $this->tablesAndKeys($class2, $foreignKey, $primaryKey,$model->relations->relationTypes::HASMANY);
+        $currentRelation = $model->relations->currentRelation;
+        $db = App::$app->db;
+
+        $table1 = $model->getClassTable($class1);
+        $table2 = $model->getClassTable($class2);
+
+        $primaryKey = $primaryKey?: $db->getPK($table1);
+        $foreignKey = $foreignKey ?: $db->getFK($table2, $table1) ;
+
+        $currentRelation->type = $model->relations->Types::HASMANY;
+        $currentRelation->table1 = $table1;
+        $currentRelation->table2 = $table2;
+        $currentRelation->FK2 = $foreignKey;
+        $currentRelation->PK1 = $primaryKey;
+        $currentRelation->model1 = $class1;
+        $currentRelation->model2 = $class2;
         return new static;
     }
 
-    public function manyToMany (string $relatedClass, string $pivotTable, string $pivotKey, string $relatedKey): static 
+    public function manyToMany (string $baseClass, string $relatedClass, string $pivotTable, string $pivotKey, string $relatedKey): void 
     {
         $model = App::$app->model;
         $db = App::$app->db;
 
         $currentRelation = $model->relations->currentRelation;
-        $currentRelation->type = $model->relations->relationTypes::MANYTOMANY;
+        $currentRelation->type = $model->relations->Types::MANYTOMANY;
+        $currentRelation->table1 = $model->getClassTable($baseClass);
         $currentRelation->table2 = $model->getClassTable($relatedClass);
-        $currentRelation->primaryKey = $db->getPK($currentRelation->table2);
+        $currentRelation->PK1 = $db->getPK($currentRelation->table1);
+        $currentRelation->PK2 = $db->getPK($currentRelation->table2);
         $currentRelation->pivotTable = $pivotTable;
         $currentRelation->pivotKey = $pivotKey;
         $currentRelation->relatedKey = $relatedKey;
+        $currentRelation->model1 = $baseClass;
+        $currentRelation->model2 = $relatedClass;
 
-        return new static;
     }
 
-    private function tablesAndKeys (string $class2, string $primaryKey, string $foreignKey, string $relation): void
+    private function tablesAndKeys (string $class1, string $class2, string $primaryKey, string $foreignKey, string $relation): void
     {
         $model = App::$app->model;
+        $currentRelation = $model->relations->currentRelation;
         $db = App::$app->db;
 
-        $table2 = $model->getClassTable($class2);//users
+        $table1 = $model->getClassTable($class1);
+        $table2 = $model->getClassTable($class2);
 
-        $primaryKey = $primaryKey?: $model->PrimaryKey;
-        $foreignKey = $foreignKey ?: $db->getFK($table2, $model->table) ;
+        $primaryKey = $primaryKey?: $db->getPK($table1);
+        $foreignKey = $foreignKey ?: $db->getFK($table2, $table1) ;
 
-        $currentRelation = $model->relations->currentRelation;
         $currentRelation->type = $relation;
+        $currentRelation->table1 = $table1;
         $currentRelation->table2 = $table2;
-        $currentRelation->foreignKey = $foreignKey;
-        $currentRelation->primaryKey = $primaryKey;
+        $currentRelation->FK1 = $foreignKey;
+        $currentRelation->PK2 = $primaryKey;
+        $currentRelation->model1 = $class1;
+        $currentRelation->model2 = $class2;
     }
 
     public function handleRelation (): void
     {
         $model = App::$app->model;
-        $RelationsTypes = $model->relations->relationTypes;
+        $RelationsTypes = $model->relations->Types;
 
         match ($model->relations->currentRelation->type) {
             $RelationsTypes::HASMANY  =>  $model->relations->HasMany->run(),
