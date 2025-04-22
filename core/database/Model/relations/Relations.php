@@ -14,7 +14,6 @@ class Relations {
     public BelongsTo $BelongsTo;
     public ManyToMany $ManyToMany;
     public HasMany $HasMany;
-    public Nested $Nested;
     public EagerLoading $eagerLoading;
 
     public function __construct() 
@@ -26,7 +25,6 @@ class Relations {
         $this->BelongsTo = new BelongsTo;
         $this->ManyToMany = new ManyToMany;
         $this->HasMany = new HasMany;
-        $this->Nested = new Nested;
         $this->eagerLoading = new EagerLoading;
     }
 
@@ -120,16 +118,4 @@ class Relations {
         $currentRelation->model2 = $class2;
     }
 
-    public function handleRelation (): void
-    {
-        $model = App::$app->model;
-        $RelationsTypes = $model->relations->Types;
-
-        match ($model->relations->currentRelation->type) {
-            $RelationsTypes::HASMANY  =>  $model->relations->HasMany->run(),
-            $RelationsTypes::BELONGSTO =>  $model->relations->BelongsTo->run(),
-            $RelationsTypes::HASONE =>  $model->relations->BelongsTo->run(),
-            $RelationsTypes::MANYTOMANY => $model->relations->ManyToMany->run()
-        };
-    } 
 }

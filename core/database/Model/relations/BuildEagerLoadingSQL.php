@@ -2,30 +2,11 @@
 
 namespace core\database\Model\relations;
 
-use core\App;
 use core\base\_Array;
-use core\base\_Srting;
 use core\database\Model\MainModel;
 
-class Nested  {
-
-    public function run (string $class, _Srting $relation): void 
-    {
-        $model = App::$app->model;
-        $relations = $relation->explode('.');
-        $relationsTypes = $model->relations->Types;
-
-        $this->buildSQL($model,$relations, $class, $relationsTypes);
-        $exsist = array_key_exists($relations[0]->name,$model->data[0]);
-        $result = $this->fetchRelationsData( $relations, $relationsTypes, $exsist);
-        if($model->data->empty()) {
-            $model->data = $result;
-            return;
-        }
-        $this->injectRelationsDataToModel($model, $relations, $result, $exsist);
-    }
-
-    private function buildSQL (MainModel $model,_Array $relations, string $class, RELATIONSTYPE $relationsTypes): void
+class BuildEagerLoadingSQL {
+    public function buildSQL (MainModel $model,_Array $relations, string $class, RELATIONSTYPE $relationsTypes): void
     {
         $PK = $model->PrimaryKey;
         $ids = $model->ids;
@@ -57,7 +38,7 @@ class Nested  {
 
                 case  $relationsTypes::HASMANY:
                     if($i == $relations->size - 1) $model->relations->HasMany->select($currentRelation->columns);
-                $sql .= $this->buildHasManySQL($model, $currentRelation, $table1, $select, $extraQuery);
+                    $sql .= $this->buildHasManySQL($model, $currentRelation, $table1, $select, $extraQuery);
                 break;
 
                 case $relationsTypes::MANYTOMANY:
@@ -113,84 +94,6 @@ class Nested  {
 
         return "INNER JOIN $pivotTable ON $table1.$PK1 = $pivotTable.$pivotKey 
         INNER JOIN $table2 AS alias$i ON $pivotTable.$relatedKey = alias$i.$PK2 ";
-    }
-
-    private function fetchRelationsData (_Array $relations, RELATIONSTYPE $relationsTypes, bool $exsist): _Array
-    {
-        $result = new _Array;
-        $db = App::$app->db;
-        
-        for ($i=$relations->size-1; $i >= 0; $i--) { 
-            $currentRelation = $relations[$i];
-            if($i == 0 && $exsist) break;
-            
-            if($i < $relations->size-1) $lastRelation = $relations[$i+1];
-            $data = $db->fetch($currentRelation->sql);
-
-            if($result->empty()) $result = $data;
-            else {
-                if($lastRelation->type === $relationsTypes::BELONGSTO){
-                    $result = $this->mregeBelongsToData($lastRelation, $data, $result);
-                }else {
-                    $result = $this->mregeManyData($lastRelation, $data, $result);
-                }
-            } 
-        }
-
-        return $result;
-    }
-
-    private function mregeBelongsToData (CurrentRelation $lastRelation, _Array $data, _Array $result):_Array
-    {
-        $i = 0;
-        foreach ($data as &$value) {
-            unset($result[$i]['mainKey']);
-            $value[$lastRelation->name] = $result[$i];
-            $i++;
-            while ($i < $result->size && $value['mainKey'] == $result[$i]['mainKey']) {
-                unset($result[$i]['mainKey']);
-                $value[$lastRelation->name][] = $result[$i];
-                $i++;
-            }
-        }
-        return $data;
-    }
-
-    private function mregeManyData (CurrentRelation $lastRelation, _Array $data, _Array $result):_Array
-    {
-        $i = 0;
-        foreach ($data as $key => &$value) {
-            $value[$lastRelation->name] = [];
-            while ($i < $result->size && $value['mainKey'] == $result[$i]['mainKey']) {
-                unset($result[$i]['mainKey']);
-                $value[$lastRelation->name][] = $result[$i];
-                $i++;
-            }
-        }
-        return $data;
-    }
-    
-    private function injectRelationsDataToModel (MainModel $model, _Array $relations, _Array $result, bool $exsist): void
-    {
-        $currentRelation = $relations[0];
-
-        $i = 0;
-        if(!$exsist) {
-            foreach ($model->data as $key => &$value) {
-                $value[$currentRelation->name] = [];
-                if($i >= $result->size -1) continue;
-                unset($result[$key]['mainKey']);
-                $value[$currentRelation->name] = $result[$key];
-                $i++;
-            }
-        }else{
-            foreach ($model->data as $key => &$value) {
-                if($i > $result->size -1) break;
-                unset($result[$key]['mainKey']);
-                $value[$currentRelation->name][$relations[1]->name] = $result[$key];
-                $i++;
-            }
-        }
     }
 
 }

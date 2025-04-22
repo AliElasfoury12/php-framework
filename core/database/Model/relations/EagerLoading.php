@@ -8,6 +8,30 @@ use core\base\_Srting;
 
 class EagerLoading
 {
+    private BuildEagerLoadingSQL $BuildEagerLoadingSQL;
+    private EagerLoadingData $EagerLoadingData;
+    public function __construct()
+    {
+        $this->BuildEagerLoadingSQL = new BuildEagerLoadingSQL;
+        $this->EagerLoadingData = new EagerLoadingData;
+    }
+
+    public function run (string $class, _Srting $relation): void 
+    {
+        $model = App::$app->model;
+        $relations = $relation->explode('.');
+        $relationsTypes = $model->relations->Types;
+
+        $this->BuildEagerLoadingSQL->buildSQL($model,$relations, $class, $relationsTypes);
+        $exsist = array_key_exists($relations[0]->name,$model->data[0]);
+        $result = $this->EagerLoadingData->fetch( $relations, $relationsTypes, $exsist);
+        if($model->data->empty()) {
+            $model->data = $result;
+            return;
+        }
+        $this->EagerLoadingData->injectToModel($model, $relations, $result, $exsist);
+    }
+
     public function handleWith(string $class): _Array
     {
         $class = new $class();
@@ -21,7 +45,7 @@ class EagerLoading
                 $relation->set($model->relations->currentRelation->name);
             }
 
-            $model->relations->Nested->run($class::class, $relation);
+            $this->run($class::class, $relation);
         }
 
         return $model->data;
