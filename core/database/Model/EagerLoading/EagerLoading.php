@@ -10,6 +10,7 @@ class EagerLoading
 {
     private BuildEagerLoadingSQL $BuildEagerLoadingSQL;
     private EagerLoadingData $EagerLoadingData;
+    
     public function __construct()
     {
         $this->BuildEagerLoadingSQL = new BuildEagerLoadingSQL;

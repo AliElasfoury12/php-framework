@@ -24,19 +24,19 @@ class MainModel extends QueryBuilder
 
     public function belongsTo (string $class2, string $foreignKey = '', string $primaryKey = ''): BelongsTo
     {
-        App::$app->model->relations->belongsTo(static::class,$class2,$foreignKey,$primaryKey);
-        return App::$app->model->relations->BelongsTo;
+        return App::$app->model->relations->BelongsTo
+        ->makeRelation(static::class,$class2,$foreignKey,$primaryKey);
     }
 
     public function hasMany (string $class2, string $foreignKey = '', string $primaryKey = ''): HasMany
     {
-        App::$app->model->relations->hasMany(static::class,$class2,$foreignKey,$primaryKey);
-        return App::$app->model->relations->HasMany;
+        return App::$app->model->relations->HasMany
+        ->makeRelation(static::class,$class2,$foreignKey,$primaryKey);
     }
     
     public function manyToMany (string $relatedClass, string $pivotTable, string $pivotKey, string $relatedKey): ManyToMany
     {
-        App::$app->model->relations->manyToMany(static::class, $relatedClass, $pivotTable, $pivotKey, $relatedKey);
-        return App::$app->model->relations->ManyToMany;
+        return App::$app->model->relations->ManyToMany
+        ->makeRelation(static::class, $relatedClass, $pivotTable, $pivotKey, $relatedKey);
     }
 }
