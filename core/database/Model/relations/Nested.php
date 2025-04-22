@@ -8,13 +8,6 @@ use core\base\_Srting;
 use core\database\Model\MainModel;
 
 class Nested  {
-    private string $columns;
-    public _Array $data;
-
-    public function __construct()
-    {
-        $this->data = new _Array;
-    }
 
     public function run (string $class, _Srting $relation): void 
     {
@@ -25,6 +18,10 @@ class Nested  {
         $this->buildSQL($model,$relations, $class, $relationsTypes);
         $exsist = array_key_exists($relations[0]->name,$model->data[0]);
         $result = $this->fetchRelationsData( $relations, $relationsTypes, $exsist);
+        if($model->data->empty()) {
+            $model->data = $result;
+            return;
+        }
         $this->injectRelationsDataToModel($model, $relations, $result, $exsist);
     }
 

@@ -21,16 +21,7 @@ class EagerLoading
                 $relation->set($model->relations->currentRelation->name);
             }
 
-            if($relation->contains('.'))
-            {
-                $model->relations->Nested->run($class::class, $relation);
-                $model->relations->currentRelation->columns = '';
-                continue;
-            }
-
-            $model->select($model->relations->currentRelation->columns);
-            call_user_func([$class,  $model->relations->currentRelation->name]);
-            $model->relations->handleRelation();
+            $model->relations->Nested->run($class::class, $relation);
         }
 
         return $model->data;
