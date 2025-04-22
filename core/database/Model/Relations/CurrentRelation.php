@@ -1,8 +1,6 @@
 <?php 
 
-namespace core\database\Model\relations;
-
-use core\base\_Srting;
+namespace core\database\Model\Relations;
 
 class CurrentRelation 
 {

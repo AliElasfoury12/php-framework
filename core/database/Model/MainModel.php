@@ -4,10 +4,10 @@ namespace core\database\Model;
 
 use core\App;
 use core\base\_Array;
-use core\database\Model\relations\BelongsTo;
-use core\database\Model\relations\HasMany;
-use Core\Database\Model\Relations\ManyToMany;
-use core\database\Model\relations\Relations;
+use core\database\Model\Relations\BelongsTo;
+use core\database\Model\Relations\HasMany;
+use core\database\Model\Relations\ManyToMany;
+use core\database\Model\Relations\Relations;
 
 class MainModel extends QueryBuilder 
 {

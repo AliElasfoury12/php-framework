@@ -1,6 +1,6 @@
 <?php 
 
-namespace core\database\Model\relations;
+namespace core\database\Model\Relations;
 
 use core\database\Model\Query;
 class RelationQueryBuilder
