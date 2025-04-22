@@ -28,4 +28,16 @@ class Relations {
         $this->HasMany = new HasMany;
         $this->eagerLoading = new EagerLoading;
     }
+
+    public function commonData (string $class1, string $class2)
+    {
+        $model = App::$app->model;
+        $currentRelation = $model->relations->currentRelation;
+        
+        $currentRelation->table1 = $model->getClassTable($class1);
+        $currentRelation->table2 = $model->getClassTable($class2);
+        $currentRelation->model1 = $class1;
+        $currentRelation->model2 = $class2;
+
+    }
 }

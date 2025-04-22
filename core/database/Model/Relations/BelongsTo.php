@@ -12,21 +12,16 @@ class BelongsTo extends RelationQueryBuilder
         $model = App::$app->model;
         $db = App::$app->db;
 
-        $table1 = $model->getClassTable($class1);
-        $table2 = $model->getClassTable($class2);
-
-        $primaryKey = $primaryKey?: $db->getPK($table1);
-        $foreignKey = $foreignKey ?: $db->getFK($table1, $table2);
-       
         $currentRelation = $model->relations->currentRelation;
         $currentRelation->type = $model->relations->Types::BELONGSTO;
-        $currentRelation->table1 = $table1;
-        $currentRelation->table2 = $table2;
-        $currentRelation->FK1 = $foreignKey;
-        $currentRelation->PK2 = $primaryKey;
-        $currentRelation->model1 = $class1;
-        $currentRelation->model2 = $class2;
+        $model->relations->commonData($class1, $class2);
 
+        $table1 = $currentRelation->table1;
+        $table2 = $currentRelation->table2;
+        
+        $currentRelation->FK1 = $foreignKey ?: $db->getFK($table1, $table2);
+        $currentRelation->PK2 = $primaryKey?: $db->getPK($table1);
+       
         return $this;
     }
 }
