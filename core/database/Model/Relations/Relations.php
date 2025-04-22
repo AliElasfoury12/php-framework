@@ -4,6 +4,7 @@ namespace core\database\Model\Relations;
 
 use core\App;
 use core\base\_Array;
+use core\database\Model\EagerLoading\EagerLoading;
 
 class Relations {
 

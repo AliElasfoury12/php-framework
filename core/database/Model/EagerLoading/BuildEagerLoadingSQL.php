@@ -1,9 +1,11 @@
 <?php 
 
-namespace core\database\Model\Relations;
+namespace core\database\Model\EagerLoading;
 
 use core\base\_Array;
 use core\database\Model\MainModel;
+use core\database\Model\Relations\CurrentRelation;
+use core\database\Model\Relations\RELATIONSTYPE;
 
 class BuildEagerLoadingSQL {
     public function buildSQL (MainModel $model,_Array $relations, string $class, RELATIONSTYPE $relationsTypes): void
