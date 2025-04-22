@@ -38,7 +38,7 @@ class EagerLoading
         $class = new $class();
         $model = App::$app->model;
        
-        foreach ($model->relations->relations as $relation) { 
+        foreach ($model->relations->with as $relation) { 
             $relation = new _Srting($relation);
             if($relation->contains(':'))
             {
@@ -68,7 +68,7 @@ class EagerLoading
         $orderBy = $model->orderBy;
         $ids = $model->ids;
 
-        foreach ($model->relations->withCount_relations as $relationName) {
+        foreach ($model->relations->withCount as $relationName) {
             $forigenKey = App::$app->db->getFK($relationName, $table1);
 
             $sql = "SELECT COUNT(*) AS count, $table1.$primaryKey AS pivot FROM $table1 

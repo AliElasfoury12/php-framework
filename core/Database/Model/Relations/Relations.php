@@ -8,8 +8,8 @@ use core\Database\Model\EagerLoading\EagerLoading;
 
 class Relations {
 
-    public _Array $relations;
-    public _Array $withCount_relations;
+    public _Array $with;
+    public _Array $withCount;
     public ?CurrentRelation $currentRelation = null;
     public RELATIONSTYPE $Types;
     public BelongsTo $BelongsTo;
@@ -19,8 +19,8 @@ class Relations {
 
     public function __construct() 
     {
-        $this->relations = new _Array;
-        $this->withCount_relations = new _Array;
+        $this->with = new _Array;
+        $this->withCount = new _Array;
         $this->currentRelation = new CurrentRelation;
         $this->Types = new RELATIONSTYPE;
         $this->BelongsTo = new BelongsTo;

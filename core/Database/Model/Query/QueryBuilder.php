@@ -1,6 +1,6 @@
 <?php 
 
-namespace core\Database\Model;
+namespace core\Database\Model\Query;
 
 use core\App;
 
@@ -110,13 +110,13 @@ class QueryBuilder extends QueryExexcution
 
     public static function with (array $relations): static
     {
-        App::$app->model->relations->relations->set($relations);
+        App::$app->model->relations->with->set($relations);
         return new static;
     }
 
     public static function withCount (string $columns): static 
     {
-        App::$app->model->relations->withCount_relations->set(explode(',', $columns));
+        App::$app->model->relations->withCount->set(explode(',', $columns));
         return new static;
     }
 

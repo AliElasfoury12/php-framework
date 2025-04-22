@@ -4,6 +4,7 @@ namespace core\Database\Model;
 
 use core\App;
 use core\base\_Array;
+use core\Database\Model\Query\QueryBuilder;
 use core\Database\Model\Relations\BelongsTo;
 use core\Database\Model\Relations\HasMany;
 use core\Database\Model\Relations\ManyToMany;

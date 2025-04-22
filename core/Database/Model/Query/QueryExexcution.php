@@ -1,6 +1,6 @@
 <?php 
 
-namespace core\Database\Model;
+namespace core\Database\Model\Query;
 
 use core\App;
 use PDO;

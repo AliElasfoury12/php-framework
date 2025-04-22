@@ -2,7 +2,8 @@
 
 namespace core\Database\Model\Relations;
 
-use core\Database\Model\Query;
+use core\Database\Model\Query\Query;
+
 class RelationQueryBuilder
 {
     public Query $query;
@@ -25,6 +26,12 @@ class RelationQueryBuilder
             $opretor = '=';
         }
         $this->query->where[] = "$column $opretor '$value'";
+        return  new static;
+    }
+
+    public function with (array $relations)
+    {
+        
         return  new static;
     }
 }
