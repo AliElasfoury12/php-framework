@@ -1,6 +1,6 @@
 <?php 
 
-namespace core\database\Model\EagerLoading;
+namespace core\Database\Model\EagerLoading;
 
 use core\App;
 use core\base\_Array;

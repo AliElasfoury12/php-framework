@@ -1,9 +1,8 @@
 <?php 
 
-namespace core\database\Model\Relations;
+namespace core\Database\Model\Relations;
 
 use core\App;
-use core\base\_Array;
 
 class BelongsTo extends RelationQueryBuilder
 {
@@ -18,7 +17,7 @@ class BelongsTo extends RelationQueryBuilder
 
         $table1 = $currentRelation->table1;
         $table2 = $currentRelation->table2;
-        
+
         $currentRelation->FK1 = $foreignKey ?: $db->getFK($table1, $table2);
         $currentRelation->PK2 = $primaryKey?: $db->getPK($table1);
        

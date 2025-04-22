@@ -1,8 +1,8 @@
 <?php 
 
-namespace core\database\Model\Relations;
+namespace core\Database\Model\Relations;
 
-use core\database\Model\Query;
+use core\Database\Model\Query;
 class RelationQueryBuilder
 {
     public Query $query;

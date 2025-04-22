@@ -1,10 +1,10 @@
 <?php
 
-namespace core\database\migrations;
+namespace core\Database\migrations;
 
 use core\base\_Array;
 use PDO;
-use core\database\DB;
+use core\Database\DB;
 
 class Migrations
 {

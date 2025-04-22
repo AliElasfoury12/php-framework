@@ -2,7 +2,7 @@
 
 namespace core\request;
 
-use core\database\DB;
+use core\Database\DB;
 
 class Validator 
 {

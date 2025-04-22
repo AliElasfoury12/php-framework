@@ -1,10 +1,10 @@
 <?php 
 
-namespace core\database\Model\Relations;
+namespace core\Database\Model\Relations;
 
 use core\App;
 use core\base\_Array;
-use core\database\Model\EagerLoading\EagerLoading;
+use core\Database\Model\EagerLoading\EagerLoading;
 
 class Relations {
 

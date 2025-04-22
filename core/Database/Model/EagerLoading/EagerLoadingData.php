@@ -1,12 +1,12 @@
 <?php 
 
-namespace core\database\Model\EagerLoading;
+namespace core\Database\Model\EagerLoading;
 
 use core\App;
 use core\base\_Array;
-use core\database\Model\MainModel;
-use core\database\Model\Relations\CurrentRelation;
-use core\database\Model\Relations\RELATIONSTYPE;
+use core\Database\Model\MainModel;
+use core\Database\Model\Relations\CurrentRelation;
+use core\Database\Model\Relations\RELATIONSTYPE;
 
 class EagerLoadingData
 {

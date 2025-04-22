@@ -1,8 +1,7 @@
 <?php 
 
-namespace core\database\Model;
+namespace core\Database\Model;
 
-use core\App;
 use core\base\_Array;
 
 class FinalQuery {

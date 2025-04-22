@@ -1,6 +1,6 @@
 <?php 
 
-namespace core\database\migrations\table;
+namespace core\Database\migrations\table;
 
 use core\base\_Array;
 

@@ -1,7 +1,7 @@
 <?php
 
-use core\database\migrations\Schema;
-use core\database\migrations\table\Table;
+use core\Database\migrations\Schema;
+use core\Database\migrations\table\Table;
 
 class className
 {

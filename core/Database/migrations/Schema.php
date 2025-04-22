@@ -1,11 +1,11 @@
 <?php
 
-namespace core\database\migrations;
+namespace core\Database\migrations;
 
 use Closure;
 use core\App;
 use core\Command;
-use core\database\migrations\table\Table;
+use core\Database\migrations\table\Table;
 
 class Schema  {
   

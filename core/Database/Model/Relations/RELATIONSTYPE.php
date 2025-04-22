@@ -1,6 +1,6 @@
 <?php 
 
-namespace core\database\Model\Relations;
+namespace core\Database\Model\Relations;
 
 final class RELATIONSTYPE 
 {

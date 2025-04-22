@@ -2,8 +2,8 @@
 
 namespace core;
 
-use core\database\DB;
-use core\database\Model\MainModel;
+use core\Database\DB;
+use core\Database\Model\MainModel;
 use core\request\Request;
 use core\router\Router;
 use app\models\User;

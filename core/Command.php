@@ -3,9 +3,9 @@
 namespace core;
 
 use core\base\_Srting;
-use core\database\DB;
+use core\Database\DB;
 use core\files\Files;
-use core\database\migrations\Migrations;
+use core\Database\migrations\Migrations;
 
 class Command  
 {

@@ -1,10 +1,10 @@
 <?php
 
-namespace core\database;
+namespace core\Database;
 
 use core\App;
 use core\base\_Array;
-use core\database\Model\MainModel;
+use core\Database\Model\MainModel;
 use PDO;
 
 class DB 

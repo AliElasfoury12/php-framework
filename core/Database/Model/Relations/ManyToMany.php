@@ -1,9 +1,8 @@
 <?php 
 
-namespace core\database\Model\Relations;
+namespace core\Database\Model\Relations;
 
 use core\App;
-use core\base\_Array;
 
 class ManyToMany extends RelationQueryBuilder 
 {

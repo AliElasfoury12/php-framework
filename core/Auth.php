@@ -2,7 +2,7 @@
 
 namespace core;
 
-use core\database\DB;
+use core\Database\DB;
 use core\request\Validator;
 use app\models\User;
 
