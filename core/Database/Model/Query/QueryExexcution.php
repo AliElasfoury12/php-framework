@@ -36,7 +36,7 @@ class QueryExexcution {
             //echo $sql;
             $model->ids = $db->fetch($sql, PDO::FETCH_COLUMN)->implode(',');
 
-            $model->relations->eagerLoading->handleWith( static::class);
+            $model->relations->eagerLoading->handleWith(static::class);
             $model->relations->eagerLoading->handleWithCount();
         }
 

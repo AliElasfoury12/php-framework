@@ -14,11 +14,6 @@ class CurrentRelation
     public string $pivotTable;
     public string $pivotKey;
     public string $relatedKey;
-    public string $relation1;
-    public string $relation2;
-    public string $FirstSqlPart;
-    public string $lastJoin_PK;
-    public string $lastJoinTable ;
     public string $name;
     public string $columns;
     public string $model1;

@@ -2,18 +2,23 @@
 
 namespace core\Database\Model\Relations;
 
+use core\App;
+use core\base\_Array;
+use core\base\_Srting;
 use core\Database\Model\Query\Query;
 
 class RelationQueryBuilder
 {
     public Query $query;
+    public _Array $with;
 
     public function __construct()
     {
         $this->query = new Query;
+        $this->with = new _Array;
     }
 
-    public function select (string $columns)
+    public function select (string $columns): static
     {
         $this->query->select = $columns;
         return new static;
@@ -29,9 +34,25 @@ class RelationQueryBuilder
         return  new static;
     }
 
-    public function with (array $relations)
+    public function with (array $relations): static
     {
+        $model = App::$app->model;
         
+        $method = debug_backtrace()[1]['function'];
+        $relations = array_map(fn($r) => new _Srting("$method.$r"), $relations);
+
+        $exsist = false;
+        foreach ($model->relations->with as $value) {
+            if($value == $relations[0] ){
+                $exsist = true;
+                break;
+            }
+        }
+
+        if(!$exsist){
+            $model->relations->with = $model->relations->with->merge($relations);
+            //App::dump((array) $model->relations->with);
+        }
         return  new static;
     }
 }

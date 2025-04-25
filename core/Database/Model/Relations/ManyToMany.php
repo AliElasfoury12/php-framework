@@ -11,6 +11,8 @@ class ManyToMany extends RelationQueryBuilder
         $model = App::$app->model;
         $db = App::$app->db;
 
+        $model->relations->commonData($class1, $class2);
+
         $currentRelation = $model->relations->currentRelation;
         $currentRelation->type = $model->relations->Types::MANYTOMANY;
         $currentRelation->pivotTable = $pivotTable;
@@ -18,8 +20,6 @@ class ManyToMany extends RelationQueryBuilder
         $currentRelation->relatedKey = $relatedKey;
         $currentRelation->PK1 = $db->getPK($currentRelation->table1);
         $currentRelation->PK2 = $db->getPK($currentRelation->table2);
-
-        $model->relations->commonData($class1, $class2);
 
         return $this;
     }

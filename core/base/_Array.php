@@ -89,6 +89,12 @@ class _Array implements ArrayAccess, IteratorAggregate
         }
     }
 
+    public function merge (array $array): _Array
+    {
+       $result = array_merge($this->array, $array);
+       return new self($result);
+    }
+
     public function pop (): void 
     {
         array_pop($this->array);
@@ -105,6 +111,11 @@ class _Array implements ArrayAccess, IteratorAggregate
     {
         $this->array = $array;
         $this->size = count($array);
+    }
+
+    public function __set($name, $value)
+    {
+        var_dump($name, $value);
     }
 }
 /*

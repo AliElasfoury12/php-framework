@@ -5,15 +5,16 @@ namespace core\Database\Model\EagerLoading;
 use core\App;
 use core\base\_Array;
 use core\base\_Srting;
+use core\Database\Model\MainModel;
 
 class EagerLoading
 {
-    private BuildEagerLoadingSQL $BuildEagerLoadingSQL;
+    private EagerLoadingSQLBuilder $BuildEagerLoadingSQL;
     private EagerLoadingData $EagerLoadingData;
     
     public function __construct()
     {
-        $this->BuildEagerLoadingSQL = new BuildEagerLoadingSQL;
+        $this->BuildEagerLoadingSQL = new EagerLoadingSQLBuilder;
         $this->EagerLoadingData = new EagerLoadingData;
     }
 
@@ -23,32 +24,34 @@ class EagerLoading
         $relations = $relation->explode('.');
         $relationsTypes = $model->relations->Types;
 
-        $this->BuildEagerLoadingSQL->buildSQL($model,$relations, $class, $relationsTypes);
+        $this->BuildEagerLoadingSQL->buildSQL($relations, $class, $relationsTypes);
         $exsist = array_key_exists($relations[0]->name,$model->data[0]);
         $result = $this->EagerLoadingData->fetch( $relations, $relationsTypes, $exsist);
         if($model->data->empty()) {
             $model->data = $result;
             return;
         }
-        $this->EagerLoadingData->injectToModel($model, $relations, $result, $exsist);
+        $this->EagerLoadingData->injectToModel( $relations, $result, $exsist);
     }
 
     public function handleWith(string $class): _Array
     {
         $class = new $class();
         $model = App::$app->model;
-       
-        foreach ($model->relations->with as $relation) { 
-            $relation = new _Srting($relation);
+
+        for ($i=0; $i < $model->relations->with->size; $i++) { 
+            $relation = new _Srting($model->relations->with[$i]);
             if($relation->contains(':'))
             {
                 $this->getRequestedColumns($relation);
                 $relation->set($model->relations->currentRelation->name);
             }
-
+            //echo $model->relations->with[$i]."<br>";
             $this->run($class::class, $relation);
+            $model->relations->currentRelation->columns = '';
         }
-
+       
+       // App::dump((array)$model->relations->with);
         return $model->data;
     }
 

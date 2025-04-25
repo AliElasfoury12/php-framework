@@ -2,14 +2,16 @@
 
 namespace core\Database\Model\EagerLoading;
 
+use core\App;
 use core\base\_Array;
 use core\Database\Model\MainModel;
 use core\Database\Model\Relations\CurrentRelation;
 use core\Database\Model\Relations\RELATIONSTYPE;
 
-class BuildEagerLoadingSQL {
-    public function buildSQL (MainModel $model,_Array $relations, string $class, RELATIONSTYPE $relationsTypes): void
+class EagerLoadingSQLBuilder {
+    public function buildSQL (_Array $relations, string $class, RELATIONSTYPE $relationsTypes): void
     {
+        $model = App::$app->model;
         $PK = $model->PrimaryKey;
         $ids = $model->ids;
         $orderBy = $model->orderBy;
@@ -32,19 +34,20 @@ class BuildEagerLoadingSQL {
                 $table1 = "alias$j";
             }
 
+            $columns = $currentRelation->columns;
             switch ($type) {
                 case $relationsTypes::BELONGSTO:
-                    if($i == $relations->size - 1) $model->relations->BelongsTo->select($currentRelation->columns);
+                    if($i == $relations->size - 1 && $columns) $model->relations->BelongsTo->select($columns);
                     $sql .= $this->buildBelongsToSQL($model, $currentRelation, $table1, $select, $extraQuery);
                 break;
 
                 case  $relationsTypes::HASMANY:
-                    if($i == $relations->size - 1) $model->relations->HasMany->select($currentRelation->columns);
+                    if($i == $relations->size - 1 && $columns) $model->relations->HasMany->select($columns);
                     $sql .= $this->buildHasManySQL($model, $currentRelation, $table1, $select, $extraQuery);
                 break;
 
                 case $relationsTypes::MANYTOMANY:
-                    if($i == $relations->size - 1) $model->relations->ManyToMany->select($currentRelation->columns);
+                    if($i == $relations->size - 1 && $columns) $model->relations->ManyToMany->select($columns);
                     $sql .= $this->buildManyToManySQL($model, $currentRelation, $table1, $i, $select, $extraQuery);
                 break;
                 
@@ -53,6 +56,8 @@ class BuildEagerLoadingSQL {
             $currentRelation->sql = "SELECT $select,$table.$PK AS mainKey FROM $table $sql WHERE $table.$PK IN ($ids) $extraQuery $orderBy";
             $relations[$i] = clone $currentRelation;
         }
+
+      // App::dump((array) $relations);
     }
 
     private function buildBelongsToSQL (MainModel $model, CurrentRelation $currentRelation, string $table1, string &$select, &$extraQuery): string
@@ -91,6 +96,7 @@ class BuildEagerLoadingSQL {
         $PK2 = $currentRelation->PK2;
 
         $select = $model->relations->ManyToMany->query->getSelect("alias$i");
+        $select .= ", $pivotTable.$pivotKey AS pivot, $pivotTable.$relatedKey AS related";
         $extraQuery = $model->relations->ManyToMany->query->getQuery();
         $model->relations->ManyToMany->query->reset();
 

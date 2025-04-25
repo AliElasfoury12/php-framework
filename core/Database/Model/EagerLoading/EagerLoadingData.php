@@ -22,68 +22,198 @@ class EagerLoadingData
             if($i < $relations->size-1) $lastRelation = $relations[$i+1];
             $data = $db->fetch($currentRelation->sql);
 
-            if($result->empty()) $result = $data;
-            else {
-                if($lastRelation->type === $relationsTypes::BELONGSTO){
+            if($result->empty()) {
+                $result = $data;
+                continue;
+            }
+
+            
+            switch ($lastRelation->type) {
+                case $relationsTypes::BELONGSTO:
                     $result = $this->mregeBelongsToData($lastRelation, $data, $result);
-                }else {
-                    $result = $this->mregeManyData($lastRelation, $data, $result);
-                }
-            } 
+                break;
+
+                case $relationsTypes::HASMANY:
+                    $result = $this->mregeHasManyData($lastRelation, $data, $result);
+                break;
+                
+                default:
+                    $result = $this->mregeManyToManyData($lastRelation, $data, $result);
+                break;
+            }
         }
 
         return $result;
     }
 
-    private function mregeBelongsToData (CurrentRelation $lastRelation, _Array $data, _Array $result):_Array
+    private function mregeBelongsToData (CurrentRelation $relation, _Array $data, _Array $result, string $PK1 = 'mainKey'):_Array
     {
         $i = 0;
         foreach ($data as &$value) {
-            unset($result[$i]['mainKey']);
-            $value[$lastRelation->name] = $result[$i];
-            $i++;
-            while ($i < $result->size && $value['mainKey'] == $result[$i]['mainKey']) {
+            if ($i < $result->size && $value[$PK1] == $result[$i]['mainKey']) {
                 unset($result[$i]['mainKey']);
-                $value[$lastRelation->name][] = $result[$i];
+                $value[$relation->name] = $result[$i];
                 $i++;
+            }
+        }
+
+        return $data;
+    }
+
+    private function mregeHasManyData (CurrentRelation $relation, _Array $data, _Array $result, string $key = 'mainKey'):_Array
+    {
+        $PK1 = $relation->PK1;
+        $FK2 = $relation->FK2;
+
+        $i = 0;
+        foreach ($data as &$value) {
+            $value[$relation->name] = [];
+            if($i > $result->size - 1) continue;
+
+            while (
+                $i < $result->size && 
+                $value[$key] == $result[$i]['mainKey'] &&
+                $value[$PK1] == $result[$i][$FK2]
+                ) {
+                    unset($result[$i]['mainKey']);
+                    $value[$relation->name][] = $result[$i];
+                    $i++;
             }
         }
         return $data;
     }
 
-    private function mregeManyData (CurrentRelation $lastRelation, _Array $data, _Array $result):_Array
+    private function mregeManyToManyData (CurrentRelation $lastRelation, _Array $data, _Array $result, string $key = 'mainKey'):_Array
     {
+        
+        $PK1 = $lastRelation->PK1;
+        $PK2 = $lastRelation->PK2;
+
         $i = 0;
-        foreach ($data as $key => &$value) {
+        foreach ($data as &$value) {
             $value[$lastRelation->name] = [];
-            while ($i < $result->size && $value['mainKey'] == $result[$i]['mainKey']) {
-                unset($result[$i]['mainKey']);
-                $value[$lastRelation->name][] = $result[$i];
-                $i++;
+
+            while (
+                $i < $result->size &&
+                $value[$key] == $result[$i]['mainKey'] &&
+                $value[$PK1] == $result[$i]['pivot'] &&
+                $result[$i]['related'] == $result[$i][$PK2]) {
+                    unset($result[$i]['mainKey']);
+                    unset($result[$i]['pivot']);
+                    unset($result[$i]['related']);
+                    $value[$lastRelation->name][] = $result[$i];
+                    $i++;
             }
         }
         return $data;
     }
     
-    public function injectToModel (MainModel $model, _Array $relations, _Array $result, bool $exsist): void
+    public function injectToModel (_Array $relations, _Array $result, bool $exsist): void
     {
+        $model = App::$app->model;
         $currentRelation = $relations[0];
 
-        $i = 0;
         if(!$exsist) {
-            foreach ($model->data as $key => &$value) {
-                $value[$currentRelation->name] = [];
-                if($i >= $result->size -1) continue;
-                unset($result[$key]['mainKey']);
-                $value[$currentRelation->name] = $result[$key];
-                $i++;
-            }
+           $this->injectNotExsist($currentRelation, $result, $model);
         }else{
-            foreach ($model->data as $key => &$value) {
-                if($i > $result->size -1) break;
-                unset($result[$key]['mainKey']);
-                $value[$currentRelation->name][$relations[1]->name] = $result[$key];
-                $i++;
+            $lastRelation = $relations[1];
+           $this->injectExsist($currentRelation,$lastRelation, $result, $model);
+        }
+        
+    }
+
+    private function injectNotExsist (CurrentRelation $currentRelation,_Array $result, MainModel $model): void
+    {
+        $relationsTypes = $model->relations->Types;
+        $PK1 = $model->PrimaryKey;
+
+        if($currentRelation->type === $relationsTypes::BELONGSTO){
+            $this->mregeBelongsToData($currentRelation, $model->data, $result, $PK1);
+        }else if($currentRelation->type === $relationsTypes::HASMANY) {
+            $this->mregeHasManyData($currentRelation, $model->data, $result, $PK1);
+        }else {
+            $this->mregeManyToManyData($currentRelation, $model->data, $result, $PK1);
+        }
+    }
+
+    private function injectExsist (CurrentRelation $currentRelation, CurrentRelation $lastRelation,_Array $result, MainModel $model): void
+    {
+        $relationsTypes = $model->relations->Types;
+        $lastRelationName = $lastRelation->name;
+
+        if($lastRelation->type === $relationsTypes::BELONGSTO){
+           $this->mergeExsistsBelongsTo($model, $result,$currentRelation->name, $lastRelationName);
+        }else if($lastRelation->type === $relationsTypes::HASMANY) {
+           $this->mergeExsistsHasMany($model, $result,$currentRelation, $lastRelationName);
+        }else {
+           $this->mergeExsistsManyToMany($model, $result,$currentRelation, $lastRelationName);
+        }
+    }
+
+    private function mergeExsistsBelongsTo (MainModel $model, _Array $result, string $currentRelationName, string $lastRelationName): void
+    {
+        $PK1 = $model->PrimaryKey;
+
+        $i = 0;
+        foreach ($model->data as &$value) {
+            if($i < $result->size && $value[$PK1] == $result[$i]['mainKey']){
+                foreach ($value[$currentRelationName] as $key => $item) {
+                    unset($result[$i]['mainKey']);
+                    $value[$currentRelationName][$key][$lastRelationName] = $result[$i];
+                    $i++;
+                }
+                
+            }
+        }
+    }
+
+    private function mergeExsistsHasMany (MainModel $model, _Array $result, CurrentRelation $currentRelation, string $lastRelationName): void
+    {
+        $FK2 = $currentRelation->FK2;
+        $PK1 = $model->PrimaryKey;
+        $i = 0;
+        foreach ($model->data as &$value) {
+            foreach ($value[$currentRelation->name] as $key => &$item) {
+                if(!empty($value[$currentRelation->name])) $item[$lastRelationName] = [];
+                if($i > $result->size - 1) continue;
+
+                while (
+                        $i < $result->size &&
+                        $value[$PK1] == $result[$i]['mainKey']&&
+                        $item[$PK1] == $result[$i][$FK2]
+                    ) {
+                        unset($result[$i]['mainKey']);
+                        $item[$lastRelationName][] = $result[$i];
+                        $i++;
+                }
+            }
+        }
+    }
+
+    private function mergeExsistsManyToMany (MainModel $model, _Array $result, CurrentRelation $currentRelation, string $lastRelationName): void
+    {
+        $PK2 = $currentRelation->PK2;
+        $PK1 = $model->PrimaryKey;
+        $i = 0;
+
+        foreach ($model->data as &$value) {
+            foreach ($value[$currentRelation->name] as &$item) {
+                if(!empty($value[$currentRelation->name])) $item[$lastRelationName] = [];
+                if($i > $result->size - 1) continue;
+
+                while (
+                        $i < $result->size  &&
+                        $value[$PK1] == $result[$i]['mainKey'] &&
+                        $item[$PK1] == $result[$i]['pivot'] &&
+                        $result[$i]['related'] == $result[$i][$PK2]
+
+                    ) {
+                        unset($result[$i]['mainKey']);
+                        unset($result[$i]['pivot']);
+                        unset($result[$i]['related']);
+                        $item[$lastRelationName][] = $result[$i];
+                        $i++;
+                }
             }
         }
     }

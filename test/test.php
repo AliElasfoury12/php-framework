@@ -2,8 +2,12 @@
 
 //echo "\n \033[36;44m INFO \033[0m\n\n";
 
-$string = 'posts';
+$a = [1,2,3,4];
 
-$string = explode('.', $string);
+$i = 0;
+foreach ($a as $key => &$value) {
+    if($i == 2) $a[] = 7;
+    echo $value;
+    $i++;
+}
 
-var_dump($string);
