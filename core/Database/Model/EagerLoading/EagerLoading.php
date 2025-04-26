@@ -10,12 +10,14 @@ use core\Database\Model\MainModel;
 class EagerLoading
 {
     private EagerLoadingSQLBuilder $BuildEagerLoadingSQL;
-    private EagerLoadingData $EagerLoadingData;
+    private GetEagerLoadingData $EagerLoadingData;
+    private InjectEagerLoadingDataToModel $InjectEagerLoadingDataToModel;
     
     public function __construct()
     {
         $this->BuildEagerLoadingSQL = new EagerLoadingSQLBuilder;
-        $this->EagerLoadingData = new EagerLoadingData;
+        $this->EagerLoadingData = new GetEagerLoadingData;
+        $this->InjectEagerLoadingDataToModel = new InjectEagerLoadingDataToModel;
     }
 
     public function run (string $class, _Srting $relation): void 
@@ -31,7 +33,9 @@ class EagerLoading
             $model->data = $result;
             return;
         }
-        $this->EagerLoadingData->injectToModel( $relations, $result, $exsist);
+        
+        $this->InjectEagerLoadingDataToModel
+        ->injectToModel( $relations, $result, $exsist);
     }
 
     public function handleWith(string $class): _Array
