@@ -2,6 +2,7 @@
 
 namespace core\Database\Model\Query;
 
+use core\App;
 use core\base\_Array;
 
 class FinalQuery {
@@ -10,7 +11,7 @@ class FinalQuery {
 
     public function reset (): void
     {
-        $this->select = '*';
+        $this->select = '';
         $this->extraQuery = '';
     }
 }
@@ -60,7 +61,7 @@ class Query {
             $this->finalQuery->select = implode(',', $select);
         }
 
-        if($table && !$this->select ) $this->finalQuery->select = "$table.*";
+        if($table && !$this->select) $this->finalQuery->select = "$table.*";
         return $this->finalQuery->select;
     }
 }

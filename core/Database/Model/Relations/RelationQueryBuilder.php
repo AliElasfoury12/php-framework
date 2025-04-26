@@ -21,7 +21,7 @@ class RelationQueryBuilder
     public function select (string $columns): static
     {
         $this->query->select = $columns;
-        return new static;
+        return $this;
     }
 
     public function where (string $column ,string $opretor, string $value = ''): static 
@@ -31,7 +31,7 @@ class RelationQueryBuilder
             $opretor = '=';
         }
         $this->query->where[] = "$column $opretor '$value'";
-        return  new static;
+        return  $this;
     }
 
     public function with (array $relations): static
@@ -51,8 +51,7 @@ class RelationQueryBuilder
 
         if(!$exsist){
             $model->relations->with = $model->relations->with->merge($relations);
-            //App::dump((array) $model->relations->with);
         }
-        return  new static;
+        return  $this;
     }
 }

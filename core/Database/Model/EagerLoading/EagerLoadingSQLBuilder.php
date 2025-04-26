@@ -34,7 +34,7 @@ class EagerLoadingSQLBuilder {
                 $table1 = "alias$j";
             }
 
-            $columns = $currentRelation->columns;
+            $columns = $currentRelation->columns ?? '';
             switch ($type) {
                 case $relationsTypes::BELONGSTO:
                     if($i == $relations->size - 1 && $columns) $model->relations->BelongsTo->select($columns);
@@ -57,7 +57,7 @@ class EagerLoadingSQLBuilder {
             $relations[$i] = clone $currentRelation;
         }
 
-      // App::dump((array) $relations);
+       //App::dump((array) $relations);
     }
 
     private function buildBelongsToSQL (MainModel $model, CurrentRelation $currentRelation, string $table1, string &$select, &$extraQuery): string
