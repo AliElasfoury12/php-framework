@@ -3,6 +3,7 @@
 namespace core\Database\Model\Query;
 
 use core\App;
+use HRTime\StopWatch;
 
 class QueryBuilder extends QueryExexcution 
 {
@@ -54,7 +55,7 @@ class QueryBuilder extends QueryExexcution
         return new static;
     }
 
-    public static function limit (int $limit): static //app\models\User
+    public static function limit (int $limit): static 
     {
         App::$app->model->query->extraQuery[] = "LIMIT $limit";
         return  new static;
@@ -92,10 +93,10 @@ class QueryBuilder extends QueryExexcution
         return  new static;
     }
 
-    public static function select (string $columns): static
+    public static function select (string $columns): static 
     {
         App::$app->model->query->select = $columns;
-        return new static ;
+        return new static;
     }
 
     public static function where (string $column ,string $opretor, string $value = ''): static 

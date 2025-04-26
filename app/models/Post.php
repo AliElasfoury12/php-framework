@@ -15,7 +15,7 @@ class Post extends Model {
 
     public function postImg ()
     {
-      return $this->hasMany(PostImg::class);
+      return $this->hasMany(PostImg::class)->select('id,post_id,img');
     }
 
     public function comments ()

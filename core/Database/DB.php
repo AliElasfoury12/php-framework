@@ -10,6 +10,7 @@ use PDO;
 class DB 
 {
     public PDO $pdo;
+    private array $tables = [];
 
     public function __construct () 
     {
@@ -67,14 +68,16 @@ class DB
         return $model;
     }
 
-    public function tableIsExsists (string $class): bool 
+    public function tableIsExsists (string $table): bool 
     {   
-        $sql = "SHOW TABLES LIKE '$class'";
+        $sql = "SHOW TABLES LIKE '$table'";
         return !$this->fetch($sql)->empty();
     }
 
     public function getTable (string $class): string 
     {
+        if(array_key_exists($class,$this->tables)) return $this->tables[$class]->name;
+
         $table = '';
         $classLowerCase = strtolower($class); 
 
@@ -86,31 +89,53 @@ class DB
             if($this->tableIsExsists($classSnakeCase.'s')) $table = $classSnakeCase.'s';
             else if($this->tableIsExsists($classSnakeCase)) $table = $classSnakeCase;
         }
+        $this->tables[$class] = new Table($table);
         return $table;
     }
 
     public function fetch (string $sql, int $type = PDO::FETCH_ASSOC): _Array
     {
-        //echo "$sql <br><br>";
+        echo "$sql <br><br>";
         return new _Array($this->pdo->query($sql)->fetchAll($type));
     }
 
-    public function getPK (string $table): mixed 
+    public function getPK (string $tableName): mixed 
     {
-        $sql = "SHOW KEYS FROM $table WHERE Key_name = 'PRIMARY'";
+        foreach ($this->tables as $table) {
+            if($table->name === $tableName && $table->PK ) return $table->PK;
+        }
+
+        $sql = "SHOW KEYS FROM $tableName WHERE Key_name = 'PRIMARY'";
         //echo "$sql <br>";
         $result = App::$app->db->fetch($sql);
         if($result->empty()) return '';
-        return $result[0]["Column_name"];
+        $PK = $result[0]["Column_name"];
+
+        foreach ($this->tables as $table) {
+            if($table->name === $tableName) $table->PK = $PK;
+        }
+        return $PK;
     }
 
-    public function getFK (string $table1, string $table2): mixed
+    public function getFK (string $tableName1, string $tableName2): mixed
     {
-        $table2 = rtrim($table2, 's');
-        $sql = "SHOW KEYS FROM $table1 WHERE Key_name Like '%$table2%'";
+        foreach ($this->tables as $table) {
+            if($table->name === $tableName1 && array_key_exists($tableName2,$table->FKS)) 
+            return $table->FKS[$tableName2];
+        }
+
+        $table2 = rtrim($tableName2, 's');
+        $sql = "SHOW KEYS FROM $tableName1 WHERE Key_name Like '%$table2%'";
         //echo "$sql <br>";
         $result = App::$app->db->fetch($sql);
+        
         if($result->empty()) return '';
-        return  $result[0]["Column_name"];
+        $FK = $result[0]["Column_name"];
+
+        foreach ($this->tables as $table) {
+            if($table->name === $tableName1) $table->FKS[$tableName2] = $FK;
+        }
+
+        return $FK ;
     }
 }
