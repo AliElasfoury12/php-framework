@@ -54,4 +54,11 @@ class RelationQueryBuilder
         }
         return  $this;
     }
+
+    public function withCount (array $relations):static
+    {
+        $model = App::$app->model;
+        $model->relations->currentRelation->withCount = $relations;
+        return $this;
+    }
 }

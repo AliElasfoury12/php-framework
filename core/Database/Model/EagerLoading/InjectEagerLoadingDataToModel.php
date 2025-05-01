@@ -81,7 +81,7 @@ class InjectEagerLoadingDataToModel
         $PK1 = $model->PrimaryKey;
         $i = 0;
         foreach ($model->data as &$value) {
-            foreach ($value[$currentRelation->name] as $key => &$item) {
+            foreach ($value[$currentRelation->name] as &$item) {
                 if(!empty($value[$currentRelation->name])) $item[$lastRelationName] = [];
                 if($i > $result->size - 1) continue;
 

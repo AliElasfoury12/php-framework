@@ -23,10 +23,19 @@ class EagerLoadingSQLBuilder {
         $extraQuery = '';
 
         for ($i=0; $i < $relations->size; $i++) { 
-            call_user_func([new $class2, $relations[$i]]);
+            $relation = $relations[$i];
+            $columns = '';
+            if(str_contains($relation,':')){
+                $colonPostion = strpos($relation, ':') ;
+                $currentRelation->name = substr($relation, 0, $colonPostion);
+                $columns = substr($relation, $colonPostion+1);
+            }else{
+                $currentRelation->name = $relation;
+            }
+
+            call_user_func([new $class2, $currentRelation->name]);
             $table1 = $currentRelation->table1;
             $class2 = $currentRelation->model2;
-            $currentRelation->name = $relations[$i];
             $type = $currentRelation->type;
 
             if($i > 0 && ($table1 === $table || $relations[$i - 1]->type == $relationsTypes::MANYTOMANY)) {
@@ -34,7 +43,7 @@ class EagerLoadingSQLBuilder {
                 $table1 = "alias$j";
             }
 
-            $columns = $currentRelation->columns ?? '';
+            //$columns = $currentRelation->columns ?? '';
             switch ($type) {
                 case $relationsTypes::BELONGSTO:
                     if($i == $relations->size - 1 && $columns) $model->relations->BelongsTo->select($columns);
@@ -55,9 +64,9 @@ class EagerLoadingSQLBuilder {
 
             $currentRelation->sql = "SELECT $select,$table.$PK AS mainKey FROM $table $sql WHERE $table.$PK IN ($ids) $extraQuery $orderBy";
             $relations[$i] = clone $currentRelation;
+            $currentRelation->reset();
         }
-
-       //App::dump((array) $relations);
+        App::dump((array) $relations);
     }
 
     private function buildBelongsToSQL (MainModel $model, CurrentRelation $currentRelation, string $table1, string &$select, &$extraQuery): string

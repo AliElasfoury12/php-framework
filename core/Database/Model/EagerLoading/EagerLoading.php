@@ -44,29 +44,13 @@ class EagerLoading
         $model = App::$app->model;
 
         for ($i=0; $i < $model->relations->with->size; $i++) { 
-            $relation = new _Srting($model->relations->with[$i]);
-            if($relation->contains(':'))
-            {
-                $this->getRequestedColumns($relation);
-                $relation->set($model->relations->currentRelation->name);
-            }
-            //echo $model->relations->with[$i]."<br>";
+            $relation = new _Srting($model->relations->with[$i]);           
             $this->run($class::class, $relation);
-            $model->relations->currentRelation->columns = '';
         }
        
-       // App::dump((array)$model->relations->with);
         return $model->data;
     }
-
-    private function getRequestedColumns (_Srting $relation): void 
-    {
-        $model = App::$app->model;
-        $colonPostion = $relation->position(':');
-        $model->relations->currentRelation->name = $relation->subString(0, $colonPostion);
-        $model->relations->currentRelation->columns = $relation->subString($colonPostion + 1);
-    } 
-    
+ 
     public function handleWithCount (): void 
     {
         $model = App::$app->model;
