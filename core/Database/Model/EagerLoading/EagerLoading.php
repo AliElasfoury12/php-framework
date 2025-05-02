@@ -5,7 +5,6 @@ namespace core\Database\Model\EagerLoading;
 use core\App;
 use core\base\_Array;
 use core\base\_Srting;
-use core\Database\Model\MainModel;
 
 class EagerLoading
 {
@@ -27,7 +26,7 @@ class EagerLoading
         $relationsTypes = $model->relations->Types;
 
         $this->BuildEagerLoadingSQL->buildSQL($relations, $class, $relationsTypes);
-        $exsist = array_key_exists($relations[0]->name,$model->data[0]);
+        $exsist = $model->data[0]->hasKey($relations[0]->name);
         $result = $this->EagerLoadingData->fetch( $relations, $relationsTypes, $exsist);
         if($model->data->empty()) {
             $model->data = $result;

@@ -11,12 +11,14 @@ use Traversable;
 
 class _Array implements ArrayAccess, IteratorAggregate
 {
-    private array $array ;
+    private array $array = [] ;
     public int $size = 0;
 
     public function __construct(array $array = [])
     {
-        $this->array = $array;
+        foreach ($array as $key => $value) {
+            $this[$key] = $value;
+        }
         if($array) $this->size = count($array);
     }
 
@@ -28,13 +30,15 @@ class _Array implements ArrayAccess, IteratorAggregate
     public function &offsetGet(mixed $offset): mixed 
     {
         $a = '';
-        if(!@$this->array[$offset]) return $a;
+        if(!isset($this->array[$offset])) return $a;
         $this->array[$offset] = is_callable($this->array[$offset]) ? $this->array[$offset]($this) : $this->array[$offset];
         return $this->array[$offset];
     }
 
     public function offsetSet(mixed $offset, mixed $value): void
     {
+        if(is_array($value)) $value = new self($value);
+
         if($offset === null) {
             $this->array[] = $value;
             $this->size++;
@@ -60,6 +64,11 @@ class _Array implements ArrayAccess, IteratorAggregate
         foreach ($this->array as $key => &$value) {
             yield $key => $value;
         }
+    }
+
+    public function __get(mixed $name): mixed 
+    {
+        return $this->array[$name];
     }
 
     public function diff (array $array): array

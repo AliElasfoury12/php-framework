@@ -4,6 +4,7 @@ namespace core\Database\Model\EagerLoading;
 
 use core\App;
 use core\base\_Array;
+use core\base\_Srting;
 use core\Database\Model\MainModel;
 use core\Database\Model\Relations\CurrentRelation;
 use core\Database\Model\Relations\RELATIONSTYPE;
@@ -21,14 +22,16 @@ class EagerLoadingSQLBuilder {
         $sql = '';
         $select = '';
         $extraQuery = '';
+        $relation = new _Srting();
 
         for ($i=0; $i < $relations->size; $i++) { 
-            $relation = $relations[$i];
+            $relation->set($relations[$i]);
             $columns = '';
-            if(str_contains($relation,':')){
-                $colonPostion = strpos($relation, ':') ;
-                $currentRelation->name = substr($relation, 0, $colonPostion);
-                $columns = substr($relation, $colonPostion+1);
+
+            if($relation->contains(':')){
+                $colonPostion = $relation->position(':');
+                $currentRelation->name = $relation->subString(0, $colonPostion);
+                $columns = $relation->subString($colonPostion+1);
             }else{
                 $currentRelation->name = $relation;
             }

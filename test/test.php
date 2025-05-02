@@ -8,16 +8,8 @@ require_once __DIR__."/../vendor/autoload.php";
 
 $a = new _Array();
 
-class Test {
-    public $name;
-}
 
-$test = new Test;
-$test->name = 'ali';
+$a['d'] = ['a' => 'l'];
 
-$a[] = clone $test;
-
-$test->name = 'v';
-
-var_dump($a);
+print_r($a->d->a);
 
