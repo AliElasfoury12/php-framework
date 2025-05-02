@@ -43,7 +43,6 @@ class EagerLoadingSQLBuilder {
                 $table1 = "alias$j";
             }
 
-            //$columns = $currentRelation->columns ?? '';
             switch ($type) {
                 case $relationsTypes::BELONGSTO:
                     if($i == $relations->size - 1 && $columns) $model->relations->BelongsTo->select($columns);

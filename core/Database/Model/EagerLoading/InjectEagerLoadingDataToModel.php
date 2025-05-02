@@ -52,9 +52,9 @@ class InjectEagerLoadingDataToModel
         if($lastRelation->type === $relationsTypes::BELONGSTO){
            $this->mergeExsistsBelongsTo($model, $result,$currentRelation->name, $lastRelationName);
         }else if($lastRelation->type === $relationsTypes::HASMANY) {
-           $this->mergeExsistsHasMany($model, $result,$currentRelation, $lastRelationName);
+           $this->mergeExsistsHasMany($model, $result,$currentRelation, $lastRelation);
         }else {
-           $this->mergeExsistsManyToMany($model, $result,$currentRelation, $lastRelationName);
+           $this->mergeExsistsManyToMany($model, $result,$currentRelation, $lastRelation);
         }
     }
 
@@ -75,19 +75,20 @@ class InjectEagerLoadingDataToModel
         }
     }
 
-    private function mergeExsistsHasMany (MainModel $model, _Array $result, CurrentRelation $currentRelation, string $lastRelationName): void
+    private function mergeExsistsHasMany (MainModel $model, _Array $result, CurrentRelation $currentRelation, CurrentRelation $lastRelation): void
     {
-        $FK2 = $currentRelation->FK2;
-        $PK1 = $model->PrimaryKey;
-        $i = 0;
+        $lastRelationName = $lastRelation->name;
+        $FK2 = $lastRelation->FK2;
+        $PK = $model->PrimaryKey;
+        $PK1 = $lastRelation->PK1;
+        $i=0;
         foreach ($model->data as &$value) {
             foreach ($value[$currentRelation->name] as &$item) {
                 if(!empty($value[$currentRelation->name])) $item[$lastRelationName] = [];
                 if($i > $result->size - 1) continue;
-
                 while (
                         $i < $result->size &&
-                        $value[$PK1] == $result[$i]['mainKey']&&
+                        $value[$PK] == $result[$i]['mainKey']&&
                         $item[$PK1] == $result[$i][$FK2]
                     ) {
                         unset($result[$i]['mainKey']);
@@ -98,10 +99,12 @@ class InjectEagerLoadingDataToModel
         }
     }
 
-    private function mergeExsistsManyToMany (MainModel $model, _Array $result, CurrentRelation $currentRelation, string $lastRelationName): void
+    private function mergeExsistsManyToMany (MainModel $model, _Array $result, CurrentRelation $currentRelation, CurrentRelation $lastRelation): void
     {
-        $PK2 = $currentRelation->PK2;
-        $PK1 = $model->PrimaryKey;
+        $lastRelationName = $lastRelation->name;
+        $PK2 = $lastRelation->PK2;
+        $PK = $model->PrimaryKey;
+        $PK1 = $lastRelation->PK1;
         $i = 0;
 
         foreach ($model->data as &$value) {
@@ -111,7 +114,7 @@ class InjectEagerLoadingDataToModel
 
                 while (
                         $i < $result->size  &&
-                        $value[$PK1] == $result[$i]['mainKey'] &&
+                        $value[$PK] == $result[$i]['mainKey'] &&
                         $item[$PK1] == $result[$i]['pivot'] &&
                         $result[$i]['related'] == $result[$i][$PK2]
 

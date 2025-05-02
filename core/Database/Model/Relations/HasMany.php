@@ -17,7 +17,7 @@ class HasMany extends RelationQueryBuilder {
         $table1 = $currentRelation->table1;
         $table2 = $currentRelation->table2;
         $currentRelation->PK1 = $primaryKey?: $db->getPK($table1);
-        $currentRelation->FK2 = $foreignKey ?: $db->getFK($table2, $table1) ;
+        $currentRelation->FK2 = $foreignKey ?: $db->getFK($table2, $table1);
         
         return $this;
     }
