@@ -127,6 +127,7 @@ class _Array implements ArrayAccess, IteratorAggregate
         var_dump($name, $value);
     }
 }
+
 /*
 $array = new _Array();
 var_dump($array->empty());

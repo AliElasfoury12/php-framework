@@ -16,7 +16,8 @@ class MainModel extends QueryBuilder
     public string $ids;
     public string $PrimaryKey;
     public Relations $relations;
-    public string $table = '';
+    public string $table;
+    public string $class;
 
     public function __construct() {
         $this->relations = new Relations;

@@ -28,6 +28,14 @@ class Command
         }
 
         switch ($argv[1]) {
+            case 'controller':
+                $this->files->createController($argv[2]);
+            break;
+
+            case 'seed':
+                $this->seedCommand();
+            break;
+
             case 'start':
                 $port = 8000;
                 while (is_resource(@fsockopen('localhost',$port))) {
@@ -48,18 +56,14 @@ class Command
                     $this->files->alterTable( new _Srting($argv[2]));
             break;
 
-            case 'seed':
-                $this->seedCommand();
-            break;
-
             case 'model':
                 $this->files->createModel($argv[2]);
             break;
 
-            case 'controller':
-                $this->files->createController($argv[2]);
+            case 'test':
+               echo exec("php test/test.php")."\n";
             break;
-            
+
             default:
                 $this->notFound();
             break;

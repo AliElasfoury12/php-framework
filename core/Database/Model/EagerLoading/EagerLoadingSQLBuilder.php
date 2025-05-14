@@ -61,7 +61,6 @@ class EagerLoadingSQLBuilder {
                     if($i == $relations->size - 1 && $columns) $model->relations->ManyToMany->select($columns);
                     $sql .= $this->buildManyToManySQL($model, $currentRelation, $table1, $i, $select, $extraQuery);
                 break;
-                
             }
 
             $currentRelation->sql = "SELECT $select,$table.$PK AS mainKey FROM $table $sql WHERE $table.$PK IN ($ids) $extraQuery $orderBy";
@@ -70,7 +69,7 @@ class EagerLoadingSQLBuilder {
         }
         App::dump((array) $relations);
     }
-
+   
     private function buildBelongsToSQL (MainModel $model, CurrentRelation $currentRelation, string $table1, string &$select, &$extraQuery): string
     {
         $PK2 = $currentRelation->PK2;

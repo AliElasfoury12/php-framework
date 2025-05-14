@@ -34,7 +34,7 @@ class EagerLoading
         }
         
         $this->InjectEagerLoadingDataToModel
-        ->injectToModel( $relations, $result, $exsist);
+        ->injectToModel($relations, $result, $exsist);
     }
 
     public function handleWith(string $class): _Array
@@ -59,6 +59,8 @@ class EagerLoading
         $ids = $model->ids;
 
         foreach ($model->relations->withCount as $relationName) {
+            //call_user_func($relationName);
+
             $forigenKey = App::$app->db->getFK($relationName, $table1);
 
             $sql = "SELECT COUNT(*) AS count, $table1.$primaryKey AS pivot FROM $table1 

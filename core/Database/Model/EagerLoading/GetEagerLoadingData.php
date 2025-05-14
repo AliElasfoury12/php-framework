@@ -4,7 +4,6 @@ namespace core\Database\Model\EagerLoading;
 
 use core\App;
 use core\base\_Array;
-use core\Database\Model\MainModel;
 use core\Database\Model\Relations\CurrentRelation;
 use core\Database\Model\Relations\RELATIONSTYPE;
 
@@ -22,29 +21,42 @@ class GetEagerLoadingData
             if($i < $relations->size-1) $lastRelation = $relations[$i+1];
             $data = $db->fetch($currentRelation->sql);
 
+            // if(!empty($currentRelation->withCount)){
+            //     foreach ($currentRelation->withCount as $withCountRelation) {
+            //         $model = new $currentRelation->model1;
+            //         call_user_func($model, $withCountRelation);
+            //     }
+            //     echo 'withCount'."<br>";
+            // }
+
             if($result->empty()) {
                 $result = $data;
                 continue;
             }
-
             
-            switch ($lastRelation->type) {
-                case $relationsTypes::BELONGSTO:
-                    $result = $this->mregeBelongsToData($lastRelation, $data, $result);
-                break;
-
-                case $relationsTypes::HASMANY:
-                    $result = $this->mregeHasManyData($lastRelation, $data, $result);
-                break;
-                
-                default:
-                    $result = $this->mregeManyToManyData($lastRelation, $data, $result);
-                break;
-            }
+            $this->mergeData( $lastRelation, $relationsTypes, $data, $result);
         }
 
         return $result;
     }
+
+    private function mergeData (CurrentRelation $lastRelation, RELATIONSTYPE $relationsTypes, _Array $data, _Array &$result): void
+    {
+        switch ($lastRelation->type) {
+            case $relationsTypes::BELONGSTO:
+                $result = $this->mregeBelongsToData($lastRelation, $data, $result);
+            break;
+
+            case $relationsTypes::HASMANY:
+                $result = $this->mregeHasManyData($lastRelation, $data, $result);
+            break;
+            
+            default:
+                $result = $this->mregeManyToManyData($lastRelation, $data, $result);
+            break;
+        }
+    }
+
 
     public function mregeBelongsToData (CurrentRelation $relation, _Array $data, _Array $result, string $PK1 = 'mainKey'):_Array
     {
@@ -107,6 +119,4 @@ class GetEagerLoadingData
         }
         return $data;
     }
-    
-   
 }

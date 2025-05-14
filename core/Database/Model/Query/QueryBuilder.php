@@ -15,25 +15,25 @@ class QueryBuilder extends QueryExexcution
         $this->query = new Query;
     }
 
-    public static function all (string $columns = '*'): mixed
+    public function all (string $columns = '*')
     {
-        return static::select($columns)->get();
+        return $this->select($columns)->get();
     }
 
-    public static function cursorPaginate (int $perPage) 
+    public function cursorPaginate (int $perPage) 
     {
       
     }
 
-    public static function find ($value, $column = 'id'): mixed 
+    public function find ($value, $column = 'id') 
     {
-       return static::where($column, $value)->get();
+       return $this->where($column, $value)->get();
     }
 
-    public static function first () 
+    public function first () 
     {
-        self::limit(1);
-        return self::get();
+        $this->limit(1);
+        return $this->get();
     }
 
     public function getClassName (string $relation): string 
@@ -43,25 +43,25 @@ class QueryBuilder extends QueryExexcution
         return "app\models\\$class";// app\models\Post
     }
 
-    public function getClassTable (string $class ,string $nameSpace = 'app\models'): string //app\models\User
+    public function getClassTable (string $class ,string $nameSpace = 'app\models'): string 
     {
-        $class = str_replace("$nameSpace\\","" , $class);// User
+        $class = str_replace("$nameSpace\\","" , $class);
         return App::$app->db->getTable($class);
     }
 
-    public static function latest (): static 
+    public function latest ()  
     {
         App::$app->model->orderBy = '.created_at DESC';
-        return new static;
+        return $this;
     }
 
-    public static function limit (int $limit): static 
+    public function limit (int $limit)  
     {
         App::$app->model->query->extraQuery[] = "LIMIT $limit";
-        return  new static;
+        return  $this;
     }
 
-    public static function minRepeat (string $column) 
+    public function minRepeat (string $column) 
     {
         $tableName = App::$app->model->getClassTable(static::class);
 
@@ -73,52 +73,52 @@ class QueryBuilder extends QueryExexcution
         return $result[0][$column];
     }
 
-    public static function offset(string $offset): static 
+    public function offset(string $offset)  
     {
         App::$app->model->query->extraQuery[] = "OFFSET $offset";
-        return new static;
+        return $this;
     }
 
-    public static function orderBy(string $column, string $type): static 
+    public function orderBy(string $column, string $type)  
     {
         App::$app->model->orderBy = ".$column $type";
-        return new static;
+        return $this;
     }
 
-    public static function paginate (int $perPage): static 
+    public function paginate (int $perPage)  
     {
         $offset = (App::$app->model->pageNum - 1 ) * $perPage;
-        self::limit($perPage);
-        self::offset($offset);
-        return  new static;
+        $this->limit($perPage);
+        $this->offset($offset);
+        return  $this;
     }
 
-    public static function select (string $columns): static 
+    public function select (string $columns)  
     {
         App::$app->model->query->select = $columns;
-        return new static;
+        return $this;
     }
 
-    public static function where (string $column ,string $opretor, string $value = ''): static 
+    public function where (string $column ,string $opretor, string $value = '')  
     {
         if(!$value) {
             $value = $opretor;
             $opretor = '=';
         }
         App::$app->model->query->where[] = "$column $opretor '$value'";
-        return  new static;
+        return  $this;
     }
 
-    public static function with (array $relations): static
+    public function with (array $relations) 
     {
         App::$app->model->relations->with->set($relations);
-        return new static;
+        return $this;
     }
 
-    public static function withCount (string $columns): static 
+    public function withCount (string $columns)  
     {
         App::$app->model->relations->withCount->set(explode(',', $columns));
-        return new static;
+        return $this;
     }
 
 }
