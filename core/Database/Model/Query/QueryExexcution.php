@@ -7,10 +7,11 @@ use PDO;
 
 class QueryExexcution {
 
-    public static function get (): mixed  
+    public function get (): mixed  
     {
         $model = App::$app->model;
         $db = App::$app->db;
+        $model->class = static::class;
 
         $tableName = $model->getClassTable(static::class);
         $model->table = $tableName;

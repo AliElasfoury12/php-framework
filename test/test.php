@@ -9,7 +9,3 @@ require_once __DIR__."/../vendor/autoload.php";
 $a = new _Array();
 
 
-$a['d'] = ['a' => 'l'];
-
-print_r($a->d->a);
-

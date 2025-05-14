@@ -4,6 +4,7 @@ namespace core\Database\Model\Query;
 
 use core\App;
 use core\base\_Array;
+use core\base\_Srting;
 
 class FinalQuery {
     public string $select = '';
@@ -18,12 +19,13 @@ class FinalQuery {
 
 class Query {
     public _Array $where;
-    public string $select = '';
+    public _Srting $select;
     public _Array $extraQuery;
     public FinalQuery $finalQuery;
    
     public function __construct() {
         $this->where = new _Array();
+        $this->select = new _Srting();
         $this->extraQuery = new _Array();
         $this->finalQuery = new FinalQuery;
     }
@@ -31,7 +33,7 @@ class Query {
     public function reset (): void
     {
         $this->where->reset();
-        $this->select = '';
+        $this->select->set('');
         $this->extraQuery->reset();
         $this->finalQuery->reset();
     }
@@ -55,6 +57,8 @@ class Query {
 
     public function getSelect (string $table = ''): string
     {
+        if($this->select->contains('COUNT(*) AS count')) return 'COUNT(*) AS count';
+
         if($this->select){
             $select = explode(',', $this->select);
             if($table) $select = array_map(fn($field) => "$table.$field", $select);

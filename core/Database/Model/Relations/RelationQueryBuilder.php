@@ -20,7 +20,7 @@ class RelationQueryBuilder
 
     public function select (string $columns): static
     {
-        $this->query->select = $columns;
+        $this->query->select->set($columns);
         return $this;
     }
 
@@ -58,7 +58,13 @@ class RelationQueryBuilder
     public function withCount (array $relations):static
     {
         $model = App::$app->model;
-        $model->relations->currentRelation->withCount = $relations;
+        $model->relations->currentRelation->withCount->set($relations);
+        return $this;
+    }
+
+    public function groupBy (string $groupBy): static
+    {
+        $this->query->extraQuery[] = "GROUP BY $groupBy";
         return $this;
     }
 }

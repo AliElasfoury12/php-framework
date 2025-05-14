@@ -12,6 +12,7 @@ class EagerLoading
     private GetEagerLoadingData $EagerLoadingData;
     private InjectEagerLoadingDataToModel $InjectEagerLoadingDataToModel;
     
+    
     public function __construct()
     {
         $this->BuildEagerLoadingSQL = new EagerLoadingSQLBuilder;
@@ -53,34 +54,45 @@ class EagerLoading
     public function handleWithCount (): void 
     {
         $model = App::$app->model;
-        $table1 = $model->table;
-        $primaryKey = $model->PrimaryKey;
-        $orderBy = $model->orderBy;
-        $ids = $model->ids;
+        $currentRelation = $model->relations->currentRelation;
+        $class = new $model->class;
+        $sql = '';
+        $relationsTypes = $model->relations->Types;
+        $withCountRelations = $model->relations->withCount;
 
-        foreach ($model->relations->withCount as $relationName) {
-            //call_user_func($relationName);
+        foreach ($withCountRelations as $key => $relationName) {
+            call_user_func([$class,$relationName]);
 
-            $forigenKey = App::$app->db->getFK($relationName, $table1);
+            $table1 = $currentRelation->table1;
+            $PK1 = $currentRelation->PK1;
 
-            $sql = "SELECT COUNT(*) AS count, $table1.$primaryKey AS pivot FROM $table1 
-            INNER JOIN $relationName ON $table1.$primaryKey = $relationName.$forigenKey
-            WHERE $table1.$primaryKey IN ($ids)
-            GROUP BY $table1.$primaryKey $orderBy";
+            if($currentRelation->type  == $relationsTypes::HASMANY){
+                $model->relations->HasMany->groupBy("$table1.$PK1") ;
+            }else $model->relations->ManyToMany->groupBy("$table1.$PK1");
+         
 
-            //echo "$sql <br> <br>";
+            $this->BuildEagerLoadingSQL
+            ->assembleSQL($model->table,$withCountRelations,$key,
+            "COUNT(*) AS count",$sql, true);
 
-            $data = App::$app->db->fetch($sql);
+            $relation_data = App::$app->db->fetch($currentRelation->sql);
+            $this->injectWithCountDataToMode($relationName,$relation_data,$PK1);
+            $sql = '';
+        }
+    }
 
-            $i = 0;
-            foreach ($model->data as &$item) {
-                $item[$relationName.'Count'] = 0;
+    private function injectWithCountDataToMode (string $relationName, _Array $relation_data, string $PK1): void 
+    {
+        $model = App::$app->model;
 
-                if($i < $data->size && $item[$primaryKey] === $data[$i]['pivot'] ){
-                    $item[$relationName.'Count'] = $data[$i]['count'];
-                    $i++;
-                }               
-            }
+        $i = 0;
+        foreach ($model->data as &$item) {
+            $item[$relationName.'Count'] = 0;
+
+            if($i < $relation_data->size && $item[$PK1] === $relation_data[$i]['mainKey'] ){
+                $item[$relationName.'Count'] = $relation_data[$i]['count'];
+                $i++;
+            }               
         }
     }
 }

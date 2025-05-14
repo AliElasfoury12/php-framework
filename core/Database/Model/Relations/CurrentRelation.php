@@ -2,6 +2,8 @@
 
 namespace core\Database\Model\Relations;
 
+use core\base\_Array;
+
 
 class CurrentRelation 
 {
@@ -19,7 +21,11 @@ class CurrentRelation
     public string $model1;
     public string $model2 ;
     public string $sql;
-    public array $withCount;
+    public _Array $withCount;
+
+    public function __construct() {
+        $this->withCount = new _Array;
+    }
 
     public function reset (): void
     {
@@ -37,6 +43,6 @@ class CurrentRelation
         $this->model1 = '';
         $this->model2 = '';
         $this->sql = '';
-        $this->withCount = [];
+        $this->withCount->reset();
     }
 }

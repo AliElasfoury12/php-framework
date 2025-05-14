@@ -122,9 +122,14 @@ class _Array implements ArrayAccess, IteratorAggregate
         $this->size = count($array);
     }
 
-    public function __set($name, $value)
+    public function toArray (): array 
     {
-        var_dump($name, $value);
+        foreach ($this->array as &$value) {
+            if($value instanceof _Array){
+                $value = $value->toArray();
+            }
+        }
+        return $this->array;
     }
 }
 

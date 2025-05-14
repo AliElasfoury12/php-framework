@@ -95,7 +95,7 @@ class QueryBuilder extends QueryExexcution
 
     public function select (string $columns)  
     {
-        App::$app->model->query->select = $columns;
+        App::$app->model->query->select->set($columns);
         return $this;
     }
 

@@ -2,6 +2,7 @@
 
 namespace core;
 
+use core\base\_Array;
 use core\Database\DB;
 use core\Database\Model\MainModel;
 use core\request\Request;
@@ -54,7 +55,7 @@ class App  {
         exit;
     }
 
-    public static  function dump (array ...$vars) 
+    public static  function dump (array | _Array ...$vars) 
     {
         echo "<pre>";
         foreach ($vars as $var) {

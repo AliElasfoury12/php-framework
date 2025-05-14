@@ -19,13 +19,13 @@ class PostController extends Controller {
        ->with([
         'user.follows',
         'sharedPost',
-        'postImg'
+        'postImg',
         //'user.posts',
         //'likes:id',
         ])->latest()->get();
        // $res = Post::all('id,post');
        //$res = Post::find(40);
-        App::dump([$res]);
+        App::dump($res->toArray());
        //return json_encode($res, JSON_PRETTY_PRINT);
     }
 }
