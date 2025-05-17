@@ -4,30 +4,29 @@ namespace core\Database\Model\EagerLoading;
 
 use core\App;
 use core\base\_Array;
+use core\Database\DB;
 use core\Database\Model\Relations\CurrentRelation;
 use core\Database\Model\Relations\RELATIONSTYPE;
 
 class GetEagerLoadingData
 {
-    public function fetch (_Array $relations, RELATIONSTYPE $relationsTypes, bool $exsist): _Array
+    public function fetch (_Array $relations, bool $exsist): _Array
     {
         $result = new _Array;
-        $db = App::$app->db;
+        $app = App::$app;
+        $db = $app->db;
+        $relationsTypes = $app->model->relations->Types;
         
         for ($i=$relations->size-1; $i >= 0; $i--) { 
             $currentRelation = $relations[$i];
             if($i == 0 && $exsist) break;
-            
+
             if($i < $relations->size-1) $lastRelation = $relations[$i+1];
             $data = $db->fetch($currentRelation->sql);
 
-            // if(!empty($currentRelation->withCount)){
-            //     foreach ($currentRelation->withCount as $withCountRelation) {
-            //         $model = new $currentRelation->model1;
-            //         call_user_func($model, $withCountRelation);
-            //     }
-            //     echo 'withCount'."<br>";
-            // }
+            if(!$currentRelation->withCount->empty()){
+               $this->mergeWithCountData($currentRelation->withCount,$db,$data);
+            }
 
             if($result->empty()) {
                 $result = $data;
@@ -56,7 +55,6 @@ class GetEagerLoadingData
             break;
         }
     }
-
 
     public function mregeBelongsToData (CurrentRelation $relation, _Array $data, _Array $result, string $PK1 = 'mainKey'):_Array
     {
@@ -118,5 +116,20 @@ class GetEagerLoadingData
             }
         }
         return $data;
+    }
+
+    private function mergeWithCountData (_Array $withCountRelations,DB $db,_Array &$data): void 
+    {
+        foreach ($withCountRelations as $relation) {
+            $withCountData = $db->fetch($relation->sql);
+            $i = 0;
+            foreach ($data as &$value) {
+                $value[$relation->name.'Count'] = 0;
+                if($i < $withCountData->size - 1 && $value['mainKey'] == $withCountData[$i]['mainKey']){
+                    $value[$relation->name.'Count'] = $withCountData[$i]['count'];
+                    $i++;
+                }
+            }
+        }
     }
 }

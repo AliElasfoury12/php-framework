@@ -2,7 +2,7 @@
 
 namespace core;
 
-use core\base\_Srting;
+use core\base\_String;
 use core\Database\DB;
 use core\files\Files;
 use core\Database\migrations\Migrations;
@@ -49,11 +49,11 @@ class Command
             break;
 
             case 'migration':
-                $argv2 = new _Srting($argv[2]);
+                $argv2 = new _String($argv[2]);
                 if($argv2->contains('create')) 
-                    $this->files->createTable( new _Srting($argv[2]));
+                    $this->files->createTable( new _String($argv[2]));
                 elseif($argv2->contains('alter'))
-                    $this->files->alterTable( new _Srting($argv[2]));
+                    $this->files->alterTable( new _String($argv[2]));
             break;
 
             case 'model':
@@ -61,7 +61,7 @@ class Command
             break;
 
             case 'test':
-               echo exec("php test/test.php")."\n";
+                echo shell_exec("php test/test.php")."\n";
             break;
 
             default:

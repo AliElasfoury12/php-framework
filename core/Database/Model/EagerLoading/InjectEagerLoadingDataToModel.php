@@ -27,7 +27,6 @@ class InjectEagerLoadingDataToModel
             $lastRelation = $relations[1];
            $this->injectExsist($currentRelation,$lastRelation, $result, $model);
         }
-        
     }
 
     private function injectNotExsist (CurrentRelation $currentRelation,_Array $result, MainModel $model): void

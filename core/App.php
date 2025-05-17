@@ -59,7 +59,9 @@ class App  {
     {
         echo "<pre>";
         foreach ($vars as $var) {
+            echo '<div>';
             print_r($var);
+            echo'</div>';
         }
         echo "</pre> \n";
     }

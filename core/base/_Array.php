@@ -71,6 +71,15 @@ class _Array implements ArrayAccess, IteratorAggregate
         return $this->array[$name];
     }
 
+    public function __clone ()  
+    {
+        foreach ($this->array as $key => $value) {
+            if(is_object($value)){
+                $this->array[$key] = clone $value;
+            }
+        }
+    }
+
     public function diff (array $array): array
     {
         return array_diff($array, $this->array);

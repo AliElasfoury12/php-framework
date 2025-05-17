@@ -2,12 +2,12 @@
 
 namespace core\files;
 
-use core\base\_Srting;
+use core\base\_String;
 
 class Files
 {
     private const LAYOUT_PATH = __DIR__.'/layouts';
-    public function createTable (_Srting $fileName): void
+    public function createTable (_String $fileName): void
     {
         $tableName = '';
 
@@ -19,7 +19,7 @@ class Files
         $fileName = 'M'.floor(microtime(true))."_$fileName";
 
         $migrationFile = file_get_contents(self::LAYOUT_PATH.'/migrations/createTable.php');
-        $migrationFile = new _Srting($migrationFile);
+        $migrationFile = new _String($migrationFile);
         $migrationFile = $migrationFile->replace('tableName',$tableName);
         $migrationFile = $migrationFile->replace("className", $fileName);
 
@@ -27,7 +27,7 @@ class Files
         echo "[ database/migrations/$fileName ] - Created Successfully \n";
     }
 
-    public function alterTable (_Srting $fileName): void
+    public function alterTable (_String $fileName): void
     {
         $tableName = '';
 
@@ -39,7 +39,7 @@ class Files
         $fileName = 'M'.floor(microtime(true))."_$fileName";
 
         $migrationFile = file_get_contents(self::LAYOUT_PATH.'/migrations/alterTable.php');
-        $migrationFile = new _Srting($migrationFile);
+        $migrationFile = new _String($migrationFile);
         $migrationFile = $migrationFile->replace('tableName',$tableName);
         $migrationFile = $migrationFile->replace("className", $fileName);
         

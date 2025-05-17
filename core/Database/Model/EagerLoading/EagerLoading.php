@@ -4,31 +4,31 @@ namespace core\Database\Model\EagerLoading;
 
 use core\App;
 use core\base\_Array;
-use core\base\_Srting;
+use core\base\_String;
 
 class EagerLoading
 {
-    private EagerLoadingSQLBuilder $BuildEagerLoadingSQL;
+    private EagerLoadingSQLBuilder $EagerLoadingSQLBuilder;
     private GetEagerLoadingData $EagerLoadingData;
     private InjectEagerLoadingDataToModel $InjectEagerLoadingDataToModel;
     
     
     public function __construct()
     {
-        $this->BuildEagerLoadingSQL = new EagerLoadingSQLBuilder;
+        $this->EagerLoadingSQLBuilder = new EagerLoadingSQLBuilder;
         $this->EagerLoadingData = new GetEagerLoadingData;
         $this->InjectEagerLoadingDataToModel = new InjectEagerLoadingDataToModel;
     }
 
-    public function run (string $class, _Srting $relation): void 
+    public function run (string $class, _String $relation): void 
     {
         $model = App::$app->model;
         $relations = $relation->explode('.');
-        $relationsTypes = $model->relations->Types;
 
-        $this->BuildEagerLoadingSQL->buildSQL($relations, $class, $relationsTypes);
+        $this->EagerLoadingSQLBuilder->buildSQL($relations, $class);
+
         $exsist = $model->data[0]->hasKey($relations[0]->name);
-        $result = $this->EagerLoadingData->fetch( $relations, $relationsTypes, $exsist);
+        $result = $this->EagerLoadingData->fetch($relations, $exsist);
         if($model->data->empty()) {
             $model->data = $result;
             return;
@@ -44,7 +44,7 @@ class EagerLoading
         $model = App::$app->model;
 
         for ($i=0; $i < $model->relations->with->size; $i++) { 
-            $relation = new _Srting($model->relations->with[$i]);           
+            $relation = new _String($model->relations->with[$i]);           
             $this->run($class::class, $relation);
         }
        
@@ -56,13 +56,12 @@ class EagerLoading
         $model = App::$app->model;
         $currentRelation = $model->relations->currentRelation;
         $class = new $model->class;
-        $sql = '';
         $relationsTypes = $model->relations->Types;
         $withCountRelations = $model->relations->withCount;
+        $sql = '';
 
         foreach ($withCountRelations as $key => $relationName) {
             call_user_func([$class,$relationName]);
-
             $table1 = $currentRelation->table1;
             $PK1 = $currentRelation->PK1;
 
@@ -71,12 +70,19 @@ class EagerLoading
             }else $model->relations->ManyToMany->groupBy("$table1.$PK1");
          
 
-            $this->BuildEagerLoadingSQL
-            ->assembleSQL($model->table,$withCountRelations,$key,
-            "COUNT(*) AS count",$sql, true);
+            $sql = $this->EagerLoadingSQLBuilder
+            ->assembleSQL(
+                $model->table,
+                $withCountRelations,
+                $key,
+                "COUNT(*) AS count",
+                $sql,
+                true);
 
-            $relation_data = App::$app->db->fetch($currentRelation->sql);
+
+            $relation_data = App::$app->db->fetch($sql);
             $this->injectWithCountDataToMode($relationName,$relation_data,$PK1);
+            $withCountRelations[$key] = clone $currentRelation;
             $sql = '';
         }
     }

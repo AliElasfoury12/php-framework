@@ -4,7 +4,7 @@ namespace core\Database\Model\Relations;
 
 use core\App;
 use core\base\_Array;
-use core\base\_Srting;
+use core\base\_String;
 use core\Database\Model\Query\Query;
 
 class RelationQueryBuilder
@@ -39,7 +39,7 @@ class RelationQueryBuilder
         $model = App::$app->model;
         
         $method = debug_backtrace()[1]['function'];
-        $relations = array_map(fn($r) => new _Srting("$method.$r"), $relations);
+        $relations = array_map(fn($r) => new _String("$method.$r"), $relations);
 
         $exsist = false;
         foreach ($model->relations->with as $value) {

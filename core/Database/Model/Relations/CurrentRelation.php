@@ -3,6 +3,7 @@
 namespace core\Database\Model\Relations;
 
 use core\base\_Array;
+use core\base\_String;
 
 
 class CurrentRelation 
@@ -44,5 +45,14 @@ class CurrentRelation
         $this->model2 = '';
         $this->sql = '';
         $this->withCount->reset();
+    }
+
+    public function __clone ()  
+    {
+        foreach ((array) $this as $key => $value) {
+           if(is_object($value)){
+            $this->$key = clone $value;
+           }
+        }
     }
 }

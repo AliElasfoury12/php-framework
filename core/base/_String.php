@@ -2,7 +2,7 @@
 
 namespace core\base;
 
-class _Srting
+class _String
 {
     private string $string;
 
@@ -14,6 +14,16 @@ class _Srting
     public function __tostring(): string
     {
         return $this->string;
+    }
+
+    public function __clone ()  
+    {
+        $this->string = ''.$this->string;
+    }
+
+    public function build (string $string)  
+    {
+        $this->string .= $string;
     }
 
     public function contains(string $needle): bool
@@ -31,16 +41,21 @@ class _Srting
         return strpos($this->string, $string);
     }
 
-    public function pregReplace (string $pattern, string $replace): _Srting
+    public function pregReplace (string $pattern, string $replace): _String
     {
         $result = preg_replace($pattern, $replace, $this->string);
         return new self($result);
     }
 
-    public function replace (string $search, string $replace): _Srting
+    public function replace (string $search, string $replace): _String
     {
         $result = str_replace($search, $replace, $this->string);
         return new self($result);
+    }
+
+    public function reset (): void  
+    {
+        $this->string = '';
     }
 
     public function set(string $string): void
@@ -48,7 +63,7 @@ class _Srting
         $this->string = $string;
     }
 
-    public function subString (string $offset, string $length = null): _Srting
+    public function subString (string $offset, string $length = null): _String
     {
         $result = substr($this->string, $offset, $length);
         return new self($result);
