@@ -3,6 +3,7 @@
 namespace core\Database\Model\Query;
 
 use core\App;
+use core\Database\Model\MainModel;
 use PDO;
 
 class QueryExexcution {
@@ -12,18 +13,8 @@ class QueryExexcution {
         $model = &App::$app->model;
         $model = debug_backtrace()[0]['object'];
         $db = App::$app->db;
-        $model->class = static::class;
-        $model->table = $model->getClassTable($model->class);
-        $model->PrimaryKey  = $db->getPK($model->table);
-
-        $query = $model->query->getQuery();
-        $select = $model->query->getSelect();
-        $model->query->reset();
-
-        if($model->orderBy) $model->orderBy = "ORDER BY {$model->table} {$model->orderBy}";
-        else $model->orderBy = "ORDER BY {$model->table}.{$model->PrimaryKey} ASC";
-  
-        $sql = "SELECT $select FROM {$model->table} $query {$model->orderBy}";
+        $query = '';
+        $sql = $this->buildGetSQL($model, $query);
         //echo $sql;
         $model->data = $db->fetch($sql);
         
@@ -37,6 +28,23 @@ class QueryExexcution {
         }
 
         return $model->data;
+    }
+
+    private function buildGetSQL (MainModel &$model, string &$query): string 
+    {
+        $db = App::$app->db;
+        $model->class = static::class;
+        $model->table = $model->getClassTable($model->class);
+        $model->PrimaryKey  = $db->getPK($model->table);
+
+        $query = $model->query->getQuery();
+        $select = $model->query->getSelect();
+        $model->query->reset();
+
+        if($model->orderBy) $model->orderBy = "ORDER BY {$model->table} {$model->orderBy}";
+        else $model->orderBy = "ORDER BY {$model->table}.{$model->PrimaryKey} ASC";
+  
+        return "SELECT $select FROM {$model->table} $query {$model->orderBy}";
     }
 
     public static function create ($inputs) 
