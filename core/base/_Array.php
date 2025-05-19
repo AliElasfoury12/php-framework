@@ -6,6 +6,7 @@ namespace core\base;
 
 use ArrayAccess;
 use Closure;
+use core\App;
 use IteratorAggregate;
 use Traversable;
 
@@ -121,9 +122,7 @@ class _Array implements ArrayAccess, IteratorAggregate
 
     public function print (): void 
     {
-        echo "<pre>"; 
-        print_r($this->array);
-        echo "</pre>";
+        App::dump($this->toArray());
     }
 
     public function reset (): void 

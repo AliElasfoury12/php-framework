@@ -34,7 +34,7 @@ class EagerLoadingSQLBuilder {
 
             $currentRelation->reset();
         }
-       //if(!$with) $relations->print();
+       if(!$with) $relations->print();
     }
 
     private function getColumns (_String $relation, CurrentRelation $currentRelation): string|_String 
@@ -67,16 +67,12 @@ class EagerLoadingSQLBuilder {
 
         $lastRelation = $i > 0 ? $relations[$i - 1] : null;
         if($isWith || $isWithCount) $lastRelation = $i > 0 ? $relations[0] : $currentRelation;
-        $this->handleAlias(
-            $lastRelation,
-            $i,
-            $currentRelation,
-            $table1,
-            $aliasTable2);
+        $this->handleAlias($lastRelation,$i,$currentRelation,$table1,$aliasTable2);
 
         if($isWithCount) $select = 'COUNT(*) AS count';
 
         $isColumnsNotWithCount = ($i == $relations->size - 1) && $columns && !$isWithCount;
+
         switch ($type) {
             case $relationsTypes::BELONGSTO:
                 if($isColumnsNotWithCount) $model->relations->BelongsTo->select($columns);
@@ -91,12 +87,7 @@ class EagerLoadingSQLBuilder {
             default:
                 if($isColumnsNotWithCount) $model->relations->ManyToMany->select($columns);
                    
-                $sql .= $this->buildManyToManySQL(
-                    $table1,
-                    $select,
-                    $extraQuery,
-                    $isWithCount,
-                    $aliasTable2);
+                $sql .= $this->buildManyToManySQL($table1,$select,$extraQuery,$isWithCount,$aliasTable2);
             break;
         }
 
@@ -219,7 +210,8 @@ class EagerLoadingSQLBuilder {
         $model = App::$app->model;
         $lastRelation = clone $currentRelation;
         $withCountRelations = clone $lastRelation->withCount;
-        $lastRelation->withCount->reset();
+        $currentRelation->withCount->reset();
+        $currentRelation->with->reset();
         $relationsTypes = $model->relations->Types;
 
         foreach ($withCountRelations as $key => &$withCountRelation) {
