@@ -23,4 +23,5 @@ class BelongsTo extends RelationQueryBuilder
        
         return $this;
     }
+
 }

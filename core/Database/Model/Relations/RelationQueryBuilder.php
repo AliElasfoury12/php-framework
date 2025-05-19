@@ -6,8 +6,9 @@ use core\App;
 use core\base\_Array;
 use core\base\_String;
 use core\Database\Model\Query\Query;
+use core\Database\Model\Query\QueryBuilder;
 
-class RelationQueryBuilder
+class RelationQueryBuilder extends QueryBuilder
 {
     public Query $query;
     public _Array $with;

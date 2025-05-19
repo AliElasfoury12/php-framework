@@ -9,11 +9,12 @@ class QueryExexcution {
 
     public function get (): mixed  
     {
-        $model = App::$app->model;
+        $model = &App::$app->model;
+        $model = debug_backtrace()[0]['object'];
         $db = App::$app->db;
         $model->class = static::class;
 
-        $tableName = $model->getClassTable(static::class);
+        $tableName = $model->getClassTable($model->class);
         $model->table = $tableName;
         $primaryKey = $db->getPK($tableName);
 
@@ -37,7 +38,7 @@ class QueryExexcution {
             //echo $sql;
             $model->ids = $db->fetch($sql, PDO::FETCH_COLUMN)->implode(',');
 
-            $model->relations->eagerLoading->handleWith(static::class);
+            $model->relations->eagerLoading->handleWith($model->class);
             $model->relations->eagerLoading->handleWithCount();
         }
 

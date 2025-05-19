@@ -3,6 +3,7 @@
 namespace core\Database\Model\Query;
 
 use core\App;
+use core\Database\Model\MainModel;
 use HRTime\StopWatch;
 
 class QueryBuilder extends QueryExexcution 
@@ -51,19 +52,19 @@ class QueryBuilder extends QueryExexcution
 
     public function latest ()  
     {
-        App::$app->model->orderBy = '.created_at DESC';
+        $this->orderBy = '.created_at DESC';
         return $this;
     }
 
     public function limit (int $limit)  
     {
-        App::$app->model->query->extraQuery[] = "LIMIT $limit";
+        $this->query->extraQuery[] = "LIMIT $limit";
         return  $this;
     }
 
     public function minRepeat (string $column) 
     {
-        $tableName = App::$app->model->getClassTable(static::class);
+        $tableName = $this->getClassTable(static::class);
 
         $sql = "SELECT $column FROM $tableName
         GROUP BY $column HAVING COUNT(*) > 1
@@ -75,19 +76,19 @@ class QueryBuilder extends QueryExexcution
 
     public function offset(string $offset)  
     {
-        App::$app->model->query->extraQuery[] = "OFFSET $offset";
+        $this->query->extraQuery[] = "OFFSET $offset";
         return $this;
     }
 
     public function orderBy(string $column, string $type)  
     {
-        App::$app->model->orderBy = ".$column $type";
+        $this->orderBy = ".$column $type";
         return $this;
     }
 
     public function paginate (int $perPage)  
     {
-        $offset = (App::$app->model->pageNum - 1 ) * $perPage;
+        $offset = ($this->pageNum - 1 ) * $perPage;
         $this->limit($perPage);
         $this->offset($offset);
         return  $this;
@@ -95,7 +96,7 @@ class QueryBuilder extends QueryExexcution
 
     public function select (string $columns)  
     {
-        App::$app->model->query->select->set($columns);
+        $this->query->select->set($columns);
         return $this;
     }
 
@@ -105,19 +106,19 @@ class QueryBuilder extends QueryExexcution
             $value = $opretor;
             $opretor = '=';
         }
-        App::$app->model->query->where[] = "$column $opretor '$value'";
+        $this->query->where[] = "$column $opretor '$value'";
         return  $this;
     }
 
     public function with (array $relations) 
     {
-        App::$app->model->relations->with->set($relations);
+        if($this instanceof MainModel) $this->relations->with->set($relations);
         return $this;
     }
 
-    public function withCount (string $columns)  
+    public function withCount (array $relations)  
     {
-        App::$app->model->relations->withCount->set(explode(',', $columns));
+        if($this instanceof MainModel) $this->relations->withCount->set($relations);
         return $this;
     }
 
