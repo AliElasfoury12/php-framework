@@ -2,8 +2,8 @@
 
 namespace core\Database\Model\Relations;
 
+use core\App;
 use core\base\_Array;
-use core\base\_String;
 
 class CurrentRelation 
 {
@@ -31,6 +31,20 @@ class CurrentRelation
         $this->with = new _Array;
     }
 
+    public function __clone ()  
+    {
+        foreach ((array) $this as $key => $value) {
+           if(is_object($value)){
+            $this->$key = clone $value;
+           }
+        }
+    }
+
+    public function print ()  
+    {
+        App::dump([$this]);
+    }
+
     public function reset (): void
     {
         foreach ((array) $this as $key => $value) {
@@ -39,15 +53,6 @@ class CurrentRelation
             }else if(is_string($value)){
                 $this->$key = '';
             }
-        }
-    }
-
-    public function __clone ()  
-    {
-        foreach ((array) $this as $key => $value) {
-           if(is_object($value)){
-            $this->$key = clone $value;
-           }
         }
     }
 }

@@ -6,7 +6,6 @@ use core\App;
 use core\base\_Array;
 use core\base\_String;
 use core\Database\Model\Relations\CurrentRelation;
-use stdClass;
 
 class EagerLoadingSQLBuilder {
     public function buildSQL (_Array $relations, string $class, bool $with = false, CurrentRelation $currentRelation = null, string $sql = ''): void
@@ -23,9 +22,6 @@ class EagerLoadingSQLBuilder {
             if($with) {
                 $sql = $mainSql;
                 $class2 = $class;
-                if($mainRelation->alias){
-                    $alias = $mainRelation->alias;
-                } 
             }
 
             $relation->set($relations[$i]);
@@ -33,9 +29,8 @@ class EagerLoadingSQLBuilder {
 
             call_user_func([new $class2, $currentRelation->name]);
             $class2 = $currentRelation->model2;
-            $table1 = $alias ?: $currentRelation->table1;
 
-            $currentRelation->sql = $this->assembleSQL($table1, $relations, $i, $columns,$sql);
+            $currentRelation->sql = $this->assembleSQL($relations, $i, $columns,$sql, false, $with);
             $this->buildSubQueries($currentRelation,$class2,$sql);
             $relations[$i] = clone $currentRelation;
 
@@ -57,7 +52,7 @@ class EagerLoadingSQLBuilder {
         return $columns;
     }
 
-    public function assembleSQL (string $table1, _Array $relations, int $i, string $columns, string &$sql, bool $iswithCount = false): string
+    public function assembleSQL (_Array $relations, int $i, string $columns, string &$sql, bool $isWithCount = false, bool $with = false): string
     {
         $model = App::$app->model;
         $PK = $model->PrimaryKey;
@@ -67,41 +62,42 @@ class EagerLoadingSQLBuilder {
         $relationsTypes = $model->relations->Types;
         $table = $model->table;
         $type = $currentRelation->type;
+        $table1 = $currentRelation->table1;
         $select = '';
         $extraQuery = '';
         $aliasTable2 = '';
 
-        $lastRelation = $i > 0 ? $relations[$i - 1] : '';
-
+        $lastRelation = $i > 0 ? $relations[$i - 1] : null;
+        if($with) $lastRelation = $i > 0 ? $relations[0] : $currentRelation;
         $this->handleAlias(
             $lastRelation,
             $i,
             $currentRelation,
-            $model,
             $table1,
             $aliasTable2);
 
-        if($iswithCount) $select = 'COUNT(*) AS count';
+        if($isWithCount) $select = 'COUNT(*) AS count';
 
+        $isColumnsNotWithCount = ($i == $relations->size - 1) && $columns && !$isWithCount;
         switch ($type) {
             case $relationsTypes::BELONGSTO:
-                if($i == $relations->size - 1 && $columns) $model->relations->BelongsTo->select($columns);
-                $sql .= $this->buildBelongsToSQL($table1, $select, $extraQuery, $iswithCount);
+                if($isColumnsNotWithCount) $model->relations->BelongsTo->select($columns);
+                $sql .= $this->buildBelongsToSQL($table1, $select, $extraQuery, $isWithCount, $aliasTable2);
             break;
 
             case  $relationsTypes::HASMANY:
-                if($i == $relations->size - 1 && $columns) $model->relations->HasMany->select($columns);
-                $sql .= $this->buildHasManySQL($table1, $select, $extraQuery, $iswithCount);
+                if($isColumnsNotWithCount) $model->relations->HasMany->select($columns);
+                $sql .= $this->buildHasManySQL($table1, $select, $extraQuery, $isWithCount, $aliasTable2);
             break;
 
             default:
-                if($i == $relations->size - 1 && $columns) $model->relations->ManyToMany->select($columns);
+                if($isColumnsNotWithCount) $model->relations->ManyToMany->select($columns);
                    
                 $sql .= $this->buildManyToManySQL(
                     $table1,
                     $select,
                     $extraQuery,
-                    $iswithCount,
+                    $isWithCount,
                     $aliasTable2);
             break;
         }
@@ -109,26 +105,28 @@ class EagerLoadingSQLBuilder {
         return "SELECT $select , $table.$PK AS mainKey FROM $table $sql WHERE $table.$PK IN ($ids) $extraQuery $orderBy";
     }
 
-    private function handleAlias ($lastRelation, $i, $currentRelation, $model, &$table1, &$aliasTable2) 
+    private function handleAlias (?CurrentRelation $lastRelation,int $i, CurrentRelation $currentRelation, string &$table1, string &$aliasTable2): void 
     {
+        $model = App::$app->model;
         $table2 = $currentRelation->table2;
         $j = $i + 1;
 
-        if($lastRelation && $lastRelation->alias) $table1 = $lastRelation->alias;
+        if($table2 == $model->table) {
+            $currentRelation->alias = "alias$j";
+            $aliasTable2 = "alias$j";
+        }
 
-        if($lastRelation){
-            $isTableExsistsInSql = $table2 == $model->table || str_contains($lastRelation->sql,"INNER JOIN $table2");
-            if($isTableExsistsInSql) {
-                $currentRelation->alias = "alias$j";
-                $aliasTable2 = "alias$j";
-            }
-        }else if($table2 == $model->table) {
+        if(!$lastRelation) return;
+
+        if($lastRelation->alias) $table1 = $lastRelation->alias;
+
+        if(str_contains($lastRelation->sql,"INNER JOIN $table2")) {
             $currentRelation->alias = "alias$j";
             $aliasTable2 = "alias$j";
         }
     }
    
-    private function buildBelongsToSQL (string $table1, string &$select, string &$extraQuery, bool $iswithCount): string
+    private function buildBelongsToSQL (string $table1, string &$select, string &$extraQuery, bool $iswithCount, string $aliasTable2): string
     {
         $model = App::$app->model;
         $currentRelation = $model->relations->currentRelation;
@@ -138,13 +136,17 @@ class EagerLoadingSQLBuilder {
 
         if(!$iswithCount) $select = $model->relations->BelongsTo->query->getSelect($table2);
         
-        $extraQuery = $model->relations->BelongsTo->query->getQuery($table2);
+        $extraQuery = $model->relations->BelongsTo->query->getQuery($aliasTable2 ?: $table2);
         $model->relations->BelongsTo->query->reset();
+
+        if($aliasTable2){
+            return "INNER JOIN $table2 AS $aliasTable2 ON $table1.$FK1 = $aliasTable2.$PK2 ";
+        }
 
         return "INNER JOIN $table2 ON $table1.$FK1 = $table2.$PK2 ";
     }
 
-    private function buildHasManySQL (string $table1, string &$select, string &$extraQuery,bool $iswithCount): string
+    private function buildHasManySQL (string $table1, string &$select, string &$extraQuery,bool $iswithCount, string $aliasTable2): string
     {
         $model = App::$app->model;
         $currentRelation = $model->relations->currentRelation;
@@ -152,11 +154,14 @@ class EagerLoadingSQLBuilder {
         $FK2 = $currentRelation->FK2;
         $table2 = $currentRelation->table2;
 
-        if(!$iswithCount) $select = $model->relations->HasMany->query->getSelect($table2);
+        if(!$iswithCount) $select = $model->relations->HasMany->query->getSelect($aliasTable2 ?: $table2);
 
-        $select = $model->relations->HasMany->query->getSelect($table2);
         $extraQuery = $model->relations->HasMany->query->getQuery($table2);
         $model->relations->HasMany->query->reset();
+
+        if($aliasTable2){
+            return "INNER JOIN $table2 AS $aliasTable2 ON $table1.$PK1 = $aliasTable2.$FK2 ";
+        }
 
         return "INNER JOIN $table2 ON $table1.$PK1 = $table2.$FK2 ";
     }
@@ -183,6 +188,7 @@ class EagerLoadingSQLBuilder {
         $model->relations->ManyToMany->query->reset();
 
         if($iswithCount) return $withCountSQL;
+
         if($aliasTable2){
             return "$withCountSQL INNER JOIN $table2 AS $aliasTable2 ON $aliasTable2.$PK2 = $pivotTable.$relatedKey ";
         }
@@ -200,7 +206,7 @@ class EagerLoadingSQLBuilder {
         }
     }
 
-    private function buildWithCountSQL (CurrentRelation &$currentRelation,string $class2, string $sql): void
+    public function buildWithCountSQL (CurrentRelation &$currentRelation,string $class2, string $sql): void
     {
         $model = App::$app->model;
         $lastRelation = clone $currentRelation;
@@ -218,7 +224,6 @@ class EagerLoadingSQLBuilder {
             }else $model->relations->ManyToMany->groupBy("$table1.$PK1");
         
             $sql = $this->assembleSQL(
-                $table1,
                 $withCountRelations,
                 $key,
                 '',

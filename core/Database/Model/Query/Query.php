@@ -57,8 +57,6 @@ class Query {
 
     public function getSelect (string $table = ''): string
     {
-        if($this->select->contains('COUNT(*) AS count')) return 'COUNT(*) AS count';
-
         if($this->select){
             $select = explode(',', $this->select);
             if($table) $select = array_map(fn($field) => "$table.$field", $select);

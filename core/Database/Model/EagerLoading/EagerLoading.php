@@ -72,10 +72,9 @@ class EagerLoading
 
             $sql = $this->EagerLoadingSQLBuilder
             ->assembleSQL(
-                $model->table,
                 $withCountRelations,
                 $key,
-                "COUNT(*) AS count",
+                "",
                 $sql,
                 true);
 
