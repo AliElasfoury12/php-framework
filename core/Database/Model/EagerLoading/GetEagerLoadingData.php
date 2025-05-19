@@ -133,7 +133,7 @@ class GetEagerLoadingData
             $i = 0;
             foreach ($data as &$value) {
                 $value[$relation->name.'Count'] = 0;
-                if($i < $withCountData->size - 1 && $value['mainKey'] == $withCountData[$i]['mainKey']){
+                if($i < $withCountData->size && $value['mainKey'] == $withCountData[$i]['mainKey']){
                     $value[$relation->name.'Count'] = $withCountData[$i]['count'];
                     $i++;
                 }

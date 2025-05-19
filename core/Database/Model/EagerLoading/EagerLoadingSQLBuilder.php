@@ -14,11 +14,9 @@ class EagerLoadingSQLBuilder {
         $currentRelation = &$model->relations->currentRelation;
         $class2 = $class;
         $relation = new _String();
-        $mainRelation = clone $currentRelation;
         $mainSql = $sql;
 
         for ($i=0; $i < $relations->size; $i++) { 
-            $alias='';
             if($with) {
                 $sql = $mainSql;
                 $class2 = $class;
@@ -52,7 +50,7 @@ class EagerLoadingSQLBuilder {
         return $columns;
     }
 
-    public function assembleSQL (_Array $relations, int $i, string $columns, string &$sql, bool $isWithCount = false, bool $with = false): string
+    public function assembleSQL (_Array $relations, int $i, string $columns, string &$sql, bool $isWithCount = false, bool $isWith = false): string
     {
         $model = App::$app->model;
         $PK = $model->PrimaryKey;
@@ -68,7 +66,7 @@ class EagerLoadingSQLBuilder {
         $aliasTable2 = '';
 
         $lastRelation = $i > 0 ? $relations[$i - 1] : null;
-        if($with) $lastRelation = $i > 0 ? $relations[0] : $currentRelation;
+        if($isWith || $isWithCount) $lastRelation = $i > 0 ? $relations[0] : $currentRelation;
         $this->handleAlias(
             $lastRelation,
             $i,
