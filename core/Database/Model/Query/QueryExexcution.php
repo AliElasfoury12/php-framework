@@ -13,27 +13,22 @@ class QueryExexcution {
         $model = debug_backtrace()[0]['object'];
         $db = App::$app->db;
         $model->class = static::class;
-
-        $tableName = $model->getClassTable($model->class);
-        $model->table = $tableName;
-        $primaryKey = $db->getPK($tableName);
+        $model->table = $model->getClassTable($model->class);
+        $model->PrimaryKey  = $db->getPK($model->table);
 
         $query = $model->query->getQuery();
         $select = $model->query->getSelect();
-
-        if($model->orderBy) $orderBy = "ORDER BY $tableName".$model->orderBy;
-        else $orderBy = "ORDER BY $tableName.$primaryKey ASC";
-  
-        $sql = "SELECT $select FROM $tableName $query $orderBy";
-        //echo $sql;
         $model->query->reset();
+
+        if($model->orderBy) $model->orderBy = "ORDER BY {$model->table} {$model->orderBy}";
+        else $model->orderBy = "ORDER BY {$model->table}.{$model->PrimaryKey} ASC";
+  
+        $sql = "SELECT $select FROM {$model->table} $query {$model->orderBy}";
+        //echo $sql;
         $model->data = $db->fetch($sql);
         
         if($model->relations) {
-            $model->PrimaryKey = $primaryKey;
-            $model->orderBy = $orderBy;
-
-            $sql = "SELECT $primaryKey FROM $tableName $query $orderBy";
+            $sql = "SELECT {$model->PrimaryKey} FROM {$model->table} $query {$model->orderBy}";
             //echo $sql;
             $model->ids = $db->fetch($sql, PDO::FETCH_COLUMN)->implode(',');
 
