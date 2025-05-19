@@ -115,7 +115,7 @@ class GetEagerLoadingData
         return $data;
     }
 
-    private function subEagerLoading (CurrentRelation $currentRelation, DB $db, _Array $data): void 
+    private function subEagerLoading ($currentRelation, DB $db, _Array $data): void 
     {
         if(!$currentRelation->with->empty()){
             $this->mergeWithData($currentRelation->with,$db,$data);
@@ -143,9 +143,12 @@ class GetEagerLoadingData
 
     private function mergeWithData (_Array $withRelations,DB $db,_Array &$data): void 
     {
-       foreach ($withRelations as $relation) {
-        $withData = $db->fetch($relation->sql);
-        $this->mergeData($relation,$data, $withData);
-       }
+
+        foreach ($withRelations as $relation) {
+            $withData = $db->fetch($relation->sql);
+            $this->subEagerLoading($relation, $db, $withData);
+            $this->mergeData($relation,$data, $withData);
+        }
+
     }
 }

@@ -109,7 +109,17 @@ class EagerLoadingSQLBuilder {
     {
         $model = App::$app->model;
         $table2 = $currentRelation->table2;
-        $j = $i + 1;
+        //$j = $i + 1;
+
+        if($lastRelation){
+            preg_match_all('/\s*alias\d*\s*/', $lastRelation->sql, $matches);
+            if($matches[0]){
+                $matches = $matches[0];
+                $lastAlias = $matches[count($matches) - 1];
+                $lastAlias = str_replace('alias','', $lastAlias);
+                $j = $lastAlias+1;
+            }else $j = 2;
+        }else $j = 1;
 
         if($table2 == $model->table) {
             $currentRelation->alias = "alias$j";
