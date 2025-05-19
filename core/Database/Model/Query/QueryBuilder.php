@@ -50,6 +50,12 @@ class QueryBuilder extends QueryExexcution
         return App::$app->db->getTable($class);
     }
 
+    public function groupBy (string $groupBy): static
+    {
+        $this->query->extraQuery[] = "GROUP BY $groupBy";
+        return $this;
+    }
+
     public function latest ()  
     {
         $this->orderBy = '.created_at DESC';

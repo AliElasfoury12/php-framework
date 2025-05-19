@@ -30,7 +30,6 @@ class QueryExexcution {
         $model->data = $db->fetch($sql);
         
         if($model->relations) {
-            $model->table = $tableName;
             $model->PrimaryKey = $primaryKey;
             $model->orderBy = $orderBy;
 
