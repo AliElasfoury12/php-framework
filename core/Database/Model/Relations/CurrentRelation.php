@@ -5,11 +5,11 @@ namespace core\Database\Model\Relations;
 use core\base\_Array;
 use core\base\_String;
 
-
 class CurrentRelation 
 {
     public string $type;
     public string $table1;
+    public string $alias = '';
     public string $table2;
     public string $PK1;
     public string $PK2;
@@ -22,29 +22,24 @@ class CurrentRelation
     public string $model1;
     public string $model2 ;
     public string $sql;
+    public _Array $with;
     public _Array $withCount;
+
 
     public function __construct() {
         $this->withCount = new _Array;
+        $this->with = new _Array;
     }
 
     public function reset (): void
     {
-        $this->type = '';
-        $this->table1 = '';
-        $this->table2 = '';
-        $this->PK1 = '';
-        $this->PK2 = '';
-        $this->FK1 = '';
-        $this->FK2 = '';
-        $this->pivotTable = '';
-        $this->pivotKey = '';
-        $this->relatedKey = '';
-        $this->name = '';
-        $this->model1 = '';
-        $this->model2 = '';
-        $this->sql = '';
-        $this->withCount->reset();
+        foreach ((array) $this as $key => $value) {
+            if(is_object($value)){
+                $value->reset();
+            }else if(is_string($value)){
+                $this->$key = '';
+            }
+        }
     }
 
     public function __clone ()  

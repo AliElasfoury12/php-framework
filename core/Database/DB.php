@@ -10,15 +10,17 @@ use PDO;
 class DB 
 {
     public PDO $pdo;
-    private array $tables = [];
+    private _Array $tables;
 
     public function __construct () 
     {
+        $this->tables = new _Array;
         $connection = $_ENV['DB_CONNECTION'];
         $host = $_ENV['DB_HOST'];
         $port = $_ENV['DB_PORT'];
         $dbName = $_ENV['DB_DATABASE'];
         $dsn = "$connection:host=$host;port=$port;dbname=$dbName;";
+
         $user = $_ENV['DB_USERNAME'];
         $password = $_ENV['DB_PASSWORD'];
      
@@ -26,7 +28,6 @@ class DB
         $this->pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
     }
 
-   
     public function exec (string $sql): bool|\PDOStatement
     {
         //echo "$sql <br>";
@@ -76,7 +77,7 @@ class DB
 
     public function getTable (string $class): string 
     {
-        if(array_key_exists($class,$this->tables)) return $this->tables[$class]->name;
+        if($this->tables->hasKey($class)) return $this->tables[$class]->name;
 
         $table = '';
         $classLowerCase = strtolower($class); 
@@ -95,7 +96,7 @@ class DB
 
     public function fetch (string $sql, int $type = PDO::FETCH_ASSOC): _Array
     {
-        echo "$sql <br><br>";
+        $this->printQuery($sql);
         return new _Array($this->pdo->query($sql)->fetchAll($type));
     }
 
@@ -137,5 +138,12 @@ class DB
         }
 
         return $FK ;
+    }
+
+    private function printQuery (string $sql): void 
+    {
+        $sql = str_replace("INNER JOIN","<br>INNER JOIN", $sql);
+        $sql = str_replace("WHERE","<br>WHERE", $sql);
+        echo "$sql <br><br>";
     }
 }

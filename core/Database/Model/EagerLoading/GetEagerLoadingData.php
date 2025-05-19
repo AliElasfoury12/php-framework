@@ -6,7 +6,6 @@ use core\App;
 use core\base\_Array;
 use core\Database\DB;
 use core\Database\Model\Relations\CurrentRelation;
-use core\Database\Model\Relations\RELATIONSTYPE;
 
 class GetEagerLoadingData
 {
@@ -15,7 +14,6 @@ class GetEagerLoadingData
         $result = new _Array;
         $app = App::$app;
         $db = $app->db;
-        $relationsTypes = $app->model->relations->Types;
         
         for ($i=$relations->size-1; $i >= 0; $i--) { 
             $currentRelation = $relations[$i];
@@ -24,23 +22,22 @@ class GetEagerLoadingData
             if($i < $relations->size-1) $lastRelation = $relations[$i+1];
             $data = $db->fetch($currentRelation->sql);
 
-            if(!$currentRelation->withCount->empty()){
-               $this->mergeWithCountData($currentRelation->withCount,$db,$data);
-            }
+           $this->subEagerLoading($currentRelation, $db, $data);
 
             if($result->empty()) {
                 $result = $data;
                 continue;
             }
             
-            $this->mergeData( $lastRelation, $relationsTypes, $data, $result);
+            $this->mergeData($lastRelation,$data, $result);
         }
 
         return $result;
     }
 
-    private function mergeData (CurrentRelation $lastRelation, RELATIONSTYPE $relationsTypes, _Array $data, _Array &$result): void
+    private function mergeData (CurrentRelation $lastRelation, _Array $data, _Array &$result): void
     {
+        $relationsTypes = App::$app->model->relations->Types;
         switch ($lastRelation->type) {
             case $relationsTypes::BELONGSTO:
                 $result = $this->mregeBelongsToData($lastRelation, $data, $result);
@@ -118,6 +115,17 @@ class GetEagerLoadingData
         return $data;
     }
 
+    private function subEagerLoading (CurrentRelation $currentRelation, DB $db, _Array $data): void 
+    {
+        if(!$currentRelation->with->empty()){
+            $this->mergeWithData($currentRelation->with,$db,$data);
+        }
+
+        if(!$currentRelation->withCount->empty()){
+           $this->mergeWithCountData($currentRelation->withCount,$db,$data);
+        }
+    }
+
     private function mergeWithCountData (_Array $withCountRelations,DB $db,_Array &$data): void 
     {
         foreach ($withCountRelations as $relation) {
@@ -131,5 +139,13 @@ class GetEagerLoadingData
                 }
             }
         }
+    }
+
+    private function mergeWithData (_Array $withRelations,DB $db,_Array &$data): void 
+    {
+       foreach ($withRelations as $relation) {
+        $withData = $db->fetch($relation->sql);
+        $this->mergeData($relation,$data, $withData);
+       }
     }
 }

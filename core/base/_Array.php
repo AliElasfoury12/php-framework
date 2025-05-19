@@ -119,6 +119,13 @@ class _Array implements ArrayAccess, IteratorAggregate
         $this->size--;
     }
 
+    public function print (): void 
+    {
+        echo "<pre>"; 
+        print_r($this->array);
+        echo "</pre>";
+    }
+
     public function reset (): void 
     {
         $this->array = [];
