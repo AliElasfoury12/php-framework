@@ -40,4 +40,9 @@ class Relations {
         $currentRelation->model2 = $class2;
 
     }
+
+    public function empty (): bool  
+    {
+        return $this->with->empty() && $this->withCount->empty();
+    }
 }

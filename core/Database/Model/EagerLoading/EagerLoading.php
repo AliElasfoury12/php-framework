@@ -20,12 +20,12 @@ class EagerLoading
         $this->InjectEagerLoadingDataToModel = new InjectEagerLoadingDataToModel;
     }
 
-    public function run (string $class, _String $relation): void 
+    public function run (_String $relation): void 
     {
         $model = App::$app->model;
         $relations = $relation->explode('.');
 
-        $this->EagerLoadingSQLBuilder->buildSQL($relations, $class);
+        $this->EagerLoadingSQLBuilder->buildSQL($relations, $model->class);
 
         $exsist = $model->data[0]->hasKey($relations[0]->name);
         $result = $this->EagerLoadingData->fetch($relations, $exsist);
@@ -38,14 +38,13 @@ class EagerLoading
         ->injectToModel($relations, $result, $exsist);
     }
 
-    public function handleWith(string $class): _Array
+    public function handleWith(): _Array
     {
-        $class = new $class();
         $model = App::$app->model;
 
         for ($i=0; $i < $model->relations->with->size; $i++) { 
             $relation = new _String($model->relations->with[$i]);           
-            $this->run($class::class, $relation);
+            $this->run($relation);
         }
        
         return $model->data;

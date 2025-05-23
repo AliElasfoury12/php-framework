@@ -18,12 +18,12 @@ class QueryExexcution {
         //echo $sql;
         $model->data = $db->fetch($sql);
         
-        if($model->relations) {
+        if(!$model->relations->empty()) {
             $sql = "SELECT {$model->PrimaryKey} FROM {$model->table} $query {$model->orderBy}";
             //echo $sql;
             $model->ids = $db->fetch($sql, PDO::FETCH_COLUMN)->implode(',');
 
-            $model->relations->eagerLoading->handleWith($model->class);
+            $model->relations->eagerLoading->handleWith();
             $model->relations->eagerLoading->handleWithCount();
         }
 

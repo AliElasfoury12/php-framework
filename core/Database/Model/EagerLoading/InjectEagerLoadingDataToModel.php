@@ -63,13 +63,12 @@ class InjectEagerLoadingDataToModel
 
         $i = 0;
         foreach ($model->data as &$value) {
-            if($i < $result->size && $value[$PK1] == $result[$i]['mainKey']){
-                foreach ($value[$currentRelationName] as $key => $item) {
-                    unset($result[$i]['mainKey']);
-                    $value[$currentRelationName][$key][$lastRelationName] = $result[$i];
-                    $i++;
-                }
-                
+            if($i > $result->size -1 && $value[$PK1] != $result[$i]['mainKey']) continue;
+            
+            foreach ($value[$currentRelationName] as $key => $item) {
+                unset($result[$i]['mainKey']);
+                $value[$currentRelationName][$key][$lastRelationName] = $result[$i];
+                $i++;
             }
         }
     }
@@ -80,6 +79,7 @@ class InjectEagerLoadingDataToModel
         $FK2 = $lastRelation->FK2;
         $PK = $model->PrimaryKey;
         $PK1 = $lastRelation->PK1;
+        
         $i=0;
         foreach ($model->data as &$value) {
             foreach ($value[$currentRelation->name] as &$item) {

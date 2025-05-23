@@ -34,7 +34,7 @@ class EagerLoadingSQLBuilder {
 
             $currentRelation->reset();
         }
-       if(!$with) $relations->print();
+       //if(!$with) $relations->print();
     }
 
     private function getColumns (_String $relation, CurrentRelation $currentRelation): string|_String 
@@ -53,52 +53,23 @@ class EagerLoadingSQLBuilder {
     public function assembleSQL (_Array $relations, int $i, string $columns, string &$sql, bool $isWithCount = false, bool $isWith = false): string
     {
         $model = App::$app->model;
-        $PK = $model->PrimaryKey;
-        $ids = $model->ids;
-        $orderBy = $model->orderBy;
         $currentRelation = $model->relations->currentRelation;
-        $relationsTypes = $model->relations->Types;
-        $table = $model->table;
-        $type = $currentRelation->type;
         $table1 = $currentRelation->table1;
-        $select = '';
-        $extraQuery = '';
         $aliasTable2 = '';
 
         $lastRelation = $i > 0 ? $relations[$i - 1] : null;
         if($isWith || $isWithCount) $lastRelation = $i > 0 ? $relations[0] : $currentRelation;
+
         $this->handleAlias($lastRelation,$i,$currentRelation,$table1,$aliasTable2);
 
-        if($isWithCount) $select = 'COUNT(*) AS count';
-
-        $isColumnsNotWithCount = ($i == $relations->size - 1) && $columns && !$isWithCount;
-
-        switch ($type) {
-            case $relationsTypes::BELONGSTO:
-                if($isColumnsNotWithCount) $model->relations->BelongsTo->select($columns);
-                $sql .= $this->buildBelongsToSQL($table1, $select, $extraQuery, $isWithCount, $aliasTable2);
-            break;
-
-            case  $relationsTypes::HASMANY:
-                if($isColumnsNotWithCount) $model->relations->HasMany->select($columns);
-                $sql .= $this->buildHasManySQL($table1, $select, $extraQuery, $isWithCount, $aliasTable2);
-            break;
-
-            default:
-                if($isColumnsNotWithCount) $model->relations->ManyToMany->select($columns);
-                   
-                $sql .= $this->buildManyToManySQL($table1,$select,$extraQuery,$isWithCount,$aliasTable2);
-            break;
-        }
-
-        return "SELECT $select , $table.$PK AS mainKey FROM $table $sql WHERE $table.$PK IN ($ids) $extraQuery $orderBy";
+        $isColumnsAndNotWithCount = ($i == $relations->size - 1) && $columns && !$isWithCount;
+        return $this->buildRelationSQL($isColumnsAndNotWithCount,$columns,$table1,$isWithCount,$aliasTable2,$sql);
     }
 
     private function handleAlias (?CurrentRelation $lastRelation,int $i, CurrentRelation $currentRelation, string &$table1, string &$aliasTable2): void 
     {
         $model = App::$app->model;
         $table2 = $currentRelation->table2;
-        //$j = $i + 1;
 
         if($lastRelation){
             preg_match_all('/\s*alias\d*\s*/', $lastRelation->sql, $matches);
@@ -123,6 +94,39 @@ class EagerLoadingSQLBuilder {
             $currentRelation->alias = "alias$j";
             $aliasTable2 = "alias$j";
         }
+    }
+
+    private function buildRelationSQL (bool $isColumnsAndNotWithCount,string $columns,string $table1,bool $isWithCount,string $aliasTable2,string &$sql): string 
+    {
+        $model = App::$app->model;
+        $relationsTypes = $model->relations->Types;
+        $type = $model->relations->currentRelation->type;
+        $select = '';
+        $extraQuery = '';
+        $ids = $model->ids;
+        $orderBy = $model->orderBy;
+        $PK = $model->PrimaryKey;
+        $table = $model->table;
+        if($isWithCount) $select = 'COUNT(*) AS count';
+        
+        switch ($type) {
+            case $relationsTypes::BELONGSTO:
+                if($isColumnsAndNotWithCount) $model->relations->BelongsTo->select($columns);
+                $sql .= $this->buildBelongsToSQL($table1, $select, $extraQuery, $isWithCount, $aliasTable2);
+            break;
+
+            case  $relationsTypes::HASMANY:
+                if($isColumnsAndNotWithCount) $model->relations->HasMany->select($columns);
+                $sql .= $this->buildHasManySQL($table1, $select, $extraQuery, $isWithCount, $aliasTable2);
+            break;
+
+            default:
+                if($isColumnsAndNotWithCount) $model->relations->ManyToMany->select($columns);
+                   
+                $sql .= $this->buildManyToManySQL($table1,$select,$extraQuery,$isWithCount,$aliasTable2);
+            break;
+        }
+        return "SELECT $select , $table.$PK AS mainKey FROM $table $sql WHERE $table.$PK IN ($ids) $extraQuery $orderBy";
     }
    
     private function buildBelongsToSQL (string $table1, string &$select, string &$extraQuery, bool $iswithCount, string $aliasTable2): string
@@ -209,7 +213,7 @@ class EagerLoadingSQLBuilder {
     {
         $model = App::$app->model;
         $lastRelation = clone $currentRelation;
-        $withCountRelations = clone $lastRelation->withCount;
+        $withCountRelations = $lastRelation->withCount;
         $currentRelation->withCount->reset();
         $currentRelation->with->reset();
         $relationsTypes = $model->relations->Types;
@@ -224,14 +228,13 @@ class EagerLoadingSQLBuilder {
             }else $model->relations->ManyToMany->groupBy("$table1.$PK1");
         
             $sql = $this->assembleSQL(
-                $withCountRelations,
-                $key,
-                '',
-                $sql,
-                true);
+                $withCountRelations,$key,'',
+                $sql,true);
                 
             $currentRelation->sql = $sql;
             $currentRelation->name = $withCountRelation;
+            $currentRelation->withCount->reset();
+            $currentRelation->with->reset();
             $withCountRelation = clone $currentRelation;
             $sql = '';
         }
@@ -242,8 +245,9 @@ class EagerLoadingSQLBuilder {
 
     private function buildWithSQL (CurrentRelation &$currentRelation, string $class2, string $sql): void
     {
-        $withRelations = clone $currentRelation->with;
         $current_relation = clone $currentRelation;
+        $withRelations = $current_relation->with;
+
         $currentRelation->with->reset();
         $currentRelation->withCount->reset();
         $this->buildSQL($withRelations,$class2,true,$currentRelation,$sql);

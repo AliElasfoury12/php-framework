@@ -4,7 +4,6 @@ namespace core\Database\Model\Query;
 
 use core\App;
 use core\Database\Model\MainModel;
-use HRTime\StopWatch;
 
 class QueryBuilder extends QueryExexcution 
 {
@@ -56,7 +55,7 @@ class QueryBuilder extends QueryExexcution
         return $this;
     }
 
-    public function latest ()  
+    public function latest (): static  
     {
         $this->orderBy = '.created_at DESC';
         return $this;
@@ -100,7 +99,7 @@ class QueryBuilder extends QueryExexcution
         return  $this;
     }
 
-    public function select (string $columns)  
+    public function select (string $columns): static  
     {
         $this->query->select->set($columns);
         return $this;
@@ -116,7 +115,7 @@ class QueryBuilder extends QueryExexcution
         return  $this;
     }
 
-    public function with (array $relations) 
+    public function with (array $relations): static 
     {
         if($this instanceof MainModel) $this->relations->with->set($relations);
         return $this;

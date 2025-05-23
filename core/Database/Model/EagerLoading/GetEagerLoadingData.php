@@ -15,11 +15,11 @@ class GetEagerLoadingData
         $app = App::$app;
         $db = $app->db;
         
-        for ($i=$relations->size-1; $i >= 0; $i--) { 
+        for ($i=$relations->size - 1; $i >= 0; $i--) { 
             $currentRelation = $relations[$i];
             if($i == 0 && $exsist) break;
 
-            if($i < $relations->size-1) $lastRelation = $relations[$i+1];
+            if($i < $relations->size - 1) $lastRelation = $relations[$i+1];
             $data = $db->fetch($currentRelation->sql);
 
            $this->subEagerLoading($currentRelation, $db, $data);
@@ -57,11 +57,10 @@ class GetEagerLoadingData
     {
         $i = 0;
         foreach ($data as &$value) {
-            if ($i < $result->size && $value[$PK1] == $result[$i]['mainKey']) {
-                unset($result[$i]['mainKey']);
-                $value[$relation->name] = $result[$i];
-                $i++;
-            }
+            if ($i > $result->size -1 && $value[$PK1] != $result[$i]['mainKey']) continue;
+            unset($result[$i]['mainKey']);
+            $value[$relation->name] = $result[$i];
+            $i++;
         }
 
         return $data;
@@ -76,7 +75,7 @@ class GetEagerLoadingData
         foreach ($data as &$value) {
             $value[$relation->name] = [];
             if($i > $result->size - 1) continue;
-
+            
             while (
                 $i < $result->size && 
                 $value[$key] == $result[$i]['mainKey'] &&
