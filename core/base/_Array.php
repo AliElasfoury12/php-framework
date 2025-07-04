@@ -30,7 +30,7 @@ class _Array implements ArrayAccess, IteratorAggregate
 
     public function &offsetGet(mixed $offset): mixed 
     {
-        $a = '';
+        $a = null;
         if(!isset($this->array[$offset])) return $a;
         $this->array[$offset] = is_callable($this->array[$offset]) ? $this->array[$offset]($this) : $this->array[$offset];
         return $this->array[$offset];
@@ -69,7 +69,13 @@ class _Array implements ArrayAccess, IteratorAggregate
 
     public function __get(mixed $name): mixed 
     {
+        if(!isset($this->array[$name])) return null;
         return $this->array[$name];
+    }
+
+    public function __set($name, $value)   
+    {
+        $this->array[$name] = $value;
     }
 
     public function __clone ()  
@@ -122,7 +128,8 @@ class _Array implements ArrayAccess, IteratorAggregate
 
     public function print (): void 
     {
-        App::dump($this->toArray());
+        $array = clone $this;
+        App::dump( $array->toArray());
     }
 
     public function reset (): void 

@@ -1,17 +1,48 @@
 <?php 
 
+use core\base\_Array;
 
-$sql = "SELECT alias3.id,alias3.name, likes.post_id AS pivot, likes.user_id AS related , posts.id AS mainKey FROM posts
-INNER JOIN shared_posts ON posts.id = shared_posts.post_id
-INNER JOIN posts AS alias1 ON alias1.id = shared_posts.shared_post_id
-INNER JOIN likes ON alias1.id = likes.post_id
-INNER JOIN users AS alias3 ON alias3.id = likes.user_id
-WHERE posts.id IN () ORDER BY posts.created_at DESC ";
+require_once __DIR__."/../vendor/autoload.php";
 
-$sql = '';
-preg_match_all('/\s*alias\d*\s*/', $sql, $matches);
-var_dump($matches);
-$matches = $matches[0];
-$lastAlias = $matches[count($matches) - 1];
-$lastAlias = str_replace('alias','', $lastAlias);
-$lastAlias++;
+function matchRoute($pattern, $url) {
+    // Normalize both: remove leading/trailing slashes
+    $pattern = trim($pattern, '/');
+    $url = trim($url, '/');
+
+    // Split into parts
+    $patternParts = explode('/', $pattern);
+    $urlParts = explode('/', $url);
+
+    // If part count doesn't match, it's not a match
+    if (count($patternParts) !== count($urlParts)) {
+        return false;
+    }
+
+    $params = [];
+
+    // Compare each part
+    foreach ($patternParts as $i => $part) {
+        if (preg_match('/^{(\w+)}$/', $part, $matches)) {
+            // It's a dynamic part: store the value
+            $params[$matches[1]] = $urlParts[$i];
+        } elseif ($part !== $urlParts[$i]) {
+            // Static part does not match
+            return false;
+        }
+    }
+
+    return $params;
+}
+
+// Test
+$pattern = 'posts/{id}/user/{name}';
+$url = 'posts/6/user/ali';
+
+$result = matchRoute($pattern, $url);
+
+if ($result) {
+    echo "Matched!\n";
+    print_r($result); // Outputs: Array ( [id] => 6 [name] => ali )
+} else {
+    echo "No match.\n";
+}
