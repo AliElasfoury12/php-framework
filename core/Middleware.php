@@ -13,42 +13,12 @@ class Middleware {
         $this->middlewares = new _Array;
     }
 
-    public static function auth () 
-    {
-        if(!(array)App::$app->user){
-            echo '403 | Unuathorized';
-            exit;
-        }
-    }
-
-    public static function apiAuth () 
-    {
-        $token = $_SERVER["HTTP_AUTHORIZATION"];
-        $token = str_replace('Bearer ', '', $token);
-
-        $sql = "SELECT token FROM accessTokens WHERE token = '$token'";
-        $result = App::$app->db->fetch($sql);
-
-        if(!$result) {
-            echo '403 | Unauthrized';
-            exit;
-        }
-    }
-
-    public static function limit () 
-    {
-        $rateLimtter = new RateLimiter;
-        return $rateLimtter->limit();
-    }
-
     public function handleMiddleWares(string $method, string $route) :void 
     {
-
         $middlewares = $this->middlewares->$method->$route;
-        App::dump([$middlewares, $route]);
         if($middlewares) {
             foreach ($middlewares as $middleware) {
-                call_user_func(['core\Middleware', $middleware]);
+                call_user_func(['app\Middlewares\MainMiddlewares', $middleware]);
             }
         }
     }
