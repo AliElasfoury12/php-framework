@@ -3,12 +3,12 @@
 namespace core\Database\Model\Query;
 
 use core\App;
+use core\base\_String;
 use core\Database\Model\MainModel;
 
 class QueryBuilder extends QueryExexcution 
 {
     public Query $query;
-    public string $orderBy = '';
     public int $pageNum = 1;
    
     public function __construct() {
@@ -57,7 +57,7 @@ class QueryBuilder extends QueryExexcution
 
     public function latest (): static  
     {
-        $this->orderBy = '.created_at DESC';
+        $this->query->orderBy->set('.created_at DESC') ;
         return $this;
     }
 
@@ -85,9 +85,9 @@ class QueryBuilder extends QueryExexcution
         return $this;
     }
 
-    public function orderBy(string $column, string $type)  
+    public function orderBy(string $column, string $type): static  
     {
-        $this->orderBy = ".$column $type";
+        $this->query->orderBy->set(".$column $type");
         return $this;
     }
 
@@ -117,13 +117,29 @@ class QueryBuilder extends QueryExexcution
 
     public function with (array $relations): static 
     {
-        if($this instanceof MainModel) $this->relations->with->set($relations);
+        if($this instanceof MainModel){
+            foreach ($relations as $relation) {
+                if($this->relations[$relation]) continue;
+                $relation = new _String($relation);
+                if($relation->contains(':')){
+                    $dotPostion = $relation->position(':');
+                    $columns = $relation->subString($dotPostion+1, $relation->length());
+                    $relation = $relation->replace(":$columns", '');
+                    $relation = $relation->value();
+                    $this->$relation();
+                    $this->relations[$relation]->model->select($columns);
+                }else {
+                    $relation = $relation->value();
+                    $this->$relation();
+                }
+            }
+        }
         return $this;
     }
 
     public function withCount (array $relations)  
     {
-        if($this instanceof MainModel) $this->relations->withCount->set($relations);
+        //if($this instanceof MainModel) $this->relations->withCount->set($relations);
         return $this;
     }
 

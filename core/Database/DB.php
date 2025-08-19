@@ -102,9 +102,7 @@ class DB
 
     public function getPK (string $tableName): mixed 
     {
-        foreach ($this->tables as $table) {
-            if($table->name === $tableName && $table->PK ) return $table->PK;
-        }
+        if($this->tables[$tableName]) return $this->tables[$tableName]->PK ;
 
         $sql = "SHOW KEYS FROM $tableName WHERE Key_name = 'PRIMARY'";
         //echo "$sql <br>";
@@ -112,18 +110,16 @@ class DB
         if($result->empty()) return '';
         $PK = $result[0]["Column_name"];
 
-        foreach ($this->tables as $table) {
-            if($table->name === $tableName) $table->PK = $PK;
-        }
+        $table = new Table($tableName);
+        $table->PK = $PK;
+        $this->tables[$tableName] = $table;
         return $PK;
     }
 
     public function getFK (string $tableName1, string $tableName2): mixed
     {
-        foreach ($this->tables as $table) {
-            if($table->name === $tableName1 && array_key_exists($tableName2,$table->FKS)) 
-            return $table->FKS[$tableName2];
-        }
+        if(!$this->tables[$tableName1]) $this->tables[$tableName1] = new Table($tableName1);
+        if($this->tables[$tableName1]->FKS[$tableName2]) return $this->tables[$tableName1]->FKS[$tableName2];
 
         $table2 = rtrim($tableName2, 's');
         $sql = "SHOW KEYS FROM $tableName1 WHERE Key_name Like '%$table2%'";
@@ -133,10 +129,8 @@ class DB
         if($result->empty()) return '';
         $FK = $result[0]["Column_name"];
 
-        foreach ($this->tables as $table) {
-            if($table->name === $tableName1) $table->FKS[$tableName2] = $FK;
-        }
-
+        $this->tables[$tableName1]->FKS[$tableName2] = $FK;
+        
         return $FK ;
     }
 

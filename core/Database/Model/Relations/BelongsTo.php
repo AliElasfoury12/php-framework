@@ -3,25 +3,68 @@
 namespace core\Database\Model\Relations;
 
 use core\App;
+use core\Database\Model\MainModel;
 
-class BelongsTo extends RelationQueryBuilder
+class BelongsTo 
 {
-    public function makeRelation (string $class1, string $class2, string $foreignKey, string $primaryKey):BelongsTo
+    public function createRelation (MainModel $model1, string $class2, string $foreignKey, string $primaryKey): MainModel  
     {
-        $model = App::$app->model;
-        $db = App::$app->db;
-
-        $currentRelation = $model->relations->currentRelation;
-        $currentRelation->type = $model->relations->Types::BELONGSTO;
-        $model->relations->commonData($class1, $class2);
-
-        $table1 = $currentRelation->table1;
-        $table2 = $currentRelation->table2;
-
-        $currentRelation->FK1 = $foreignKey ?: $db->getFK($table1, $table2);
-        $currentRelation->PK2 = $primaryKey?: $db->getPK($table1);
-       
-        return $this;
+        $relation = $model1->RelationsClass->sigenCommonRelationData($model1,$class2);
+        $model2 = $relation->model;
+        $relation->type = RELATIONSTYPE::BELONGSTO;
+        if($foreignKey) $model1->foreignKeys[$model2->table] = $foreignKey;
+        if($primaryKey) $model2->primaryKey = $primaryKey;
+        else  $model2->primaryKey = App::$app->db->getPK($model2->table);
+        return $model2;
+    }
+    public function handleRelation (MainModel $model1, MainModel $model2, Relation $relation): void 
+    {
+        $this->getBelongsToData($model1,$model2);
+        if(!$model2->relations->empty())  $model2->handleRelations(false);
+        $this->injectBelongsToData($model1,$model2,$relation);
     }
 
+    private function getBelongsToData (MainModel $model1, MainModel $model2): void 
+    {
+        $table1 = '';
+        $table2 = '';
+        $model1->RelationsClass->handleAliases($table1, $table2,$model1,$model2);
+
+        $tableJoin = $this->createTableJoin($table1, $table2,$model1,$model2);
+
+        $select = $model2->query->getSelect($table2);
+        $sql = $model2->prepareSQl($model1, $tableJoin,$select);
+
+        $model2->data = App::$app->db->fetch($sql);
+    }
+
+    private function injectBelongsToData (MainModel $model1, MainModel $model2, Relation $relation): void 
+    {
+        $foreigenKey = $model1->foreignKeys[$model2->table];
+        $primaryKey = $model2->primaryKey;
+        $relationName = $relation->name;
+
+        foreach ($model1->data as $i => &$value) {
+            if($value[$foreigenKey] == $model2->data[$i][$primaryKey]) 
+                $value[$relationName] = $model2->data[$i];
+            else  
+                $value[$relation->name] = [];
+        }
+
+        $model2->data->reset();
+    }
+
+    private function createTableJoin (string $table1, string $table2,MainModel $model1, MainModel $model2):string
+    {
+        $foreigenKey = $model1->getRelatedForigenKey($model2);
+
+        $joinCondition = "{$table1}.{$foreigenKey} = {$table2}.{$model2->primaryKey}";
+
+        if($model2->alias){
+            $tableJoin = "INNER JOIN {$model2->alias} AS {$table2} ON $joinCondition";
+        }else 
+            $tableJoin = "INNER JOIN {$table2} ON $joinCondition";
+
+        return $tableJoin;
+    }
 }

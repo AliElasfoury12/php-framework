@@ -37,7 +37,6 @@ class App  {
         $this->session = new Session;
         $this->db = new DB;
         $this->user = new User;
-        $this->model = new MainModel;
         $this->controller = new MainController;
        
         if($this->session->get('user')){

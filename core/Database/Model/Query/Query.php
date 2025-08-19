@@ -5,16 +5,11 @@ namespace core\Database\Model\Query;
 use core\App;
 use core\base\_Array;
 use core\base\_String;
+use core\Database\Model\MainModel;
 
 class FinalQuery {
     public string $select = '';
     public string $extraQuery = '';
-
-    public function reset (): void
-    {
-        $this->select = '';
-        $this->extraQuery = '';
-    }
 }
 
 class Query {
@@ -22,20 +17,17 @@ class Query {
     public _String $select;
     public _Array $extraQuery;
     public FinalQuery $finalQuery;
+    public _String $orderBy;
+    public _String $sql;
+
    
     public function __construct() {
         $this->where = new _Array();
         $this->select = new _String();
+        $this->orderBy = new _String();
+        $this->sql = new _String();
         $this->extraQuery = new _Array();
         $this->finalQuery = new FinalQuery;
-    }
-
-    public function reset (): void
-    {
-        $this->where->reset();
-        $this->select->set('');
-        $this->extraQuery->reset();
-        $this->finalQuery->reset();
     }
 
     public function getQuery (string $table = ''): string
@@ -57,13 +49,19 @@ class Query {
 
     public function getSelect (string $table = ''): string
     {
-        if($this->select){
-            $select = explode(',', $this->select);
-            if($table) $select = array_map(fn($field) => "$table.$field", $select);
-            $this->finalQuery->select = implode(',', $select);
+        if($this->select->length()){
+            $select = $this->select->explode(',');
+            if($table) $select = $select->map(fn($field) => "$table.$field");
+            $this->finalQuery->select = $select->implode(',');
         }
 
-        if($table && !$this->select) $this->finalQuery->select = "$table.*";
+        if($table && !$this->select->length()) $this->finalQuery->select = "$table.*";
         return $this->finalQuery->select;
+    }
+
+    public function getOrderBy (MainModel $model): string  
+    {
+        if($this->orderBy) return "ORDER BY {$model->table}{$model->query->orderBy}";
+        return "ORDER BY {$model->table}.{$model->primaryKey} ASC";
     }
 }

@@ -3,48 +3,34 @@
 namespace core\Database\Model\Query;
 
 use core\App;
+use core\base\_Array;
 use core\Database\Model\MainModel;
 use PDO;
 
 class QueryExexcution {
 
-    public function get (): mixed  
+    public function get (): _Array  
     {
-        $model = &App::$app->model;
-        $model = debug_backtrace()[0]['object'];
-        $db = App::$app->db;
-        $query = '';
-        $sql = $this->buildGetSQL($model, $query);
-        //echo $sql;
-        $model->data = $db->fetch($sql);
-        
-        if(!$model->relations->empty()) {
-            $sql = "SELECT {$model->PrimaryKey} FROM {$model->table} $query {$model->orderBy}";
-            //echo $sql;
-            $model->ids = $db->fetch($sql, PDO::FETCH_COLUMN)->implode(',');
-
-            $model->relations->eagerLoading->handleWith();
-            $model->relations->eagerLoading->handleWithCount();
-        }
-
-        return $model->data;
+        if(!$this instanceof MainModel) return new _Array;        
+        $this->data = $this->getMainModelData();
+        if(!$this->relations->empty()) $this->handleRelations();
+        return $this->data;
     }
 
-    private function buildGetSQL (MainModel &$model, string &$query): string 
+    private function getMainModelData (): _Array|null 
     {
+        if(!$this instanceof MainModel) return null;
         $db = App::$app->db;
-        $model->class = static::class;
-        $model->table = $model->getClassTable($model->class);
-        $model->PrimaryKey  = $db->getPK($model->table);
 
-        $query = $model->query->getQuery();
-        $select = $model->query->getSelect();
-        $model->query->reset();
+        $query = $this->query->getQuery();
+        $select = $this->query->getSelect();
+        $this->query->orderBy->set($this->query->getOrderBy($this));
 
-        if($model->orderBy) $model->orderBy = "ORDER BY {$model->table} {$model->orderBy}";
-        else $model->orderBy = "ORDER BY {$model->table}.{$model->PrimaryKey} ASC";
-  
-        return "SELECT $select FROM {$model->table} $query {$model->orderBy}";
+        $sql = "SELECT {select} FROM {$this->table} {tableJoin} {query} {$this->query->orderBy}";
+        $this->query->sql->set($sql);
+
+        $sql = "SELECT $select FROM {$this->table} $query {$this->query->orderBy}";
+        return $db->fetch($sql);
     }
 
     public static function create ($inputs) 

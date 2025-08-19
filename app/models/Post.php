@@ -2,6 +2,8 @@
 
 namespace app\models;
 
+use core\App;
+
 class Post extends Model {
 
     public static $fillable = [
@@ -25,7 +27,7 @@ class Post extends Model {
 
     public function likes ()
     {
-        return $this->manyToMany(User::class,'likes', 'post_id', 'user_id');
+        return $this->manyToMany(User::class,'likes');
     }
 
     public function sharedPost ()

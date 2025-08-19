@@ -3,10 +3,11 @@
 namespace core;
 
 class Preformance {
-    public static function time($fun) {
+    public static function time($fun): float 
+    {
         $startTime = microtime(true);
-        $fun;
+        call_user_func($fun);
         $endTime = microtime(true);
-        echo  round($endTime - $startTime,3)  ;
+        return $endTime - $startTime;
     }
 }

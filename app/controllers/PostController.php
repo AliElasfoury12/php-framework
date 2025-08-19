@@ -14,13 +14,12 @@ class PostController extends Controller {
         $post = new Post;
         $res = $post->select('id,user_id,content,created_at')
         //->paginate(10)
-        ->withCount(['likes','comments'])
+        //->withCount(['likes','comments'])
         ->with([
             'user',
-            'sharedPost',
             'postImg',
-            //'user.posts',
-            //'likes:id',
+            'likes:id',
+            'sharedPost',
         ])->latest()->get();
         // $res = Post::all('id,post');
         //$res = Post::find(40);

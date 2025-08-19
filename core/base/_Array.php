@@ -31,6 +31,7 @@ class _Array implements ArrayAccess, IteratorAggregate
     public function &offsetGet(mixed $offset): mixed 
     {
         $a = null;
+        if($offset instanceof _String) $offset = $offset->value();
         if(!isset($this->array[$offset])) return $a;
         $this->array[$offset] = is_callable($this->array[$offset]) ? $this->array[$offset]($this) : $this->array[$offset];
         return $this->array[$offset];
@@ -107,11 +108,10 @@ class _Array implements ArrayAccess, IteratorAggregate
         return implode($seprator,$this->array);
     }
 
-    public function map (Closure $callback): void 
+    public function map (Closure $callback): _Array
     {
-        for ($i=0; $i < $this->size; $i++) { 
-           $this[$i] = $callback($this[$i], $i);
-        }
+        $newArray = array_map($callback, $this->array);
+        return new _Array($newArray);
     }
 
     public function merge (array $array): _Array
