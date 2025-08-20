@@ -14,7 +14,7 @@ class BelongsTo
         $relation->type = RELATIONSTYPE::BELONGSTO;
         if($foreignKey) $model1->foreignKeys[$model2->table] = $foreignKey;
         if($primaryKey) $model2->primaryKey = $primaryKey;
-        else  $model2->primaryKey = App::$app->db->getPK($model2->table);
+        else  $model2->getPrimaryKey();
         return $model2;
     }
     public function handleRelation (MainModel $model1, MainModel $model2, Relation $relation): void 
@@ -44,21 +44,23 @@ class BelongsTo
         $primaryKey = $model2->primaryKey;
         $relationName = $relation->name;
 
-        foreach ($model1->data as $i => &$value) {
-            if($value[$foreigenKey] == $model2->data[$i][$primaryKey]) 
+        $i = 0;
+        foreach ($model1->data as  &$value) {
+            if($value[$foreigenKey] == $model2->data[$i][$primaryKey]){ 
                 $value[$relationName] = $model2->data[$i];
-            else  
+                $i++;
+            }else  
                 $value[$relation->name] = [];
         }
 
-        $model2->data->reset();
+        //$model2->data->reset();
     }
 
     private function createTableJoin (string $table1, string $table2,MainModel $model1, MainModel $model2):string
     {
         $foreigenKey = $model1->getRelatedForigenKey($model2);
 
-        $joinCondition = "{$table1}.{$foreigenKey} = {$table2}.{$model2->primaryKey}";
+        $joinCondition = "{$table2}.{$model2->primaryKey} = {$table1}.{$foreigenKey}";
 
         if($model2->alias){
             $tableJoin = "INNER JOIN {$model2->alias} AS {$table2} ON $joinCondition";

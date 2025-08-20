@@ -57,13 +57,13 @@ class HasMany  {
             }
         }
 
-        $model2->data->reset();
+      //  $model2->data->reset();
     }
 
     private function createTableJoin (string $table1, string $table2,MainModel $model1, MainModel $model2):string
     {
         $forigenKey = $model2->getRelatedForigenKey($model1);
-        $joinCondition = "$table1.{$model1->primaryKey} = $table2.{$forigenKey}";
+        $joinCondition = "$table2.{$forigenKey} =$table1.{$model1->primaryKey}";
 
         $tableJoin = "INNER JOIN {$model2->table} ON $joinCondition";
 

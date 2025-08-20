@@ -40,11 +40,17 @@ class MainModel extends QueryBuilder
         return $string->preg_replace('/(?<!^)[A-Z]/', '_$0')->toLowerCase();
     }
 
-    public function handleRelations (bool $isMainModel = true): void  
+    public function getPrimaryKey (): void  
     {
         $this->primaryKey = App::$app->db->getPK($this->table);
+    }
+
+    public function handleRelations (bool $isMainModel = true): void  
+    {
+        $this->getPrimaryKey();
 
         if($isMainModel){
+            $this->RelationsClass->joiningKey = "{$this->table}.{$this->primaryKey}";
             $this->getActiveIds();
             $this->query->sql = $this->query->sql
             ->replace('{query}', "WHERE {$this->table}.{$this->primaryKey} IN ({$this->ids}) {query}");
@@ -52,7 +58,8 @@ class MainModel extends QueryBuilder
 
         foreach ($this->relations as $relation) {
             $model2 = $relation->model;
-
+            $model2->RelationsClass->joiningKey = $this->RelationsClass->joiningKey;
+            
             switch ($relation->type) {
                 case RELATIONSTYPE::BELONGSTO:
                     $this->RelationsClass->BelongsTo->handleRelation($this,$model2, $relation);
@@ -65,7 +72,8 @@ class MainModel extends QueryBuilder
                 break;
             }
         }
-       //if($isMainModel) App::dump([$this]);
+
+        //if($isMainModel) App::dump([$this]);
     }
 
     public function getActiveIds (): void  
@@ -79,12 +87,12 @@ class MainModel extends QueryBuilder
     public function getRelatedForigenKey (MainModel $model2):string
     {
         if($this->foreignKeys[$model2->table])
-            $fk = $this->foreignKeys[$model2->table];
+            $foreigenKey = $this->foreignKeys[$model2->table];
         else{
-            $fk = App::$app->db->getFK($this->table, $model2->table);
-            $this->foreignKeys[$model2->table] = $fk;
+            $foreigenKey = App::$app->db->getFK($this->table, $model2->table);
+            $this->foreignKeys[$model2->table] = $foreigenKey;
         }
-        return $fk;
+        return $foreigenKey;
     }
     
     public function belongsTo (string $class2, string $foreignKey = '', string $primaryKey = ''): MainModel
@@ -122,9 +130,9 @@ class MainModel extends QueryBuilder
     public function prepareSQl (MainModel $model, string $tableJoin, string $select): _String 
     {
         $this->query->sql = $model->query->sql->replace('{tableJoin}' , "$tableJoin {tableJoin}");
-
+        
         return $this->query->sql->replaceAll( [
-            "{select}" => $select,
+            "{select}" => "{$model->RelationsClass->joiningKey} AS joiningKey, $select",
             '{tableJoin}' => '',
             '{query}' => $this->query->getQuery()
         ]);

@@ -16,10 +16,11 @@ class PostController extends Controller {
         //->paginate(10)
         //->withCount(['likes','comments'])
         ->with([
-            'user',
-            'postImg',
-            'likes:id',
-            'sharedPost',
+            // 'user',
+            // 'postImg',
+            // 'likes:id',
+            // 'sharedPost',
+            'comments.user:id'
         ])->latest()->get();
         // $res = Post::all('id,post');
         //$res = Post::find(40);

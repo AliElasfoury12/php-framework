@@ -43,7 +43,6 @@ class Query {
         }
 
         if(!$this->extraQuery->empty()) $this->finalQuery->extraQuery .= $this->extraQuery->implode(' ');
-        
         return $this->finalQuery->extraQuery;
     }
 
@@ -61,7 +60,7 @@ class Query {
 
     public function getOrderBy (MainModel $model): string  
     {
-        if($this->orderBy) return "ORDER BY {$model->table}{$model->query->orderBy}";
+        if($this->orderBy->value()) return $this->orderBy;
         return "ORDER BY {$model->table}.{$model->primaryKey} ASC";
     }
 }

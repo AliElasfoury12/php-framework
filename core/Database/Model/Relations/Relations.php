@@ -11,6 +11,7 @@ class Relations {
     public BelongsTo $BelongsTo;
     public ManyToMany $ManyToMany;
     public HasMany $HasMany;
+    public $joiningKey = '';
 
     public function __construct() 
     {
@@ -37,6 +38,8 @@ class Relations {
         while ($callStack[$i]['function'] != 'with') {
             $i++;
         }
+
+        if($callStack[$i-1]['function'] == 'handleRelationWithColumns' || $callStack[$i-1]['function'] == 'handleNestedRelation') $i--;
         $relation->name = $callStack[$i-1]['function'];
         $model->relations[$relation->name] = $relation;
         return $relation;

@@ -3,6 +3,7 @@
 namespace core\Database\Model\Query;
 
 use core\App;
+use core\base\_Array;
 use core\base\_String;
 use core\Database\Model\MainModel;
 
@@ -36,13 +37,6 @@ class QueryBuilder extends QueryExexcution
         return $this->get();
     }
 
-    public function getClassName (string $relation): string 
-    {
-        $class = ucfirst($relation);//Posts
-        $class = trim($class, 's');//Post
-        return "app\models\\$class";// app\models\Post
-    }
-
     public function getClassTable (string $class ,string $nameSpace = 'app\models'): string 
     {
         $class = str_replace("$nameSpace\\","" , $class);
@@ -55,9 +49,9 @@ class QueryBuilder extends QueryExexcution
         return $this;
     }
 
-    public function latest (): static  
+    public function latest (): MainModel|null  
     {
-        $this->query->orderBy->set('.created_at DESC') ;
+        $this->orderBy('created_at', 'DESC');
         return $this;
     }
 
@@ -85,9 +79,10 @@ class QueryBuilder extends QueryExexcution
         return $this;
     }
 
-    public function orderBy(string $column, string $type): static  
+    public function orderBy(string $column, string $type): MainModel|null 
     {
-        $this->query->orderBy->set(".$column $type");
+        if(!$this instanceof MainModel) return null;
+        $this->query->orderBy->set("ORDER BY {$this->table}.$column $type");
         return $this;
     }
 
@@ -119,22 +114,44 @@ class QueryBuilder extends QueryExexcution
     {
         if($this instanceof MainModel){
             foreach ($relations as $relation) {
-                if($this->relations[$relation]) continue;
                 $relation = new _String($relation);
-                if($relation->contains(':')){
-                    $dotPostion = $relation->position(':');
-                    $columns = $relation->subString($dotPostion+1, $relation->length());
-                    $relation = $relation->replace(":$columns", '');
-                    $relation = $relation->value();
-                    $this->$relation();
-                    $this->relations[$relation]->model->select($columns);
-                }else {
-                    $relation = $relation->value();
-                    $this->$relation();
+                if($relation->contains('.')){
+                    $this->handleNestedRelation( $relation);
+                    continue;
                 }
+
+                if($relation->contains(':')){
+                  $this->handleRelationWithColumns($relation);
+                  continue;
+                }
+
+                $relation = $relation->value();
+                $this->$relation();
             }
         }
         return $this;
+    }
+
+    private function handleRelationWithColumns (_String $relation): void 
+    {
+        if (!$this instanceof MainModel) return;
+        $dotPostion = $relation->position(':');
+        $columns = $relation->subString($dotPostion+1, $relation->length());
+        $relation = $relation->replace(":$columns", '');
+        $relation = $relation->value();
+        $this->$relation();
+        $this->relations[$relation]->model->select($columns);
+    }
+
+    private function handleNestedRelation (_String $relation): void 
+    {
+        if (!$this instanceof MainModel) return;
+        $dotPostion = $relation->position('.');
+        $nestedRelation = $relation->subString($dotPostion+1, $relation->length());
+        $relation = $relation->replace(".$nestedRelation", '');
+        $relation = $relation->value();
+        $this->$relation();
+        $this->relations[$relation]->model->with([$nestedRelation]);
     }
 
     public function withCount (array $relations)  

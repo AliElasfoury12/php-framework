@@ -8,7 +8,7 @@ class Comment extends Model {
      
     ];
 
-    public function user (): array 
+    public function user ()
     {
         return $this->belongsTo(User::class);
     }
