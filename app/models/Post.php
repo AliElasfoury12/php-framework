@@ -34,7 +34,7 @@ class Post extends Model {
     {
         return $this->manyToMany(Post::class, 'shared_posts', 'post_id', 'shared_post_id')
         ->select('id,user_id,content')
-        ->with(['user','postImg:id,post_id,img','likes:id,name'])
+        ->with(['user','postImg','likes:id,name'])
         ->withCount(['likes']);
     }
 }

@@ -96,7 +96,7 @@ class QueryBuilder extends QueryExexcution
 
     public function select (string $columns): static  
     {
-        $this->query->select->set($columns);
+        $this->query->select->build($columns);
         return $this;
     }
 
@@ -106,7 +106,9 @@ class QueryBuilder extends QueryExexcution
             $value = $opretor;
             $opretor = '=';
         }
-        $this->query->where[] = "$column $opretor '$value'";
+
+        if($opretor == 'IN') $this->query->where[] = "$column $opretor ($value)";
+        else $this->query->where[] = "$column $opretor $value";
         return  $this;
     }
 

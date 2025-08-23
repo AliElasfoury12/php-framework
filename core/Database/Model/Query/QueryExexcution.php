@@ -24,12 +24,8 @@ class QueryExexcution {
 
         $query = $this->query->getQuery();
         $select = $this->query->getSelect();
-        $this->query->orderBy->set($this->query->getOrderBy($this));
 
-        $sql = "SELECT {select} FROM {$this->table} {tableJoin} {query} {$this->query->orderBy}";
-        $this->query->sql->set($sql);
-
-        $sql = "SELECT $select FROM {$this->table} $query {$this->query->orderBy}";
+        $sql = "SELECT $select FROM {$this->table} $query ";
         return $db->fetch($sql);
     }
 

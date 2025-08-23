@@ -100,9 +100,9 @@ class DB
         return new _Array($this->pdo->query($sql)->fetchAll($type));
     }
 
-    public function getPK (string $tableName): mixed 
+    public function getPK (string $tableName):string
     {
-        if($this->tables[$tableName]) return $this->tables[$tableName]->PK ;
+        if($this->tables[$tableName]?->PK) return $this->tables[$tableName]->PK ;
 
         $sql = "SHOW KEYS FROM $tableName WHERE Key_name = 'PRIMARY'";
         //echo "$sql <br>";
@@ -110,13 +110,13 @@ class DB
         if($result->empty()) return '';
         $PK = $result[0]["Column_name"];
 
-        $table = new Table($tableName);
+        $table = $this->tables[$tableName]?: new Table($tableName);
         $table->PK = $PK;
         $this->tables[$tableName] = $table;
         return $PK;
     }
 
-    public function getFK (string $tableName1, string $tableName2): mixed
+    public function getFK (string $tableName1, string $tableName2):string
     {
         if(!$this->tables[$tableName1]) $this->tables[$tableName1] = new Table($tableName1);
         if($this->tables[$tableName1]->FKS[$tableName2]) return $this->tables[$tableName1]->FKS[$tableName2];

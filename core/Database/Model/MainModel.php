@@ -5,6 +5,7 @@ namespace core\Database\Model;
 use core\App;
 use core\base\_Array;
 use core\base\_String;
+use core\base\OrderSet;
 use core\Database\Model\Query\QueryBuilder;
 use core\Database\Model\Relations\Relations;
 use core\Database\Model\Relations\RELATIONSTYPE;
@@ -47,39 +48,39 @@ class MainModel extends QueryBuilder
 
     public function handleRelations (bool $isMainModel = true): void  
     {
-        $this->getPrimaryKey();
+        if($isMainModel) $this->getActiveIds($isMainModel);
 
-        if($isMainModel){
-            $this->RelationsClass->joiningKey = "{$this->table}.{$this->primaryKey}";
-            $this->getActiveIds();
-            $this->query->sql = $this->query->sql
-            ->replace('{query}', "WHERE {$this->table}.{$this->primaryKey} IN ({$this->ids}) {query}");
-        }
-
-        foreach ($this->relations as $relation) {
-            $model2 = $relation->model;
-            $model2->RelationsClass->joiningKey = $this->RelationsClass->joiningKey;
-            
+        foreach ($this->relations as $relation) {            
             switch ($relation->type) {
                 case RELATIONSTYPE::BELONGSTO:
-                    $this->RelationsClass->BelongsTo->handleRelation($this,$model2, $relation);
+                    $this->RelationsClass->BelongsTo->handleRelation($this,$relation);
                 break;
                 case RELATIONSTYPE::HASMANY:
-                    $this->RelationsClass->HasMany->handleRelation($this,$model2, $relation);
+                    $this->RelationsClass->HasMany->handleRelation($this,$relation);
                 break;
                 default:
-                    $this->RelationsClass->ManyToMany->handleRelation($this,$model2, $relation);
+                    $this->RelationsClass->ManyToMany->handleRelation($this,$relation);
                 break;
             }
         }
 
-        //if($isMainModel) App::dump([$this]);
+       // if($isMainModel) App::dump([$this]);
     }
 
-    public function getActiveIds (): void  
+    public function getActiveIds (bool $isMainModel = false): void  
     {
+        if(!$isMainModel) {
+            $orderSet = new OrderSet;
+            foreach ($this->data as  $value) {
+                $orderSet->add($value[$this->primaryKey]);
+            }
+
+            $this->ids = $orderSet->join();
+            return;
+        }
+
         foreach ($this->data as  $value) {
-            $this->ids .= $value['id'].',';
+            $this->ids .= $value[$this->primaryKey].',';
         }
         $this->ids = substr($this->ids,0,-1);
     }
@@ -112,30 +113,4 @@ class MainModel extends QueryBuilder
         return $this->RelationsClass->ManyToMany
         ->createRelation($this,$class2,$pivotTable,$pivotKey,$relatedKey);
     }
-
-    public function createAlias (_String $sql, string $table): string 
-    {
-        if($sql->contains("FROM $table") || $sql->contains("INNER JOIN $table")){
-            for ($j=0; $j >=0 ; $j++) { 
-                if(!$sql->contains("alias$j")) {
-                    $this->alias = "alias$j";
-                    return "alias$j";
-                }
-            }
-
-        }
-        return $table;
-    }
-
-    public function prepareSQl (MainModel $model, string $tableJoin, string $select): _String 
-    {
-        $this->query->sql = $model->query->sql->replace('{tableJoin}' , "$tableJoin {tableJoin}");
-        
-        return $this->query->sql->replaceAll( [
-            "{select}" => "{$model->RelationsClass->joiningKey} AS joiningKey, $select",
-            '{tableJoin}' => '',
-            '{query}' => $this->query->getQuery()
-        ]);
-    }
-
 }

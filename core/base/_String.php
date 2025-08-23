@@ -21,7 +21,7 @@ class _String
         $this->string = ''.$this->string;
     }
 
-    public function build (string $string)  
+    public function build (string $string): void  
     {
         $this->string .= $string;
     }

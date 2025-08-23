@@ -33,16 +33,17 @@ class Query {
     public function getQuery (string $table = ''): string
     {
         if(!$this->where->empty()) {
-            $this->finalQuery->extraQuery = 'AND ';
+            $this->finalQuery->extraQuery = ' WHERE ';
             if($table) $this->where->map(fn($w) => "$table.$w");
-            if($this->where->size > 1) {
-                $this->finalQuery->extraQuery .= $this->where->implode('AND');
-            }else {
+
+            if(!$this->where->empty()) 
+                $this->finalQuery->extraQuery .= $this->where->implode(' AND ');
+            else 
                 $this->finalQuery->extraQuery .= $this->where[0];
-            }
         }
 
         if(!$this->extraQuery->empty()) $this->finalQuery->extraQuery .= $this->extraQuery->implode(' ');
+        $this->finalQuery->extraQuery = $this->finalQuery->extraQuery.' '.$this->orderBy;
         return $this->finalQuery->extraQuery;
     }
 
@@ -52,15 +53,10 @@ class Query {
             $select = $this->select->explode(',');
             if($table) $select = $select->map(fn($field) => "$table.$field");
             $this->finalQuery->select = $select->implode(',');
-        }
+        }else $this->finalQuery->select = '*';
 
         if($table && !$this->select->length()) $this->finalQuery->select = "$table.*";
         return $this->finalQuery->select;
     }
 
-    public function getOrderBy (MainModel $model): string  
-    {
-        if($this->orderBy->value()) return $this->orderBy;
-        return "ORDER BY {$model->table}.{$model->primaryKey} ASC";
-    }
 }
