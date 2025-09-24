@@ -10,7 +10,7 @@ class BelongsTo
 {
     public function createRelation (MainModel $model1, string $class2, string $foreignKey, string $primaryKey): MainModel  
     {
-        $relation = $model1->RelationsClass->sigenCommonRelationData($model1,$class2);
+        $relation = $model1->RelationsClass->signCommonRelationData($model1,$class2);
         $model2 = $relation->model;
         $relation->type = RELATIONSTYPE::BELONGSTO;
         $this->getRelationKeys($primaryKey, $foreignKey, $model1, $model2);

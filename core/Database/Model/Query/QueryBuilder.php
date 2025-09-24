@@ -3,7 +3,6 @@
 namespace core\Database\Model\Query;
 
 use core\App;
-use core\base\_Array;
 use core\base\_String;
 use core\Database\Model\MainModel;
 
@@ -45,7 +44,7 @@ class QueryBuilder extends QueryExexcution
 
     public function groupBy (string $groupBy): static
     {
-        $this->query->extraQuery[] = "GROUP BY $groupBy";
+        $this->query->extraQuery[] = " GROUP BY $groupBy";
         return $this;
     }
 
@@ -82,7 +81,7 @@ class QueryBuilder extends QueryExexcution
     public function orderBy(string $column, string $type): MainModel|null 
     {
         if(!$this instanceof MainModel) return null;
-        $this->query->orderBy->set("ORDER BY {$this->table}.$column $type");
+        $this->query->extraQuery[] = "ORDER BY {$this->table}.$column $type";
         return $this;
     }
 
@@ -158,7 +157,11 @@ class QueryBuilder extends QueryExexcution
 
     public function withCount (array $relations)  
     {
-        //if($this instanceof MainModel) $this->relations->withCount->set($relations);
+        if(!$this instanceof MainModel) return;
+        foreach ($relations as $relation) {
+           $this->$relation();
+           $this->relations[$relation."_count"]->isWithCount = true;
+        }
         return $this;
     }
 

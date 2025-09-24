@@ -17,15 +17,10 @@ class Query {
     public _String $select;
     public _Array $extraQuery;
     public FinalQuery $finalQuery;
-    public _String $orderBy;
-    public _String $sql;
 
-   
     public function __construct() {
         $this->where = new _Array();
         $this->select = new _String();
-        $this->orderBy = new _String();
-        $this->sql = new _String();
         $this->extraQuery = new _Array();
         $this->finalQuery = new FinalQuery;
     }
@@ -43,7 +38,6 @@ class Query {
         }
 
         if(!$this->extraQuery->empty()) $this->finalQuery->extraQuery .= $this->extraQuery->implode(' ');
-        $this->finalQuery->extraQuery = $this->finalQuery->extraQuery.' '.$this->orderBy;
         return $this->finalQuery->extraQuery;
     }
 

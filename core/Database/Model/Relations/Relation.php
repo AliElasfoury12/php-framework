@@ -10,5 +10,6 @@ class Relation {
     public string $pivotTable;
     public string $pivotKey;
     public string $relatedKey;
+    public bool $isWithCount = false;
     public MainModel $model;
 }
