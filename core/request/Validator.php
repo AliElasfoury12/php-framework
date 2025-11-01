@@ -2,7 +2,7 @@
 
 namespace core\request;
 
-use core\database\DB;
+use core\Database\DB;
 
 class Validator 
 {
@@ -72,11 +72,11 @@ class Validator
 
     private static function unique ($field, $value, $rule) {
         $table = str_replace('unique:', '', $rule);
-        $exsists =  DB::table($table)::select($field)::where($field, $value)::get();
+        $exsists =  DB::table($table)->select($field)->where($field, $value)->get();
         $message = "$field Must be Unique";
-        if($exsists) {
+        if($exsists){
             self::addErrorMessage($field,$message);
-        };
+        }
     }
 
     private static function password ($field, $value, $rule) {

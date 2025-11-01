@@ -31,19 +31,5 @@ class MainController extends Request
         }
         return false;
     }
-    
-    public function createController ($fileName) 
-    {
-        $controllerFile = file_get_contents(__DIR__.'/layouts/controller.php');
-        $controllerFile = preg_replace('/class\s*(.*?)\s*extends/', "class $fileName extends",   $controllerFile);
-        $exists = file_exists(__DIR__."/../controllers/$fileName.php");
-        if($exists){
-            echo "[ controllers/$fileName ] - file already exsists \n";
-            exit;
-        }
-        file_put_contents(__DIR__."/../app/controllers/$fileName.php",  $controllerFile);
-        echo "[ controllers/$fileName ] - Created Successfully \n";
-        exit;
-    }
-   
+     
 }

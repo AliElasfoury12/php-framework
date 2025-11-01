@@ -2,9 +2,8 @@
 
 namespace app\models;
 
-use core\database\Model\MainModel;
+use core\Database\Model\MainModel;
 class Model extends MainModel {
 
   
-
 }

@@ -2,12 +2,13 @@
 
 namespace core;
 
-use core\database\DB;
+use core\Database\DB;
 use core\request\Validator;
 use app\models\User;
 
 trait Auth  {
-    public static function createAccessToken ($id) {
+    public static function createAccessToken ($id) 
+    {
         self::delteAccessToken($id);
         $token = base64_encode(openssl_random_pseudo_bytes(42));
         App::$app->db->insert('accessTokens', ['token', 'tokenable_id'], [$token, $id]);
@@ -17,7 +18,7 @@ trait Auth  {
     public static function delteAccessToken ($id) 
     {
         $sql = "DELETE FROM accessTokens WHERE tokenable_id = '$id'";
-        App::$app->db->exec($sql);
+        App::$app->db->query($sql);
     }
 
     public static function login (User $user) {

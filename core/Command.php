@@ -2,84 +2,85 @@
 
 namespace core;
 
-use core\MainController as Controller;
-use core\database\migrations\Migrations;
+use core\base\_String;
+use core\Database\DB;
+use core\files\Files;
+use core\Database\migrations\Migrations;
 
 class Command  
 {
     public Migrations $migrations;
-    public Controller $controller;
+    public Files $files;
+    public DB $db;
+    public static Command $command;
 
     public function __construct() {
-        $this->migrations = new Migrations();
-        $this->controller = new Controller();
+        $this->migrations = new Migrations;
+        $this->files = new Files;
+        $this->db = new DB;
+        self::$command = $this;
     }
 
-    public function handleCommand ($argv) 
+    public function handleCommand ($argv): void 
     {
-
         if($argv[0] != 'bmbo' || empty($argv[1])) {
             $this->notFound();
         }
 
-        if($argv[1] == 'start'){
-            $port = 8000;
-            while (is_resource(@fsockopen('localhost',$port))) {
-               $port++;
-            }
-            exec("php -S localhost:$port -t public/");
-            exit;
+        switch ($argv[1]) {
+            case 'controller':
+                $this->files->createController($argv[2]);
+            break;
+
+            case 'seed':
+                $this->seedCommand();
+            break;
+
+            case 'start':
+                $port = 8000;
+                while (is_resource(@fsockopen('localhost',$port))) {
+                   $port++;
+                }
+                exec("php -S localhost:$port -t public/");
+            break;
+
+            case 'migrate':
+                $this->migrations->applyMigrations();
+            break;
+
+            case 'migration':
+                $argv2 = new _String($argv[2]);
+                if($argv2->contains('create')) 
+                    $this->files->createTable( new _String($argv[2]));
+                elseif($argv2->contains('alter'))
+                    $this->files->alterTable( new _String($argv[2]));
+            break;
+
+            case 'model':
+                $this->files->createModel($argv[2]);
+            break;
+
+            case 'test':
+                echo shell_exec("php test/test.php")."\n";
+            break;
+
+            default:
+                $this->notFound();
+            break;
         }
     
-        if($argv[1] == 'migrate'){
-            $this->migrations->applyMigrations();
-            exit;
-        }
-        
-        if(
-            $argv[1] == 'migration' &&
-            str_contains($argv[2], 'create') &&
-            str_contains($argv[2], 'table')
-        ){
-            $this->migrations->createTable($argv[2]);
-        }
-        
-        if($argv[1] == 'seed'){
-            $this->seedCommand();
-        }
-        
-        if($argv[1] == 'model'){
-           $this->createModel($argv[2]);
-        }
-        
-        if($argv[1] == 'controller'){
-           $this->controller->createController($argv[2]);
-        }
-        
-       $this->notFound();
     }
 
-    public function notFound () {
-        echo "Command Not Found \n" ;
+    public function notFound (): void 
+    {
+        echo "Command Not Found \n";
         exit;
     }
 
-    public function seedCommand () {
+    public function seedCommand (): void 
+    {
         echo "Seeding.....................\n";
         echo "Seeding Finshed Successfully\n";
-        exit;
     }
 
-    public function createModel ($fileName) {
-        $modelFile = file_get_contents(__DIR__.'/layouts/createModel.php');
-        $modelFile = preg_replace('/class\s*(.*?)\s*extends/', "class $fileName extends",  $modelFile);
-        $exists = file_exists(__DIR__."/../models/$fileName.php");
-        if($exists){
-            echo "[ models/$fileName ] - file already exsists \n";
-            exit;
-        }
-        file_put_contents(__DIR__."/../app/models/$fileName.php", $modelFile);
-        echo "[ models/$fileName ] - Created Successfully \n";
-        exit;
-    }
 }

@@ -5,11 +5,11 @@ use app\controllers\PostController;
 use app\controllers\UserController;
 use core\App;
 use core\request\RateLimiter;
-use core\router\Router;
+use core\router\Route;
 
 RateLimiter::setLimit(5);
 
-Router::get('/', function () {
+Route::get('/', function () {
     $user = App::$app->user;
     if(!$user->isGuest()) {
       return App::$app->view->layoutView('home', compact('user'));
@@ -17,21 +17,26 @@ Router::get('/', function () {
     return App::$app->router->redirect('/login');
 });
 
-Router::get('/profile', function() {
+Route::get('/profile', function() {
     $user = App::$app->user;
     return App::$app->view->layoutView('profile', compact('user'));
 }); 
 
-Router::get('/posts', [PostController::class, 'index']);
-Router::get('/users', [UserController::class, 'index'])->middelware('limit');
-Router::get('/server/{id}', 'home')->middelware('limit'); 
+Route::get('/posts', [PostController::class, 'index']);
+Route::get('/users', [UserController::class, 'index'])->middelware('limit');
+Route::get('/server/{id}', fn($request,$id) => $id )->middelware('limit'); 
 
+Route::controller( MvcAuthController::class)
+->middelwareGroup('limit|auth')->group(function ()
+{
+    Route::post('/register', 'register');
+    Route::get('/register', 'register');
+    Route::get('/login', 'login');
+    Route::post('/login', 'login');
+    Route::get('/logout', 'logout');
+});
 
-Router::controller( MvcAuthController::class)
-->middelwareGroup('limit')->group(function () {
-    Router::post('/register', 'register');
-    Router::get('/register', 'register');
-    Router::get('/login', 'login');
-    Router::post('/login', 'login');
-    Router::get('/logout', 'logout')->middelware('auth');
+Route::get('/test', function () {
+    $result = App::$app->db->fetch('SELECT * FROM posts; SELECT * FROM users;');
+    App::dump($result);
 });

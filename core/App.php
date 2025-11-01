@@ -2,9 +2,11 @@
 
 namespace core;
 
-use core\database\DB;
-use core\database\Model\MainModel;
+use core\base\_Array;
+use core\Database\DB;
+use core\Database\Model\MainModel;
 use core\request\Request;
+use core\router\Route;
 use core\router\Router;
 use app\models\User;
 
@@ -14,6 +16,7 @@ class App  {
     protected array $eventListeners = [];
     public Request $request;
     public Router $router;
+    public Route $route;
     public Middleware $middleware;
     public View $view;
     public Session $session;
@@ -26,15 +29,15 @@ class App  {
 
     public function __construct () {
         self::$app = $this;
-        $this->router = new Router();
-        $this->request = new Request();
-        $this->middleware = new Middleware();
-        $this->view = new View();
-        $this->session = new Session();
-        $this->db = new DB();
-        $this->user = new User();
-        $this->model = new MainModel();
-        $this->controller = new MainController();
+        $this->router = new Router;
+        $this->route = new Route;
+        $this->middleware = new Middleware;
+        $this->request = new Request;
+        $this->view = new View;
+        $this->session = new Session;
+        $this->db = new DB;
+        $this->user = new User;
+        $this->controller = new MainController;
        
         if($this->session->get('user')){
             $user = $this->session->get('user');
@@ -54,10 +57,13 @@ class App  {
         exit;
     }
 
-    public static  function dump (array $vars) {
+    public static  function dump (array | _Array ...$vars) 
+    {
         echo "<pre>";
         foreach ($vars as $var) {
+            echo '<div>';
             print_r($var);
+            echo'</div>';
         }
         echo "</pre> \n";
     }

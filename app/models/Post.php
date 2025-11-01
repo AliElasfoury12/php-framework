@@ -2,6 +2,8 @@
 
 namespace app\models;
 
+use core\App;
+
 class Post extends Model {
 
     public static $fillable = [
@@ -10,12 +12,12 @@ class Post extends Model {
 
     public function user ()
     {
-      return $this->belongsTo(User::class)->select('id,name');
+        return $this->belongsTo(User::class)->select('id,name')->with(['follows']);
     }
 
     public function postImg ()
     {
-      return $this->hasMany(PostImg::class);
+        return $this->hasMany(PostImg::class)->select('id,post_id,img');
     }
 
     public function comments ()
@@ -25,36 +27,14 @@ class Post extends Model {
 
     public function likes ()
     {
-      return $this->manyToMany(User::class,'likes', 'post_id', 'user_id');
+        return $this->manyToMany(User::class,'likes');
     }
 
     public function sharedPost ()
     {
-      return $this->manyToMany(Post::class, 'shared_posts', 'post_id', 'shared_post_id')
-      ->select('id,user_id,post');
+        return $this->manyToMany(Post::class, 'shared_posts', 'post_id', 'shared_post_id')
+        ->select('id,user_id,content')
+        ->with(['user','postImg','likes:id,name'])
+        ->withCount(['likes']);
     }
-    /*
-    post        user    shared_post
-    id          id      shared_post_id
-    user_id 
-                post_id
-    posts = [
-        [
-            id => 1,
-            post => post1,
-            shared_post => [
-                id => 3,
-                user_id => 1,
-                post => post3,
-            ]
-            
-        ],[
-            id => 2,
-            post=> post2,
-        
-        ]
-    ]
-    
-    select * from users where id = posts[shared_post][id]
-     */
 }

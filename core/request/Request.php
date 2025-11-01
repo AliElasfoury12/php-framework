@@ -2,12 +2,15 @@
 
 namespace core\request;
 
+use core\base\_Array;
+
 class Request  {
   
-    public function getPath () {
-        $path = $_SERVER['REQUEST_URI'] ?? '/';
+    public function getPath (): string 
+    {
+        $path = $_SERVER['REQUEST_URI'];
 
-        if($path == '/') return $path = '/';    
+        if($path == '/') return  '/';    
 
         preg_match("/([(\w+)\/]+)\?/",$path, $match);
         if($match) $path = $match[1];
@@ -16,33 +19,37 @@ class Request  {
         return $path;
     }
 
-    public function method () {
+    public function method (): string 
+    {
         return strtolower($_SERVER['REQUEST_METHOD']);
     }
 
-    public function isGet () {
+    public function isGet (): bool 
+    {
         return $this->method() === 'get';
     }
 
-    public function isPost () {
+    public function isPost (): bool 
+    {
         return $this->method() === 'post';
     }
 
-    public function getBody () {
-        $body = [];
+    public function getBody (): _Array 
+    {
+        $body = new _Array;
 
-        if($this->method() === 'get'){
+        if($this->isGet()){
             foreach ($_GET as $key => $value) {
                 $body[$key] = filter_input(INPUT_GET, $key, FILTER_SANITIZE_SPECIAL_CHARS);
             }
         }
 
-        if($this->method() === 'post'){
+        if($this->isPost()){
             foreach ($_POST as $key => $value) {
                 $body[$key] = filter_input(INPUT_POST, $key, FILTER_SANITIZE_SPECIAL_CHARS);
             }
         }
-        return (object) $body;
+        return $body;
     }
 
     public function validate (array $rules) {

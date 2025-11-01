@@ -31,6 +31,6 @@ class User extends Model {
     public function follows () 
     {
         // authuser->id = 109
-        return $this->followers()->where('follower_id', 109);
+        return $this->followers()->select('id')->where('follower_id', 112);
     }
 }
