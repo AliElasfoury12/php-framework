@@ -35,3 +35,8 @@ Route::controller( MvcAuthController::class)
     Route::post('/login', 'login');
     Route::get('/logout', 'logout');
 });
+
+Route::get('/test', function () {
+    $result = App::$app->db->fetch('SELECT * FROM posts; SELECT * FROM users;');
+    App::dump($result);
+});
